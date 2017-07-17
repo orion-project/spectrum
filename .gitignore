@@ -11,7 +11,6 @@
 *.dylib
 
 # Qt-es
-
 /.qmake.cache
 /.qmake.stash
 *.pro.user
@@ -25,15 +24,10 @@ qrc_*.cpp
 ui_*.h
 Makefile*
 *build-*
-
-# QtCreator
-
 *.autosave
-
-# QtCtreator Qml
 *.qmlproject.user
 *.qmlproject.user.*
-
-# QtCtreator CMake
 CMakeLists.txt.user*
 
+# Output
+bin
