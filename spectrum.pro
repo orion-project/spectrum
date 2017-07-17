@@ -28,7 +28,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += src/main.cpp\
-        src/MainWindow.cpp
+        src/MainWindow.cpp \
+    src/PlotWindow.cpp
 
 HEADERS  += \
-        src/MainWindow.h
+        src/MainWindow.h \
+    src/PlotWindow.h
