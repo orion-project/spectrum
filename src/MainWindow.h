@@ -8,6 +8,8 @@ class QAction;
 class QMdiArea;
 QT_END_NAMESPACE
 
+class Graph;
+class Operations;
 class PlotWindow;
 
 class MainWindow : public QMainWindow
@@ -18,8 +20,12 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+private slots:
+    void graphCreated(Graph* g) const;
+
 private:
     QMdiArea* _mdiArea;
+    Operations* _operations;
 
     void createMenu();
     void createDocks();

@@ -29,8 +29,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += src/main.cpp\
         src/MainWindow.cpp \
-    src/PlotWindow.cpp
+    src/PlotWindow.cpp \
+    src/Operations.cpp \
+    src/core/GraphBuilder.cpp \
+    src/core/Graph.cpp
 
 HEADERS  += \
         src/MainWindow.h \
-    src/PlotWindow.h
+    src/PlotWindow.h \
+    src/Operations.h \
+    src/core/GraphBuilder.h \
+    src/core/Graph.h

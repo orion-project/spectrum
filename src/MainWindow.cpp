@@ -1,11 +1,14 @@
 #include "MainWindow.h"
+#include "Operations.h"
 #include "PlotWindow.h"
+#include "core/Graph.h"
 #include "helpers/OriWindows.h"
 #include "tools/OriSettings.h"
 #include "widgets/OriMdiToolBar.h"
 #include "widgets/OriStylesMenu.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QMenuBar>
@@ -15,6 +18,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setObjectName("mainWindow");
     Ori::Wnd::setWindowIcon(this, ":/icon/main"); // TODO
+
+    _operations = new Operations(this);
+    connect(_operations, &Operations::graphCreated, this, &MainWindow::graphCreated);
 
     _mdiArea = new QMdiArea;
     setCentralWidget(_mdiArea);
@@ -59,8 +65,15 @@ void MainWindow::createMenu()
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
 
+    m = menuBar()->addMenu(tr("&Graph"));
+    m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
+    m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeGraphFromClipboard);
+
     m = menuBar()->addMenu(tr("&View"));
     m->addMenu(new Ori::Widgets::StylesMenu(this));
+
+    m = menuBar()->addMenu(tr("&Limits"));
+    m->addAction(tr("Autolimits"), [this](){ auto p = this->activePlot(); if (p) p->autolimits(); }, QKeySequence("Ctrl+0"));
 
     m = menuBar()->addMenu(tr("&Windows"));
     m->addAction(tr("Cascade"), _mdiArea, &QMdiArea::cascadeSubWindows);
@@ -105,4 +118,22 @@ void MainWindow::newPlot()
     mdiChild->setWindowTitle(title);
     mdiChild->setWindowIcon(plotWindow->windowIcon());
     mdiChild->show();
+}
+
+void MainWindow::graphCreated(Graph* g) const
+{
+    auto plot = activePlot();
+
+    if (!plot)
+    {
+        qWarning() << "There is no active plot window";
+        // TODO: it can be no active plot when a window of another type is active.
+        // It could be protocol, console, notes, etc (possible future window types).
+        // We should to do something in this case: disable graph producing actions
+        // or may be ask for a plot window, to place the new graph into.
+        delete g;
+        return;
+    }
+
+    plot->addGraph(g);
 }
