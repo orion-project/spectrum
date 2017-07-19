@@ -36,20 +36,25 @@ public:
     void autolimits();
 
     Graph* selectedGraph() const;
+    void selectGraph(Graph* graph);
 
     QSize sizeHint() const override { return QSize(600, 400); }
 
 signals:
     void graphSelected(Graph* g);
 
+private slots:
+    void graphLineSelected(bool selected);
+
 private:
     QCPL::Plot* _plot;
 
     QList<PlotItem*> _items;
 
-    void graphLineSelected(QCPGraph* g);
+    //void graphLineSelected(QCPGraph* g);
 
-    PlotItem* itemForGraphLine(QCPGraph* g) const;
+    PlotItem* itemForLine(QCPGraph* line) const;
+    PlotItem* itemForGraph(Graph* graph) const;
 };
 
 #endif // PLOTWINDOW_H

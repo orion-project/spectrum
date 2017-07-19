@@ -12,15 +12,18 @@ DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
 {
     _dataGrid = new GraphDataGrid;
 
-    auto iconPlot = new QLabel("Plot:"); // TODO icon
-    auto iconGraph = new QLabel("Graph:"); // TODO graph
+    auto iconPlot = new QLabel;
+    auto iconGraph = new QLabel;
+
+    iconPlot->setPixmap(QIcon(":/icon/ball").pixmap(16, 16)); // TODO icon
+    iconGraph->setPixmap(QIcon(":/icon/ball").pixmap(16, 16)); // TODO icon
 
     _titlePlot = new QLabel;
     _titleGraph = new QLabel;
 
     LayoutV({
-                LayoutH({iconPlot, _titlePlot}).setMargin(3),
-                LayoutH({iconGraph, _titleGraph}).setMargin(3),
+                LayoutH({iconPlot, _titlePlot, Stretch()}).setMargin(3).setSpacing(6),
+                LayoutH({iconGraph, _titleGraph, Stretch()}).setMargin(3).setSpacing(6),
                 _dataGrid
             })
             .setMargin(0)

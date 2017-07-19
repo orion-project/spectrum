@@ -25,7 +25,7 @@ public:
     ~MainWindow();
 
 private slots:
-    void graphCreated(Graph* g) const;
+    void graphCreated(Graph* graph) const;
 
 private:
     QMdiArea* _mdiArea;

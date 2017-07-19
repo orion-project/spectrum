@@ -31,3 +31,4 @@ CMakeLists.txt.user*
 
 # Output
 bin
+tmp

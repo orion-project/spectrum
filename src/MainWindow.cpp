@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "Operations.h"
 #include "PlotWindow.h"
+#include "Settings.h"
 #include "core/Graph.h"
 #include "helpers/OriWindows.h"
 #include "helpers/OriWidgets.h"
@@ -16,6 +17,7 @@
 #include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QStyle>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -38,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     loadSettings();
 
-    newProject();
+    QTimer::singleShot(200, [this](){ this->newProject(); });
 }
 
 MainWindow::~MainWindow()
@@ -67,7 +69,7 @@ void MainWindow::createMenu()
     QMenu *m;
 
     m = menuBar()->addMenu(tr("&Project"));
-    m->addAction(tr("New Plot"), this, &MainWindow::newPlot);
+    m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
 
@@ -122,15 +124,12 @@ void MainWindow::newProject()
     newPlot();
 
     _operations->makeRandomSample();
-
-    auto plot = activePlot();
-    if (plot) plot->autolimits();
 }
 
 void MainWindow::newPlot()
 {
     auto plotWindow = new PlotWindow();
-    auto plotTitle = QString(tr("Plot %1")).arg(_mdiArea->subWindowList().size());
+    auto plotTitle = QString(tr("Plot %1")).arg(_mdiArea->subWindowList().size()+1);
     plotWindow->setWindowTitle(plotTitle);
     connect(plotWindow, &PlotWindow::graphSelected, this, &MainWindow::graphSelected);
 
@@ -140,10 +139,9 @@ void MainWindow::newPlot()
     mdiChild->show();
 }
 
-void MainWindow::graphCreated(Graph* g) const
+void MainWindow::graphCreated(Graph* graph) const
 {
     auto plot = activePlot();
-
     if (!plot)
     {
         qWarning() << "There is no active plot window";
@@ -151,11 +149,16 @@ void MainWindow::graphCreated(Graph* g) const
         // It could be protocol, console, notes, etc (possible future window types).
         // We should to do something in this case: disable graph producing actions
         // or may be ask for a plot window, to place the new graph into.
-        delete g;
+        delete graph;
         return;
     }
 
-    plot->addGraph(g);
+    plot->addGraph(graph);
+
+    if (Settings::autolimitAfterGraphGreated())
+        plot->autolimits();
+    if (Settings::selectNewGraph())
+        plot->selectGraph(graph);
 }
 
 void MainWindow::graphSelected(Graph* graph)

@@ -26,6 +26,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+RESOURCES += images.qrc
 
 SOURCES += src/main.cpp\
         src/MainWindow.cpp \
@@ -33,7 +34,8 @@ SOURCES += src/main.cpp\
     src/Operations.cpp \
     src/core/GraphBuilder.cpp \
     src/core/Graph.cpp \
-    src/widgets/DataGridPanel.cpp
+    src/widgets/DataGridPanel.cpp \
+    src/Settings.cpp
 
 HEADERS  += \
         src/MainWindow.h \
@@ -41,4 +43,5 @@ HEADERS  += \
     src/Operations.h \
     src/core/GraphBuilder.h \
     src/core/Graph.h \
-    src/widgets/DataGridPanel.h
+    src/widgets/DataGridPanel.h \
+    src/Settings.h

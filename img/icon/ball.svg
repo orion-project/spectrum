@@ -1,0 +1,20 @@
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" version="1.0" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 16 16" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<defs>
+<linearGradient id="b" y2="13.388" gradientUnits="userSpaceOnUse" x2="8.5531" y1="6.5876" x1="8.5531">
+<stop stop-color="#6183c6" offset="0"/>
+<stop stop-color="#4e6eca" offset="1"/>
+</linearGradient>
+<linearGradient id="a" y2="11.187" gradientUnits="userSpaceOnUse" x2="8.5" y1="4.2211" x1="8.5">
+<stop stop-color="#fff" offset="0"/>
+<stop stop-color="#fff" stop-opacity="0" offset="1"/>
+</linearGradient>
+</defs>
+<g>
+<path stroke-linejoin="round" d="m13 10a4.5 4 0 1 1 -9 0 4.5 4 0 1 1 9 0z" transform="matrix(1.6111 0 0 1.8125 -5.6944 -10.125)" stroke="#365185" stroke-linecap="round" stroke-width=".58519" fill="url(#b)"/>
+<path opacity=".5" d="m13 8.5a4.5 4.5 0 1 1 -9 0 4.5 4.5 0 1 1 9 0z" transform="matrix(1.2222 0 0 1.0049 -2.3889 -2.2418)" fill="url(#a)"/>
+</g>
+<g display="none" fill="#fff">
+<path d="m7.0321 10.14c-0.0292-1.3718 0.545-2.403 1.429-3.1163 1.5261-1.2316 1.2821-2.8395-0.4063-2.9601-1.3126-0.0938-1.7931 0.8063-1.9473 1.6693-0.1849 0.8651-1.862 0.8635-1.8072-0.2163 0.3689-2.0263 1.8307-2.8811 3.6705-2.8993 1.1299-0.0111 2.029 0.285 2.6972 0.8549 1.073 1.0112 0.917 2.7367 0.19 3.6057-0.9272 1.1104-1.8574 1.6834-1.8522 3.0621 0.0025 0.678-1.9592 0.671-1.9737 0z"/>
+<path d="m9.508 13.095a1.2183 1.2183 0 1 1 -2.4366 0 1.2183 1.2183 0 1 1 2.4366 0z" transform="translate(-.28967 -.59638)" display="inline"/>
+</g>
+</svg>
