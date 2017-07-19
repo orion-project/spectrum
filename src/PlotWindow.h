@@ -29,16 +29,25 @@ public:
     explicit PlotWindow(QWidget *parent = nullptr);
     ~PlotWindow();
 
+    QString plotTitle() const { return windowTitle(); }
+
     void addGraph(Graph* g);
 
     void autolimits();
 
     QSize sizeHint() const override { return QSize(600, 400); }
 
+signals:
+    void graphSelected(Graph* g);
+
 private:
     QCPL::Plot* _plot;
 
     QList<PlotItem*> _items;
+
+    void graphLineSelected(QCPGraph* g);
+
+    PlotItem* itemForGraph(QCPGraph* g);
 };
 
 #endif // PLOTWINDOW_H

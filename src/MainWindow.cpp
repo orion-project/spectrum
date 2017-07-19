@@ -3,12 +3,15 @@
 #include "PlotWindow.h"
 #include "core/Graph.h"
 #include "helpers/OriWindows.h"
+#include "helpers/OriWidgets.h"
 #include "tools/OriSettings.h"
+#include "widgets/DataGridPanel.h"
 #include "widgets/OriMdiToolBar.h"
 #include "widgets/OriStylesMenu.h"
 
 #include <QApplication>
 #include <QDebug>
+#include <QDockWidget>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QMenuBar>
@@ -19,15 +22,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setObjectName("mainWindow");
     Ori::Wnd::setWindowIcon(this, ":/icon/main"); // TODO
 
+    _panelDataGrid = new DataGridPanel(this);
+
     _operations = new Operations(this);
     connect(_operations, &Operations::graphCreated, this, &MainWindow::graphCreated);
 
     _mdiArea = new QMdiArea;
     setCentralWidget(_mdiArea);
 
-    createMenu();
-    createDocks();
     createToolBars();
+    createDocks();
+    createMenu();
     createStatusBar();
 
     loadSettings();
@@ -65,12 +70,15 @@ void MainWindow::createMenu()
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
 
+    m = menuBar()->addMenu(tr("&View"));
+    Ori::Gui::makeToggleWidgetsMenu(m, tr("Panels"), {_dockDataGrid});
+    Ori::Gui::makeToggleWidgetsMenu(m, tr("Toolbars"), {_toolbarMdi});
+    m->addSeparator();
+    m->addMenu(new Ori::Widgets::StylesMenu(this));
+
     m = menuBar()->addMenu(tr("&Graph"));
     m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
     m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeGraphFromClipboard);
-
-    m = menuBar()->addMenu(tr("&View"));
-    m->addMenu(new Ori::Widgets::StylesMenu(this));
 
     m = menuBar()->addMenu(tr("&Limits"));
     m->addAction(tr("Autolimits"), [this](){ auto p = this->activePlot(); if (p) p->autolimits(); }, QKeySequence("Ctrl+0"));
@@ -83,7 +91,11 @@ void MainWindow::createMenu()
 
 void MainWindow::createDocks()
 {
-    // TDOD
+    _dockDataGrid = new QDockWidget(tr("Data Grid"));
+    _dockDataGrid->setObjectName("DataGridPanel");
+    _dockDataGrid->setWidget(_panelDataGrid);
+
+    addDockWidget(Qt::LeftDockWidgetArea, _dockDataGrid);
 }
 
 void MainWindow::createStatusBar()
@@ -93,7 +105,8 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createToolBars()
 {
-    addToolBar(Qt::BottomToolBarArea, new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea));
+    _toolbarMdi = new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea);
+    addToolBar(Qt::BottomToolBarArea, _toolbarMdi);
 }
 
 PlotWindow* MainWindow::activePlot() const
@@ -106,11 +119,17 @@ PlotWindow* MainWindow::activePlot() const
 void MainWindow::newProject()
 {
     newPlot();
+
+    _operations->makeRandomSample();
+
+    auto plot = activePlot();
+    if (plot) plot->autolimits();
 }
 
 void MainWindow::newPlot()
 {
     auto plotWindow = new PlotWindow();
+    connect(plotWindow, &PlotWindow::graphSelected, this, &MainWindow::graphSelected);
     auto mdiChild = _mdiArea->addSubWindow(plotWindow);
     auto title = plotWindow->windowTitle();
     if (title.isEmpty())
@@ -136,4 +155,14 @@ void MainWindow::graphCreated(Graph* g) const
     }
 
     plot->addGraph(g);
+}
+
+void MainWindow::graphSelected(Graph* g)
+{
+    if (!_panelDataGrid->isVisible()) return;
+
+    auto plot = qobject_cast<PlotWindow*>(sender());
+    if (!plot) return;
+
+    _panelDataGrid->showData(plot->plotTitle(), g);
 }

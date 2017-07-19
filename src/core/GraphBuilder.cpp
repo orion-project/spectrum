@@ -27,7 +27,12 @@ Graph* GraphBuilder::makeRandomSample()
         ys.push_back(y);
     }
 
-    return makeGraph(xs, ys);
+    auto g = makeGraph(xs, ys);
+
+    static int sampleCount = 0;
+    g->_title = QString("random-sample (%1)").arg(++sampleCount);
+
+    return g;
 }
 
 Graph* GraphBuilder::makeFromTextData(const QString& text)

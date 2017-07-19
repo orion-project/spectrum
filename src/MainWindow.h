@@ -5,10 +5,13 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QDockWidget;
 class QMdiArea;
+class QToolBar;
 QT_END_NAMESPACE
 
 class Graph;
+class DataGridPanel;
 class Operations;
 class PlotWindow;
 
@@ -26,6 +29,9 @@ private slots:
 private:
     QMdiArea* _mdiArea;
     Operations* _operations;
+    QDockWidget *_dockDataGrid;
+    DataGridPanel *_panelDataGrid;
+    QToolBar *_toolbarMdi;
 
     void createMenu();
     void createDocks();
@@ -37,6 +43,7 @@ private:
     void newPlot();
 
     PlotWindow* activePlot() const;
+    void graphSelected(Graph* g);
 };
 
 #endif // MAINWINDOW_H
