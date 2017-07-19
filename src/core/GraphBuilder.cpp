@@ -15,9 +15,6 @@ Graph* GraphBuilder::makeRandomSample()
     const double H = 25;
     const int count = 100;
 
-    xs.resize(count);
-    ys.resize(count);
-
     double y = (qrand()%100)*H*0.01;
     for (int i = 0; i < count; i++)
     {

@@ -7,6 +7,7 @@ QT_BEGIN_NAMESPACE
 class QAction;
 class QDockWidget;
 class QMdiArea;
+class QMdiSubWindow;
 class QToolBar;
 QT_END_NAMESPACE
 
@@ -43,7 +44,8 @@ private:
     void newPlot();
 
     PlotWindow* activePlot() const;
-    void graphSelected(Graph* g);
+    void graphSelected(Graph* graph);
+    void mdiSubWindowActivated(QMdiSubWindow *window);
 };
 
 #endif // MAINWINDOW_H

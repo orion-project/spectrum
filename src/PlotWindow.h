@@ -35,6 +35,8 @@ public:
 
     void autolimits();
 
+    Graph* selectedGraph() const;
+
     QSize sizeHint() const override { return QSize(600, 400); }
 
 signals:
@@ -47,7 +49,7 @@ private:
 
     void graphLineSelected(QCPGraph* g);
 
-    PlotItem* itemForGraph(QCPGraph* g);
+    PlotItem* itemForGraphLine(QCPGraph* g) const;
 };
 
 #endif // PLOTWINDOW_H

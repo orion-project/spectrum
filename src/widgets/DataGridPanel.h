@@ -8,6 +8,7 @@ class QLabel;
 QT_END_NAMESPACE
 
 class Graph;
+class GraphDataGrid;
 
 class DataGridPanel : public QWidget
 {
@@ -20,6 +21,7 @@ public:
 
 private:
     QLabel *_titlePlot, *_titleGraph;
+    GraphDataGrid* _dataGrid;
 };
 
 #endif // DATAGRIDPANEL_H

@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(_operations, &Operations::graphCreated, this, &MainWindow::graphCreated);
 
     _mdiArea = new QMdiArea;
+    connect(_mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::mdiSubWindowActivated);
     setCentralWidget(_mdiArea);
 
     createToolBars();
@@ -129,12 +130,12 @@ void MainWindow::newProject()
 void MainWindow::newPlot()
 {
     auto plotWindow = new PlotWindow();
+    auto plotTitle = QString(tr("Plot %1")).arg(_mdiArea->subWindowList().size());
+    plotWindow->setWindowTitle(plotTitle);
     connect(plotWindow, &PlotWindow::graphSelected, this, &MainWindow::graphSelected);
+
     auto mdiChild = _mdiArea->addSubWindow(plotWindow);
-    auto title = plotWindow->windowTitle();
-    if (title.isEmpty())
-        title = QString(tr("Plot %1").arg(_mdiArea->subWindowList().size()));
-    mdiChild->setWindowTitle(title);
+    mdiChild->setWindowTitle(plotWindow->windowTitle());
     mdiChild->setWindowIcon(plotWindow->windowIcon());
     mdiChild->show();
 }
@@ -157,12 +158,25 @@ void MainWindow::graphCreated(Graph* g) const
     plot->addGraph(g);
 }
 
-void MainWindow::graphSelected(Graph* g)
+void MainWindow::graphSelected(Graph* graph)
 {
     if (!_panelDataGrid->isVisible()) return;
 
     auto plot = qobject_cast<PlotWindow*>(sender());
     if (!plot) return;
 
-    _panelDataGrid->showData(plot->plotTitle(), g);
+    _panelDataGrid->showData(plot->plotTitle(), graph);
+}
+
+void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window)
+{
+    if (!_panelDataGrid->isVisible()) return;
+
+    if (!window) return;
+    auto plot = qobject_cast<PlotWindow*>(window->widget());
+    if (!plot) return;
+    auto graph = plot->selectedGraph();
+    if (!graph) return;
+
+    _panelDataGrid->showData(plot->plotTitle(), graph);
 }

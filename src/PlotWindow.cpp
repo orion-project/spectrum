@@ -41,15 +41,24 @@ void PlotWindow::autolimits()
 
 void PlotWindow::graphLineSelected(QCPGraph* g)
 {
-    auto item = itemForGraph(g);
+    auto item = itemForGraphLine(g);
     if (item)
         emit graphSelected(item->graph);
 }
 
-PlotItem* PlotWindow::itemForGraph(QCPGraph* g)
+PlotItem* PlotWindow::itemForGraphLine(QCPGraph* g) const
 {
     for (auto item : _items)
         if (item->line == g)
             return item;
     return nullptr;
+}
+
+Graph* PlotWindow::selectedGraph() const
+{
+    auto lines = _plot->selectedGraphs();
+    if (lines.isEmpty()) return nullptr;
+    auto item = itemForGraphLine(lines.first());
+    if (!item) return nullptr;
+    return item->graph;
 }
