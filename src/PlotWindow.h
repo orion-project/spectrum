@@ -8,6 +8,7 @@ class Plot;
 }
 
 class Graph;
+class PlotObj;
 class QCPGraph;
 
 
@@ -29,7 +30,7 @@ public:
     explicit PlotWindow(QWidget *parent = nullptr);
     ~PlotWindow();
 
-    QString plotTitle() const { return windowTitle(); }
+    PlotObj* plotObj() const { return _plotObj; }
 
     void addGraph(Graph* g);
 
@@ -50,11 +51,9 @@ private slots:
     void graphLineSelected(bool selected);
 
 private:
+    PlotObj* _plotObj;
     QCPL::Plot* _plot;
-    int _nextColorIndex = 0;
     QList<PlotItem*> _items;
-
-    QColor nextGraphColor();
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;

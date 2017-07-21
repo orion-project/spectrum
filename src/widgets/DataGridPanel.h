@@ -8,6 +8,7 @@ class QLabel;
 QT_END_NAMESPACE
 
 class Graph;
+class PlotObj;
 class GraphDataGrid;
 
 class DataGridPanel : public QWidget
@@ -17,10 +18,11 @@ class DataGridPanel : public QWidget
 public:
     explicit DataGridPanel(QWidget *parent = 0);
 
-    void showData(const QString& plotTitle, Graph* g);
+    void showData(PlotObj* plot, Graph* graph);
 
 private:
     QLabel *_titlePlot, *_titleGraph;
+    QLabel *_iconPlot, *_iconGraph;
     GraphDataGrid* _dataGrid;
 };
 

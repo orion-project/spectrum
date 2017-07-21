@@ -157,8 +157,6 @@ void MainWindow::newProject()
 void MainWindow::newPlot()
 {
     auto plotWindow = new PlotWindow();
-    auto plotTitle = QString(tr("Plot %1")).arg(_mdiArea->subWindowList().size()+1);
-    plotWindow->setWindowTitle(plotTitle);
     connect(plotWindow, &PlotWindow::graphSelected, this, &MainWindow::graphSelected);
 
     auto mdiChild = _mdiArea->addSubWindow(plotWindow);
@@ -196,7 +194,7 @@ void MainWindow::graphSelected(Graph* graph)
     auto plot = qobject_cast<PlotWindow*>(sender());
     if (!plot) return;
 
-    _panelDataGrid->showData(plot->plotTitle(), graph);
+    _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
 void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window)
@@ -209,7 +207,7 @@ void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window)
     auto graph = plot->selectedGraph();
     if (!graph) return;
 
-    _panelDataGrid->showData(plot->plotTitle(), graph);
+    _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
 void MainWindow::autolimits()

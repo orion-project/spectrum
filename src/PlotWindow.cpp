@@ -10,15 +10,10 @@ PlotItem::~PlotItem()
     delete graph;
 }
 
-QIcon nextPlotIcon()
+QIcon makeGraphIcon(QColor color)
 {
-    static int nextColorIndex = 0;
-    if (nextColorIndex == QCPL::defaultColorSet().size())
-        nextColorIndex = 0;
-    QColor c = QCPL::defaultColorSet().at(nextColorIndex++);
-
     int H, S, L;
-    c.getHsl(&H, &S, &L);
+    color.getHsl(&H, &S, &L);
     QColor backColor = QColor::fromHsl(H, S*0.8, L*1.2);
     QColor borderColor = QColor::fromHsl(H, S*0.5, L);
 
@@ -40,11 +35,28 @@ QIcon nextPlotIcon()
     return QIcon(px);
 }
 
+QIcon nextPlotIcon()
+{
+    static int nextColorIndex = 0;
+    if (nextColorIndex == QCPL::defaultColorSet().size())
+        nextColorIndex = 0;
+
+    QColor c = QCPL::defaultColorSet().at(nextColorIndex++);
+    return makeGraphIcon(c);
+}
+
 //------------------------------------------------------------------------------
 
 PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
 {
-    setWindowIcon(nextPlotIcon());
+    static int plotIndex = 0;
+
+    _plotObj = new PlotObj;
+    _plotObj->_icon = nextPlotIcon();
+    _plotObj->_title = tr("Plot %1").arg(++plotIndex);
+
+    setWindowIcon(_plotObj->icon());
+    setWindowTitle(_plotObj->title());
 
     _plot = new QCPL::Plot;
 
@@ -54,20 +66,21 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
 PlotWindow::~PlotWindow()
 {
     qDeleteAll(_items);
+    delete _plotObj;
 }
 
 void PlotWindow::addGraph(Graph* g)
 {
     auto item = new PlotItem;
     item->graph = g;
-    item->line = _plot->addGraph();
-    item->line->setName(g->title());
-    item->line->setSelectable(QCP::stWhole);
-    item->line->setData(g->x(), g->y());
-    item->line->setPen(nextGraphColor());
+
+    item->line = _plot->makeNewGraph(g->title(), g->x(), g->y());
     connect(item->line, SIGNAL(selectionChanged(bool)), this, SLOT(graphLineSelected(bool)));
+
+    g->setColor(item->line->pen().color());
+    g->setIcon(makeGraphIcon(g->color()));
+
     _items.append(item);
-    _plot->replot();
 }
 
 void PlotWindow::autolimits()
@@ -128,11 +141,4 @@ void PlotWindow::setLegendVisible(bool on)
 {
     _plot->legend->setVisible(on);
     _plot->replot();
-}
-
-QColor PlotWindow::nextGraphColor()
-{
-    if (_nextColorIndex == QCPL::defaultColorSet().size())
-        _nextColorIndex = 0;
-    return QCPL::defaultColorSet().at(_nextColorIndex++);
 }

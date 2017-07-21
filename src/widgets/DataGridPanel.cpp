@@ -11,19 +11,14 @@ using namespace Ori::Layouts;
 DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
 {
     _dataGrid = new GraphDataGrid;
-
-    auto iconPlot = new QLabel;
-    auto iconGraph = new QLabel;
-
-    iconPlot->setPixmap(QIcon(":/icon/ball").pixmap(16, 16)); // TODO icon
-    iconGraph->setPixmap(QIcon(":/icon/ball").pixmap(16, 16)); // TODO icon
-
+    _iconPlot = new QLabel;
+    _iconGraph = new QLabel;
     _titlePlot = new QLabel;
     _titleGraph = new QLabel;
 
     LayoutV({
-                LayoutH({iconPlot, _titlePlot, Stretch()}).setMargin(3).setSpacing(6),
-                LayoutH({iconGraph, _titleGraph, Stretch()}).setMargin(3).setSpacing(6),
+                LayoutH({_iconPlot, _titlePlot, Stretch()}).setMargin(3).setSpacing(6),
+                LayoutH({_iconGraph, _titleGraph, Stretch()}).setMargin(3).setSpacing(6),
                 _dataGrid
             })
             .setMargin(0)
@@ -31,9 +26,11 @@ DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
             .useFor(this);
 }
 
-void DataGridPanel::showData(const QString& plotTitle, Graph* g)
+void DataGridPanel::showData(PlotObj *plot, Graph *graph)
 {
-    _titlePlot->setText(plotTitle);
-    _titleGraph->setText(g->title());
-    _dataGrid->setData(g->x(), g->y());
+    _iconPlot->setPixmap(plot->icon().pixmap(16, 16));
+    _titlePlot->setText(plot->title());
+    _iconGraph->setPixmap(graph->icon().pixmap(16, 16));
+    _titleGraph->setText(graph->title());
+    _dataGrid->setData(graph->x(), graph->y());
 }
