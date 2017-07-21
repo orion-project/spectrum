@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createDocks();
     createMenu();
     createStatusBar();
+    fillToolbars();
 
     loadSettings();
 
@@ -69,22 +70,26 @@ void MainWindow::createMenu()
     QMenu *m;
 
     m = menuBar()->addMenu(tr("&Project"));
-    m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
+    _projNewPlot = m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
 
     m = menuBar()->addMenu(tr("&View"));
+    connect(m, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
+    _viewLegend = m->addAction(tr("Legend"), this, &MainWindow::toggleLegend);
+    _viewLegend->setCheckable(true);
+    m->addSeparator();
     Ori::Gui::makeToggleWidgetsMenu(m, tr("Panels"), {_dockDataGrid});
-    Ori::Gui::makeToggleWidgetsMenu(m, tr("Toolbars"), {_toolbarMdi});
+    Ori::Gui::makeToggleWidgetsMenu(m, tr("Toolbars"), {_toolbarProject, _toolbarGraph, _toolbarLimits, _toolbarMdi});
     m->addSeparator();
     m->addMenu(new Ori::Widgets::StylesMenu(this));
 
     m = menuBar()->addMenu(tr("&Graph"));
-    m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
-    m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeGraphFromClipboard);
+    _graphMakeRandomSample = m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
+    _graphMakeFromClipboard = m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeGraphFromClipboard);
 
     m = menuBar()->addMenu(tr("&Limits"));
-    m->addAction(tr("Autolimits"), [this](){ auto p = this->activePlot(); if (p) p->autolimits(); }, QKeySequence("Ctrl+0"));
+    _limitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));
 
     m = menuBar()->addMenu(tr("&Windows"));
     m->addAction(tr("Cascade"), _mdiArea, &QMdiArea::cascadeSubWindows);
@@ -108,8 +113,31 @@ void MainWindow::createStatusBar()
 
 void MainWindow::createToolBars()
 {
+    _toolbarProject = new QToolBar(tr("Project"));
+    _toolbarProject->setObjectName("ToolbarProject");
+    addToolBar(Qt::TopToolBarArea, _toolbarProject);
+
+    _toolbarGraph = new QToolBar(tr("Graph"));
+    _toolbarGraph->setObjectName("ToolbarGraph");
+    addToolBar(Qt::TopToolBarArea, _toolbarGraph);
+
+    _toolbarLimits = new QToolBar(tr("Limits"));
+    _toolbarLimits->setObjectName("ToolbarLimits");
+    addToolBar(Qt::TopToolBarArea, _toolbarLimits);
+
     _toolbarMdi = new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea);
     addToolBar(Qt::BottomToolBarArea, _toolbarMdi);
+}
+
+void MainWindow::fillToolbars()
+{
+    // TODO load button set for each toolbar from saved state
+
+    Ori::Gui::populate(_toolbarProject, {_projNewPlot});
+
+    Ori::Gui::populate(_toolbarGraph, {_graphMakeRandomSample, _graphMakeFromClipboard});
+
+    Ori::Gui::populate(_toolbarLimits, {_limitsAuto});
 }
 
 PlotWindow* MainWindow::activePlot() const
@@ -182,4 +210,22 @@ void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window)
     if (!graph) return;
 
     _panelDataGrid->showData(plot->plotTitle(), graph);
+}
+
+void MainWindow::autolimits()
+{
+    auto plot = activePlot();
+    if (plot) plot->autolimits();
+}
+
+void MainWindow::updateViewMenu()
+{
+    auto plot = activePlot();
+    _viewLegend->setChecked(plot && plot->isLegendVisible());
+}
+
+void MainWindow::toggleLegend()
+{
+    auto plot = activePlot();
+    if (plot) plot->setLegendVisible(!plot->isLegendVisible());
 }

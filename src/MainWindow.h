@@ -32,16 +32,24 @@ private:
     Operations* _operations;
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
-    QToolBar *_toolbarMdi;
+    QToolBar *_toolbarMdi, *_toolbarProject, *_toolbarGraph, *_toolbarLimits;
+    QAction *_projNewPlot;
+    QAction *_viewLegend;
+    QAction *_graphMakeRandomSample, *_graphMakeFromClipboard;
+    QAction *_limitsAuto;
 
     void createMenu();
     void createDocks();
     void createToolBars();
     void createStatusBar();
+    void fillToolbars();
     void saveSettings();
     void loadSettings();
     void newProject();
     void newPlot();
+    void autolimits();
+    void updateViewMenu();
+    void toggleLegend();
 
     PlotWindow* activePlot() const;
     void graphSelected(Graph* graph);

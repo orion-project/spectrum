@@ -40,6 +40,9 @@ public:
 
     QSize sizeHint() const override { return QSize(600, 400); }
 
+    bool isLegendVisible() const;
+    void setLegendVisible(bool on);
+
 signals:
     void graphSelected(Graph* g);
 
@@ -48,10 +51,10 @@ private slots:
 
 private:
     QCPL::Plot* _plot;
-
+    int _nextColorIndex = 0;
     QList<PlotItem*> _items;
 
-    //void graphLineSelected(QCPGraph* g);
+    QColor nextGraphColor();
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;
