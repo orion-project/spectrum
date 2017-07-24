@@ -76,6 +76,8 @@ void MainWindow::createMenu()
 
     m = menuBar()->addMenu(tr("&View"));
     connect(m, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
+    _viewTitle = m->addAction(tr("Title"), this, &MainWindow::toggleTitle);
+    _viewTitle->setCheckable(true);
     _viewLegend = m->addAction(tr("Legend"), this, &MainWindow::toggleLegend);
     _viewLegend->setCheckable(true);
     m->addSeparator();
@@ -219,9 +221,15 @@ void MainWindow::autolimits()
 void MainWindow::updateViewMenu()
 {
     auto plot = activePlot();
+    _viewTitle->setChecked(plot && plot->isTitleVisible());
     _viewLegend->setChecked(plot && plot->isLegendVisible());
 }
 
+void MainWindow::toggleTitle()
+{
+    auto plot = activePlot();
+    if (plot) plot->setTitleVisible(!plot->isTitleVisible());
+}
 void MainWindow::toggleLegend()
 {
     auto plot = activePlot();

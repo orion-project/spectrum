@@ -9,7 +9,10 @@ QT_END_NAMESPACE
 
 class Graph;
 class PlotObj;
+
+namespace QCPL {
 class GraphDataGrid;
+}
 
 class DataGridPanel : public QWidget
 {
@@ -23,7 +26,7 @@ public:
 private:
     QLabel *_titlePlot, *_titleGraph;
     QLabel *_iconPlot, *_iconGraph;
-    GraphDataGrid* _dataGrid;
+    QCPL::GraphDataGrid* _dataGrid;
 };
 
 #endif // DATAGRIDPANEL_H

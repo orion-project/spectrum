@@ -1,6 +1,6 @@
 #include "DataGridPanel.h"
 #include "helpers/OriLayouts.h"
-#include "GraphDataGrid.h"
+#include "qcpl_graph_grid.h"
 #include "../core/Graph.h"
 
 #include <QLabel>
@@ -10,7 +10,7 @@ using namespace Ori::Layouts;
 
 DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
 {
-    _dataGrid = new GraphDataGrid;
+    _dataGrid = new QCPL::GraphDataGrid;
     _iconPlot = new QLabel;
     _iconGraph = new QLabel;
     _titlePlot = new QLabel;

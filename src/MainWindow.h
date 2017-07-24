@@ -34,7 +34,7 @@ private:
     DataGridPanel *_panelDataGrid;
     QToolBar *_toolbarMdi, *_toolbarProject, *_toolbarGraph, *_toolbarLimits;
     QAction *_projNewPlot;
-    QAction *_viewLegend;
+    QAction *_viewTitle, *_viewLegend;
     QAction *_graphMakeRandomSample, *_graphMakeFromClipboard;
     QAction *_limitsAuto;
 
@@ -50,6 +50,7 @@ private:
     void autolimits();
     void updateViewMenu();
     void toggleLegend();
+    void toggleTitle();
 
     PlotWindow* activePlot() const;
     void graphSelected(Graph* graph);

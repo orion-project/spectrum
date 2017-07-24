@@ -5,7 +5,9 @@
 #include <QVector>
 #include <QIcon>
 
-typedef QVector<double> Values;
+#include "qcpl_types.h"
+
+typedef QCPL::ValueArray Values;
 
 class Graph
 {

@@ -3,6 +3,7 @@
 #include "qcpl_colors.h"
 #include "core/Graph.h"
 #include "helpers/OriLayouts.h"
+#include "helpers/OriDialogs.h"
 #include "qcpl_colors.h"
 
 PlotItem::~PlotItem()
@@ -59,6 +60,9 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
     setWindowTitle(_plotObj->title());
 
     _plot = new QCPL::Plot;
+    if (_plot->title())
+        _plot->title()->setText(_plotObj->title());
+    connect(_plot, &QCPL::Plot::editTitleRequest, this, &PlotWindow::editTitle);
 
     Ori::Layouts::LayoutV({_plot}).setMargin(0).setSpacing(0).useFor(this);
 }
@@ -141,4 +145,27 @@ void PlotWindow::setLegendVisible(bool on)
 {
     _plot->legend->setVisible(on);
     _plot->replot();
+}
+
+bool PlotWindow::isTitleVisible() const
+{
+    return _plot->title() && _plot->title()->visible();
+}
+
+void PlotWindow::setTitleVisible(bool on)
+{
+    _plot->setTitleVisible(on);
+    if (on)
+        _plot->title()->setText(_plotObj->title());
+    _plot->replot();
+}
+
+void PlotWindow::editTitle()
+{
+    bool ok;
+    QString newTitle = Ori::Dlg::inputText(tr("Plot title"), _plot->title()->text(), &ok);
+    if (!ok) return;
+    _plot->title()->setText(newTitle);
+    _plot->replot();
+    // TODO should we update _plotObj::title and plot window title as well? or should they be different titles?
 }

@@ -44,6 +44,9 @@ public:
     bool isLegendVisible() const;
     void setLegendVisible(bool on);
 
+    bool isTitleVisible() const;
+    void setTitleVisible(bool on);
+
 signals:
     void graphSelected(Graph* g);
 
@@ -57,6 +60,8 @@ private:
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;
+
+    void editTitle();
 };
 
 #endif // PLOTWINDOW_H
