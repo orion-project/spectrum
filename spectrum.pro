@@ -32,16 +32,21 @@ SOURCES += src/main.cpp\
         src/MainWindow.cpp \
     src/PlotWindow.cpp \
     src/Operations.cpp \
-    src/core/GraphBuilder.cpp \
     src/core/Graph.cpp \
     src/widgets/DataGridPanel.cpp \
-    src/Settings.cpp
+    src/Settings.cpp \
+    src/funcs/FuncRandomSample.cpp \
+    src/funcs/FuncMakeFromClipboard.cpp \
+    src/funcs/FuncMakeFromText.cpp
 
 HEADERS  += \
         src/MainWindow.h \
     src/PlotWindow.h \
     src/Operations.h \
-    src/core/GraphBuilder.h \
     src/core/Graph.h \
     src/widgets/DataGridPanel.h \
-    src/Settings.h
+    src/Settings.h \
+    src/funcs/FuncBase.h \
+    src/funcs/FuncMakeFromClipboard.h \
+    src/funcs/FuncMakeFromText.h \
+    src/funcs/FuncRandomSample.h

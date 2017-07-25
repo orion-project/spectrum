@@ -8,11 +8,13 @@
 #include "qcpl_types.h"
 
 typedef QCPL::ValueArray Values;
+typedef QCPL::GraphData GraphData;
 
 class Graph
 {
 public:
     const QString& title() const { return _title; }
+    void setTitle(const QString& title) { _title = title; }
 
     const QColor& color() const { return _color; }
     void setColor(const QColor& color) { _color = color; }
@@ -20,16 +22,15 @@ public:
     const QIcon& icon() const { return _icon; }
     void setIcon(const QIcon& icon) { _icon = icon; }
 
-    const Values& x() { return _x; }
-    const Values& y() { return _y; }
+    const Values& x() { return _data.x; }
+    const Values& y() { return _data.y; }
+    void setData(const GraphData& data) { _data = data; }
 
 private:
-    Values _x, _y;
+    GraphData _data;
     QString _title;
     QIcon _icon;
     QColor _color;
-
-    friend class GraphBuilder;
 };
 
 

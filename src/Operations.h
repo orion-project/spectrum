@@ -4,6 +4,7 @@
 #include <QObject>
 
 class Graph;
+class FuncBase;
 
 class Operations : public QObject
 {
@@ -17,6 +18,9 @@ public:
 
 signals:
     void graphCreated(Graph* g) const;
+
+private:
+    void processFunc(FuncBase* func) const;
 };
 
 #endif // OPERATIONS_H

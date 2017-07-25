@@ -1,29 +1,34 @@
 #include "Operations.h"
-#include "core/GraphBuilder.h"
+#include "core/Graph.h"
 #include "helpers/OriDialogs.h"
-
-#include <QApplication>
-#include <QClipboard>
+#include "funcs/FuncMakeFromClipboard.h"
+#include "funcs/FuncRandomSample.h"
 
 Operations::Operations(QObject *parent) : QObject(parent)
 {
-
 }
 
 void Operations::makeRandomSample() const
 {
-    auto g = GraphBuilder::makeRandomSample();
-    if (!g) return;
-
-    emit graphCreated(g);
+    FuncRandomSample f;
+    processFunc(&f);
 }
 
 void Operations::makeGraphFromClipboard() const
 {
-    QString text = qApp->clipboard()->text();
-    if (text.isEmpty())
-        return Ori::Dlg::info(tr("Clipboard does not contain suitable data."));
+    FuncMakeFromClipboard f;
+    processFunc(&f);
+}
 
-    auto g = GraphBuilder::makeFromTextData(text);
-    if (!g) return;
+void Operations::processFunc(FuncBase* func) const
+{
+    bool ok = func->process();
+    if (!ok)
+        return Ori::Dlg::error(func->error());
+
+    auto g = new Graph;
+    g->setTitle(func->title());
+    g->setData(func->data());
+
+    emit graphCreated(g);
 }
