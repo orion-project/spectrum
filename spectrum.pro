@@ -36,8 +36,9 @@ SOURCES += src/main.cpp\
     src/widgets/DataGridPanel.cpp \
     src/Settings.cpp \
     src/funcs/FuncRandomSample.cpp \
-    src/funcs/FuncMakeFromClipboard.cpp \
-    src/funcs/FuncMakeFromText.cpp
+    src/funcs/FuncPlotText.cpp \
+    src/funcs/FuncPlotTextFile.cpp \
+    src/funcs/FuncPlotClipboard.cpp
 
 HEADERS  += \
         src/MainWindow.h \
@@ -47,6 +48,7 @@ HEADERS  += \
     src/widgets/DataGridPanel.h \
     src/Settings.h \
     src/funcs/FuncBase.h \
-    src/funcs/FuncMakeFromClipboard.h \
-    src/funcs/FuncMakeFromText.h \
-    src/funcs/FuncRandomSample.h
+    src/funcs/FuncRandomSample.h \
+    src/funcs/FuncPlotTextClipboard.h \
+    src/funcs/FuncPlotText.h \
+    src/funcs/FuncPlotTextFile.h

@@ -1,22 +1,37 @@
 #include "Operations.h"
 #include "core/Graph.h"
 #include "helpers/OriDialogs.h"
-#include "funcs/FuncMakeFromClipboard.h"
+#include "funcs/FuncPlotTextFile.h"
+#include "funcs/FuncPlotTextClipboard.h"
 #include "funcs/FuncRandomSample.h"
+
+#include <QApplication>
+#include <QFileDialog>
 
 Operations::Operations(QObject *parent) : QObject(parent)
 {
 }
 
-void Operations::makeRandomSample() const
+void Operations::makeGraphFromFile() const
 {
-    FuncRandomSample f;
+    QString fileName = QFileDialog::getOpenFileName(qApp->activeWindow());
+    if (fileName.isEmpty()) return;
+
+    // TODO choose a function respecting to file extension and selected filter
+
+    FuncPlotTextFile f(fileName);
     processFunc(&f);
 }
 
 void Operations::makeGraphFromClipboard() const
 {
-    FuncMakeFromClipboard f;
+    FuncPlotTextClipboard f;
+    processFunc(&f);
+}
+
+void Operations::makeRandomSample() const
+{
+    FuncRandomSample f;
     processFunc(&f);
 }
 

@@ -87,8 +87,9 @@ void MainWindow::createMenu()
     m->addMenu(new Ori::Widgets::StylesMenu(this));
 
     m = menuBar()->addMenu(tr("&Graph"));
-    _graphMakeRandomSample = m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
+    _graphMakeFromFile = m->addAction(tr("Make From File"), _operations, &Operations::makeGraphFromFile);
     _graphMakeFromClipboard = m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeGraphFromClipboard);
+    _graphMakeRandomSample = m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
 
     m = menuBar()->addMenu(tr("&Limits"));
     _limitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));
@@ -137,7 +138,7 @@ void MainWindow::fillToolbars()
 
     Ori::Gui::populate(_toolbarProject, {_projNewPlot});
 
-    Ori::Gui::populate(_toolbarGraph, {_graphMakeRandomSample, _graphMakeFromClipboard});
+    Ori::Gui::populate(_toolbarGraph, {_graphMakeFromFile, _graphMakeFromClipboard, _graphMakeRandomSample});
 
     Ori::Gui::populate(_toolbarLimits, {_limitsAuto});
 }

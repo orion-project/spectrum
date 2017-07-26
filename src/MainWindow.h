@@ -35,7 +35,7 @@ private:
     QToolBar *_toolbarMdi, *_toolbarProject, *_toolbarGraph, *_toolbarLimits;
     QAction *_projNewPlot;
     QAction *_viewTitle, *_viewLegend;
-    QAction *_graphMakeRandomSample, *_graphMakeFromClipboard;
+    QAction *_graphMakeRandomSample, *_graphMakeFromClipboard, *_graphMakeFromFile;
     QAction *_limitsAuto;
 
     void createMenu();

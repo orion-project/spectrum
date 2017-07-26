@@ -30,5 +30,6 @@ Makefile*
 CMakeLists.txt.user*
 
 # Output
-bin
+bin/spectrum
+bin/spectrum.exe
 tmp

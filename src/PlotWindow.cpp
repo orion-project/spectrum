@@ -60,6 +60,7 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
     setWindowTitle(_plotObj->title());
 
     _plot = new QCPL::Plot;
+    _plot->setPlottingHint(QCP::phFastPolylines, true);
     if (_plot->title())
         _plot->title()->setText(_plotObj->title());
     connect(_plot, &QCPL::Plot::editTitleRequest, this, &PlotWindow::editTitle);

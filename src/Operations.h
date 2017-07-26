@@ -13,8 +13,9 @@ class Operations : public QObject
 public:
     explicit Operations(QObject *parent = 0);
 
-    void makeRandomSample() const;
+    void makeGraphFromFile() const;
     void makeGraphFromClipboard() const;
+    void makeRandomSample() const;
 
 signals:
     void graphCreated(Graph* g) const;
