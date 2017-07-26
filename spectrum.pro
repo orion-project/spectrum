@@ -38,7 +38,8 @@ SOURCES += src/main.cpp\
     src/funcs/FuncRandomSample.cpp \
     src/funcs/FuncPlotText.cpp \
     src/funcs/FuncPlotTextFile.cpp \
-    src/funcs/FuncPlotClipboard.cpp
+    src/funcs/FuncPlotClipboard.cpp \
+    src/funcs/FuncBase.cpp
 
 HEADERS  += \
         src/MainWindow.h \

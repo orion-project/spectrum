@@ -20,5 +20,12 @@ bool FuncRandomSample::process()
         _data.y[i] = y;
     }
 
+    RandomSampleParams p;
+    p.xMin = 345;
+    p.xMax = 222;
+    p.yMin = 23;
+    p.yMax = 1000;
+    saveFuncParams("FuncRandomSample", &p);
+
     return true;
 }
