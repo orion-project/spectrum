@@ -90,6 +90,7 @@ void MainWindow::createMenu()
     _graphMakeFromFile = m->addAction(tr("Make From File"), _operations, &Operations::makeGraphFromFile);
     _graphMakeFromClipboard = m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeGraphFromClipboard);
     _graphMakeRandomSample = m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
+    _graphMakeRandomSampleParams = m->addAction(tr("Make Random Sample (params)"), _operations, &Operations::makeRandomSampleParams);
 
     m = menuBar()->addMenu(tr("&Limits"));
     _limitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));

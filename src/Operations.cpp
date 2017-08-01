@@ -35,8 +35,17 @@ void Operations::makeRandomSample() const
     processFunc(&f);
 }
 
+void Operations::makeRandomSampleParams() const
+{
+    FuncRandomSampleWithParams f;
+    processFunc(&f);
+}
+
 void Operations::processFunc(FuncBase* func) const
 {
+    if (func->configurable() && !func->configure())
+        return;
+
     bool ok = func->process();
     if (!ok)
         return Ori::Dlg::error(func->error());

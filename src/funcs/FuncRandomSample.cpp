@@ -1,9 +1,16 @@
 #include "FuncRandomSample.h"
 
-bool FuncRandomSample::process()
+//RandomSampleParams::RandomSampleParams() : QObject() {}
+
+QString makeRandomSampleTitle()
 {
     static int sampleCount = 0;
-    _title = QString("random-sample (%1)").arg(++sampleCount);
+    return QString("random-sample (%1)").arg(++sampleCount);
+}
+
+bool FuncRandomSample::process()
+{
+    _title = makeRandomSampleTitle();
 
     const double H = 25;
     const int count = 100;
@@ -20,12 +27,26 @@ bool FuncRandomSample::process()
         _data.y[i] = y;
     }
 
-    RandomSampleParams p;
-    p.xMin = 345;
-    p.xMax = 222;
-    p.yMin = 23;
-    p.yMax = 1000;
-    saveFuncParams("FuncRandomSample", &p);
+    return true;
+}
+
+//-----------------------------------------------------------------------------
+
+class RandomSampleParamsEditor : public FuncParamsEditorBase
+{
+public:
+    void populate(QObject* params) override {}
+    void collect(QObject* params) override {}
+};
+
+//-----------------------------------------------------------------------------
+
+bool FuncRandomSampleWithParams::process()
+{
+    _title = makeRandomSampleTitle();
 
     return true;
 }
+
+FuncParams* FuncRandomSampleWithParams::makeParams() { return (FuncParams*)new FuncRandomSampleParams; }
+FuncParamsEditorBase* FuncRandomSampleWithParams::makeParamsEditor() { return new RandomSampleParamsEditor; }

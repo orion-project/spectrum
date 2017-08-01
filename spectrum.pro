@@ -39,7 +39,8 @@ SOURCES += src/main.cpp\
     src/funcs/FuncPlotText.cpp \
     src/funcs/FuncPlotTextFile.cpp \
     src/funcs/FuncPlotClipboard.cpp \
-    src/funcs/FuncBase.cpp
+    src/funcs/FuncBase.cpp \
+    src/funcs/FuncRandomSampleParams.cpp
 
 HEADERS  += \
         src/MainWindow.h \
@@ -52,4 +53,5 @@ HEADERS  += \
     src/funcs/FuncRandomSample.h \
     src/funcs/FuncPlotTextClipboard.h \
     src/funcs/FuncPlotText.h \
-    src/funcs/FuncPlotTextFile.h
+    src/funcs/FuncPlotTextFile.h \
+    src/funcs/FuncRandomSampleParams.h

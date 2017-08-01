@@ -16,6 +16,7 @@ public:
     void makeGraphFromFile() const;
     void makeGraphFromClipboard() const;
     void makeRandomSample() const;
+    void makeRandomSampleParams() const;
 
 signals:
     void graphCreated(Graph* g) const;
