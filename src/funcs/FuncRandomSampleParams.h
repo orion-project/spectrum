@@ -16,6 +16,7 @@
 
 FUNC_PARAMS(FuncRandomSampleParams)
 Q_OBJECT
+public:
     FuncRandomSampleParams();
     FUNC_PARAM(double, xMin, 0)
     FUNC_PARAM(double, xMax, 100)

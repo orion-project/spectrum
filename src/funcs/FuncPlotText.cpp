@@ -1,6 +1,18 @@
 #include "FuncPlotText.h"
 
 #include <QApplication>
+#include <QDebug>
+
+namespace {
+
+const QVector<QString>& numberSeparators()
+{
+    // TODO: make configurable
+    static QVector<QString> separators({" ", ";", "\t"});
+    return separators;
+}
+
+}
 
 bool FuncPlotText::process()
 {
@@ -11,6 +23,19 @@ bool FuncPlotText::process()
     }
 
     QVector<QStringRef> lines = _text.splitRef('\n', QString::SkipEmptyParts);
+
+    // It may be line of numbers, we can plot it spliting by a separator
+    // 0.403922 0.419608 0.443137 0.458824 0.458824 0.466667 0.482353...
+    if (lines.size() == 1)
+    {
+        for (const QString& separator : numberSeparators())
+        {
+            lines = _text.splitRef(separator, QString::SkipEmptyParts);
+            if (lines.size() >= 2)
+                break;
+        }
+    }
+
     if (lines.size() < 2)
     {
         // TODO try another line separator
