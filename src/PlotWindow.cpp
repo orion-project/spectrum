@@ -11,12 +11,12 @@ PlotItem::~PlotItem()
     delete graph;
 }
 
-QIcon makeGraphIcon(QColor color)
+static QIcon makeGraphIcon(QColor color)
 {
     int H, S, L;
     color.getHsl(&H, &S, &L);
-    QColor backColor = QColor::fromHsl(H, S*0.8, L*1.2);
-    QColor borderColor = QColor::fromHsl(H, S*0.5, L);
+    QColor backColor = QColor::fromHsl(H, int(float(S)*0.8f), int(float(L)*1.2f));
+    QColor borderColor = QColor::fromHsl(H, int(float(S)*0.5f), L);
 
     QPixmap px(16, 16);
     px.fill(Qt::transparent);
@@ -36,7 +36,7 @@ QIcon makeGraphIcon(QColor color)
     return QIcon(px);
 }
 
-QIcon nextPlotIcon()
+static QIcon nextPlotIcon()
 {
     static int nextColorIndex = 0;
     if (nextColorIndex == QCPL::defaultColorSet().size())
@@ -135,6 +135,15 @@ void PlotWindow::selectGraph(Graph* graph)
     _plot->deselectAll();
     item->line->setSelection(QCPDataSelection(item->line->data()->dataRange()));
     _plot->replot();
+}
+
+bool PlotWindow::updateGraph(Graph* graph)
+{
+    auto item = itemForGraph(graph);
+    if (!item) return false;
+
+    _plot->updateGraph(item->line, graph->x(), graph->y());
+    return true;
 }
 
 bool PlotWindow::isLegendVisible() const

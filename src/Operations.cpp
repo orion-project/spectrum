@@ -1,5 +1,8 @@
 #include "Operations.h"
+
 #include "core/Graph.h"
+#include "core/DataSources.h"
+#include "core/Modificators.h"
 #include "helpers/OriDialogs.h"
 #include "funcs/FuncPlotTextFile.h"
 #include "funcs/FuncPlotTextClipboard.h"
@@ -7,52 +10,92 @@
 
 #include <QApplication>
 #include <QFileDialog>
+#include <QDebug>
 
 Operations::Operations(QObject *parent) : QObject(parent)
 {
 }
 
-void Operations::makeGraphFromFile() const
+void Operations::makeFromFile() const
 {
     QString fileName = QFileDialog::getOpenFileName(qApp->activeWindow());
     if (fileName.isEmpty()) return;
 
-    // TODO choose a function respecting to file extension and selected filter
+    // TODO choose a data source respecting to the file extension and selected filter
 
-    FuncPlotTextFile f(fileName);
-    processFunc(&f);
+    addGraph(new TextFileDataSource(fileName));
 }
 
-void Operations::makeGraphFromClipboard() const
+void Operations::makeFromClipboard() const
 {
-    FuncPlotTextClipboard f;
-    processFunc(&f);
+    addGraph(new ClipboardDataSource);
 }
 
 void Operations::makeRandomSample() const
 {
-    FuncRandomSample f;
-    processFunc(&f);
+    addGraph(new RandomSampleDataSource);
 }
 
 void Operations::makeRandomSampleParams() const
 {
-    FuncRandomSampleWithParams f;
-    processFunc(&f);
+    // TODO
 }
 
-void Operations::processFunc(FuncBase* func) const
+void Operations::modifyOffset() const
 {
-    if (func->configurable() && !func->configure())
+    modifyGraph(new OffsetModificator);
+}
+
+void Operations::addGraph(DataSource* dataSource) const
+{
+    auto graph = new Graph(dataSource);
+    auto res = graph->refreshData();
+    if (!res.isEmpty())
+    {
+        Ori::Dlg::error(res);
+        delete graph;
         return;
+    }
+    emit graphCreated(graph);
+}
 
-    bool ok = func->process();
-    if (!ok)
-        return Ori::Dlg::error(func->error());
+void Operations::modifyGraph(Modificator* mod) const
+{
+    auto graph = getSelectedGraph();
+    if (!graph)
+    {
+        Ori::Dlg::info("Select some graph");
+        return;
+    }
+    auto res = graph->modify(mod);
+    if (!res.isEmpty())
+    {
+        Ori::Dlg::error(res);
+        delete mod;
+        return;
+    }
+    emit graphUpdated(graph);
+}
 
-    auto g = new Graph;
-    g->setTitle(func->title());
-    g->setData(func->data());
-
-    emit graphCreated(g);
+void Operations::graphRefresh() const
+{
+    auto graph = getSelectedGraph();
+    if (!graph)
+    {
+        Ori::Dlg::info("Select some graph");
+        return;
+    }
+    auto res = graph->canRefreshData();
+    if (!res.isEmpty())
+    {
+        Ori::Dlg::info(res);
+        return;
+    }
+    res = graph->refreshData();
+    if (!res.isEmpty())
+    {
+        Ori::Dlg::error(res);
+        return;
+    }
+    emit graphUpdated(graph);
 }

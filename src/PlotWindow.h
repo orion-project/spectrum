@@ -1,7 +1,7 @@
 #ifndef PLOTWINDOW_H
 #define PLOTWINDOW_H
 
-#include <QWidget>
+#include <QMdiSubWindow>
 
 namespace QCPL {
 class Plot;
@@ -28,7 +28,7 @@ class PlotWindow : public QWidget
 
 public:
     explicit PlotWindow(QWidget *parent = nullptr);
-    ~PlotWindow();
+    ~PlotWindow() override;
 
     PlotObj* plotObj() const { return _plotObj; }
 
@@ -38,6 +38,7 @@ public:
 
     Graph* selectedGraph() const;
     void selectGraph(Graph* graph);
+    bool updateGraph(Graph* graph);
 
     QSize sizeHint() const override { return QSize(600, 400); }
 

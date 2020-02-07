@@ -27,7 +27,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     _panelDataGrid = new DataGridPanel(this);
 
     _operations = new Operations(this);
+    _operations->getSelectedGraph = [this](){ return selectedGraph(); };
     connect(_operations, &Operations::graphCreated, this, &MainWindow::graphCreated);
+    connect(_operations, &Operations::graphUpdated, this, &MainWindow::graphUpdated);
 
     _mdiArea = new QMdiArea;
     connect(_mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::mdiSubWindowActivated);
@@ -69,12 +71,12 @@ void MainWindow::createMenu()
 {
     QMenu *m;
 
-    m = menuBar()->addMenu(tr("&Project"));
+    m = menuBar()->addMenu(tr("Project"));
     _projNewPlot = m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
 
-    m = menuBar()->addMenu(tr("&View"));
+    m = menuBar()->addMenu(tr("View"));
     connect(m, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
     _viewTitle = m->addAction(tr("Title"), this, &MainWindow::toggleTitle);
     _viewTitle->setCheckable(true);
@@ -86,19 +88,23 @@ void MainWindow::createMenu()
     m->addSeparator();
     m->addMenu(new Ori::Widgets::StylesMenu(this));
 
-    m = menuBar()->addMenu(tr("&Graph"));
-    _graphMakeFromFile = m->addAction(tr("Make From File"), _operations, &Operations::makeGraphFromFile);
-    _graphMakeFromClipboard = m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeGraphFromClipboard);
-    _graphMakeRandomSample = m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
-    _graphMakeRandomSampleParams = m->addAction(tr("Make Random Sample (params)"), _operations, &Operations::makeRandomSampleParams);
+    m = menuBar()->addMenu(tr("Graph"));
+    _actnMakeFromFile = m->addAction(tr("Make From File"), _operations, &Operations::makeFromFile);
+    _actnMakeFromClipboard = m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeFromClipboard);
+    _actnMakeRandomSample = m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
+    _actnMakeRandomSampleParams = m->addAction(tr("Make Random Sample (params)"), _operations, &Operations::makeRandomSampleParams);
+    m->addSeparator();
+    _actnGraphRefresh = m->addAction(tr("Refresh Graph"), _operations, &Operations::graphRefresh);
 
-    m = menuBar()->addMenu(tr("&Limits"));
+    m = menuBar()->addMenu(tr("Modify"));
+    _actnModifyOffset = m->addAction(tr("Offset"), _operations, &Operations::modifyOffset);
+
+    m = menuBar()->addMenu(tr("Limits"));
     _limitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));
 
-    m = menuBar()->addMenu(tr("&Windows"));
+    m = menuBar()->addMenu(tr("Windows"));
     m->addAction(tr("Cascade"), _mdiArea, &QMdiArea::cascadeSubWindows);
     m->addAction(tr("Tile"), _mdiArea, &QMdiArea::tileSubWindows);
-
 }
 
 void MainWindow::createDocks()
@@ -139,7 +145,7 @@ void MainWindow::fillToolbars()
 
     Ori::Gui::populate(_toolbarProject, {_projNewPlot});
 
-    Ori::Gui::populate(_toolbarGraph, {_graphMakeFromFile, _graphMakeFromClipboard, _graphMakeRandomSample});
+    Ori::Gui::populate(_toolbarGraph, {_actnMakeFromFile, _actnMakeFromClipboard, _actnMakeRandomSample});
 
     Ori::Gui::populate(_toolbarLimits, {_limitsAuto});
 }
@@ -149,6 +155,12 @@ PlotWindow* MainWindow::activePlot() const
     auto mdiChild = _mdiArea->currentSubWindow();
     if (!mdiChild) return nullptr;
     return dynamic_cast<PlotWindow*>(mdiChild->widget());
+}
+
+Graph* MainWindow::selectedGraph() const
+{
+    auto plot = activePlot();
+    return plot ? plot->selectedGraph() : nullptr;
 }
 
 void MainWindow::newProject()
@@ -191,7 +203,17 @@ void MainWindow::graphCreated(Graph* graph) const
         plot->selectGraph(graph);
 }
 
-void MainWindow::graphSelected(Graph* graph)
+void MainWindow::graphUpdated(Graph* graph) const
+{
+    for (auto wnd : _mdiArea->subWindowList())
+    {
+        auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
+        if (plotWnd && plotWnd->updateGraph(graph))
+            return;
+    }
+}
+
+void MainWindow::graphSelected(Graph* graph) const
 {
     if (!_panelDataGrid->isVisible()) return;
 
@@ -201,7 +223,7 @@ void MainWindow::graphSelected(Graph* graph)
     _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
-void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window)
+void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window) const
 {
     if (!_panelDataGrid->isVisible()) return;
 

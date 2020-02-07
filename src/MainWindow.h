@@ -21,11 +21,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
-    void graphCreated(Graph* graph) const;
 
 private:
     QMdiArea* _mdiArea;
@@ -35,8 +34,9 @@ private:
     QToolBar *_toolbarMdi, *_toolbarProject, *_toolbarGraph, *_toolbarLimits;
     QAction *_projNewPlot;
     QAction *_viewTitle, *_viewLegend;
-    QAction *_graphMakeRandomSample, *_graphMakeRandomSampleParams,
-        *_graphMakeFromClipboard, *_graphMakeFromFile;
+    QAction *_actnMakeRandomSample, *_actnMakeRandomSampleParams, *_actnMakeFromClipboard, *_actnMakeFromFile;
+    QAction *_actnGraphRefresh;
+    QAction *_actnModifyOffset;
     QAction *_limitsAuto;
 
     void createMenu();
@@ -54,8 +54,11 @@ private:
     void toggleTitle();
 
     PlotWindow* activePlot() const;
-    void graphSelected(Graph* graph);
-    void mdiSubWindowActivated(QMdiSubWindow *window);
+    Graph* selectedGraph() const;
+    void graphSelected(Graph* graph) const;
+    void graphCreated(Graph* graph) const;
+    void graphUpdated(Graph* graph) const;
+    void mdiSubWindowActivated(QMdiSubWindow *window) const;
 };
 
 #endif // MAINWINDOW_H
