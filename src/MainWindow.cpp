@@ -98,6 +98,7 @@ void MainWindow::createMenu()
 
     m = menuBar()->addMenu(tr("Modify"));
     _actnModifyOffset = m->addAction(tr("Offset"), _operations, &Operations::modifyOffset);
+    _actnModifyOffset = m->addAction(tr("Scale"), _operations, &Operations::modifyScale);
 
     m = menuBar()->addMenu(tr("Limits"));
     _limitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));

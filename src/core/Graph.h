@@ -1,14 +1,9 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <QString>
-#include <QVector>
 #include <QIcon>
 
-#include "qcpl_types.h"
-
-typedef QCPL::ValueArray Values;
-typedef QCPL::GraphData GraphData;
+#include "BaseTypes.h"
 
 class DataSource;
 class Modificator;
@@ -28,9 +23,7 @@ public:
     const QIcon& icon() const { return _icon; }
     void setIcon(const QIcon& icon) { _icon = icon; }
 
-    const Values& x() { return _xs; }
-    const Values& y() { return _ys; }
-    void setData(const GraphData& data) { /*_data = data;*/ }
+    const GraphPoints& data() const { return _data; }
 
     QString canRefreshData() const;
     QString refreshData();
@@ -41,9 +34,8 @@ public:
 private:
     bool _autoTitle = true;
     DataSource* _dataSource;
-    QVector<double> _xs, _ys;
     QList<Modificator*> _modificators;
-    //GraphData _data;
+    GraphPoints _data;
     QString _title;
     QIcon _icon;
     QColor _color;

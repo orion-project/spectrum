@@ -4,9 +4,6 @@
 #include "core/DataSources.h"
 #include "core/Modificators.h"
 #include "helpers/OriDialogs.h"
-#include "funcs/FuncPlotTextFile.h"
-#include "funcs/FuncPlotTextClipboard.h"
-#include "funcs/FuncRandomSample.h"
 
 #include <QApplication>
 #include <QFileDialog>
@@ -46,6 +43,11 @@ void Operations::modifyOffset() const
     modifyGraph(new OffsetModificator);
 }
 
+void Operations::modifyScale() const
+{
+    modifyGraph(new ScaleModificator);
+}
+
 void Operations::addGraph(DataSource* dataSource) const
 {
     auto graph = new Graph(dataSource);
@@ -65,6 +67,11 @@ void Operations::modifyGraph(Modificator* mod) const
     if (!graph)
     {
         Ori::Dlg::info("Select some graph");
+        return;
+    }
+    if (!mod->configure())
+    {
+        delete mod;
         return;
     }
     auto res = graph->modify(mod);

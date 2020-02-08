@@ -7,8 +7,8 @@
 
 struct GraphPoints
 {
-    const QVector<double> xs;
-    const QVector<double> ys;
+    QVector<double> xs;
+    QVector<double> ys;
 };
 
 using GraphResult = Ori::Result<GraphPoints>;

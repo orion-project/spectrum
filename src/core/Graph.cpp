@@ -27,17 +27,15 @@ QString Graph::refreshData()
     if (_autoTitle)
         _title = _dataSource->makeTitle();
 
-    _xs = res.result().xs;
-    _ys = res.result().ys;
+    _data = res.result();
 
     for (auto mod : _modificators)
     {
-        auto res = mod->modify({_xs, _ys});
+        auto res = mod->modify(_data);
         if (!res.ok())
             return res.error();
 
-        _xs = res.result().xs;
-        _ys = res.result().ys;
+        _data = res.result();
     }
 
     return QString();
@@ -45,13 +43,12 @@ QString Graph::refreshData()
 
 QString Graph::modify(Modificator* mod)
 {
-    auto res = mod->modify({_xs, _ys});
+    auto res = mod->modify(_data);
     if (!res.ok())
         return res.error();
 
     _modificators.append(mod);
 
-    _xs = res.result().xs;
-    _ys = res.result().ys;
+    _data = res.result();
     return QString();
 }

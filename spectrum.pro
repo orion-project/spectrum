@@ -36,15 +36,10 @@ SOURCES += src/main.cpp\
     src/Operations.cpp \
     src/core/DataSources.cpp \
     src/core/Graph.cpp \
+    src/core/GraphMath.cpp \
     src/core/Modificators.cpp \
     src/widgets/DataGridPanel.cpp \
-    src/Settings.cpp \
-    src/funcs/FuncRandomSample.cpp \
-    src/funcs/FuncPlotText.cpp \
-    src/funcs/FuncPlotTextFile.cpp \
-    src/funcs/FuncPlotClipboard.cpp \
-    src/funcs/FuncBase.cpp \
-    src/funcs/FuncRandomSampleParams.cpp
+    src/Settings.cpp
 
 HEADERS  += \
         src/MainWindow.h \
@@ -53,12 +48,7 @@ HEADERS  += \
     src/core/BaseTypes.h \
     src/core/DataSources.h \
     src/core/Graph.h \
+    src/core/GraphMath.h \
     src/core/Modificators.h \
     src/widgets/DataGridPanel.h \
-    src/Settings.h \
-    src/funcs/FuncBase.h \
-    src/funcs/FuncRandomSample.h \
-    src/funcs/FuncPlotTextClipboard.h \
-    src/funcs/FuncPlotText.h \
-    src/funcs/FuncPlotTextFile.h \
-    src/funcs/FuncRandomSampleParams.h
+    src/Settings.h

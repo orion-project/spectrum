@@ -79,7 +79,7 @@ void PlotWindow::addGraph(Graph* g)
     auto item = new PlotItem;
     item->graph = g;
 
-    item->line = _plot->makeNewGraph(g->title(), g->x(), g->y());
+    item->line = _plot->makeNewGraph(g->title(), g->data().xs, g->data().ys);
     connect(item->line, SIGNAL(selectionChanged(bool)), this, SLOT(graphLineSelected(bool)));
 
     g->setColor(item->line->pen().color());
@@ -142,7 +142,7 @@ bool PlotWindow::updateGraph(Graph* graph)
     auto item = itemForGraph(graph);
     if (!item) return false;
 
-    _plot->updateGraph(item->line, graph->x(), graph->y());
+    _plot->updateGraph(item->line, graph->data().xs, graph->data().ys);
     return true;
 }
 

@@ -20,6 +20,7 @@ public:
     void makeRandomSample() const;
     void makeRandomSampleParams() const;
     void modifyOffset() const;
+    void modifyScale() const;
     void graphRefresh() const;
 
     std::function<Graph*()> getSelectedGraph;

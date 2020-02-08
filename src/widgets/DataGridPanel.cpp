@@ -32,5 +32,5 @@ void DataGridPanel::showData(PlotObj *plot, Graph *graph)
     _titlePlot->setText(plot->title());
     _iconGraph->setPixmap(graph->icon().pixmap(16, 16));
     _titleGraph->setText(graph->title());
-    _dataGrid->setData(graph->x(), graph->y());
+    _dataGrid->setData(graph->data().xs, graph->data().ys);
 }
