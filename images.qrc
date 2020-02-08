@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="/icon">
-        <file alias="ball">./img/icon/ball.svg</file>
-    </qresource>
-</RCC>
-
-
-

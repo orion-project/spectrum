@@ -22,7 +22,7 @@
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setObjectName("mainWindow");
-    Ori::Wnd::setWindowIcon(this, ":/icon/main"); // TODO
+    Ori::Wnd::setWindowIcon(this, ":/window_icons/main");
 
     _panelDataGrid = new DataGridPanel(this);
 

@@ -1,0 +1,5 @@
+// Setting the Application Icon (http://doc.qt.io/qt-5/appicon.html)
+IDI_ICON1 ICON DISCARDABLE "../img/icons/spectrum.ico"
+
+#include "../release/version.rc"
+

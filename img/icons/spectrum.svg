@@ -1,0 +1,33 @@
+<svg height="48" width="48" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<linearGradient id="a">
+<stop offset="0" stop-color="#ff2300"/>
+<stop offset=".25" stop-color="#ffec00"/>
+<stop offset=".5" stop-color="#00ff17"/>
+<stop offset=".75" stop-color="#00c8ff"/>
+<stop offset="1" stop-color="#9e2bff"/>
+</linearGradient>
+<linearGradient id="b" gradientUnits="userSpaceOnUse" x1="-.5" x2="48.5" xlink:href="#a" y1="24" y2="24"/>
+<linearGradient id="c" gradientUnits="userSpaceOnUse" x1="-.5" x2="48.5" xlink:href="#a" y1="1028.36" y2="1028.36"/>
+<g transform="translate(0 -1004.36)">
+<rect fill="#fff" height="48" ry="5" width="48" y="1004.36"/>
+<rect fill="url(#b)" height="48" opacity=".2" ry="5" transform="translate(0 1004.36)" width="48"/>
+<path d="m24 1009.36c-2 15-14 26-24 29v9c0 2.77 2.23 5 5 5h38c2.77 0 5-2.23 5-5v-9c-10-3-22-14-24-29z" fill="url(#c)" opacity=".8"/>
+<g stroke="#000">
+<path d="m0 1038.36c10-3 22-14 24-29 2 15 14 26 24 29" fill="none" opacity=".8" stroke-linecap="round"/>
+<g fill="#fff" stroke-width=".75">
+<path d="m6 16.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5z" transform="matrix(1.33 0 0 1.33 -3.13 1015.42)"/>
+<path d="m6 16.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5z" transform="matrix(1.33 0 0 1.33 39.06 1015.42)"/>
+<path d="m6 16.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5z" transform="matrix(1.33 0 0 1.33 6.63 1008.36)"/>
+<path d="m6 16.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5z" transform="matrix(1.33 0 0 1.33 29.19 1008.36)"/>
+<path d="m6 16.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5z" transform="matrix(1.33 0 0 1.33 13.38 1000.36)"/>
+<path d="m6 16.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5z" transform="matrix(1.33 0 0 1.33 22.63 1000.36)"/>
+<path d="m6 16.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5.67-1.5 1.5-1.5 1.5.67 1.5 1.5z" transform="matrix(1.33 0 0 1.33 18 988.36)"/>
+</g>
+<g fill="none" stroke-linecap="round" stroke-linejoin="round">
+<path d="m7 5v36h35" stroke-width="2" transform="translate(0 1004.36)"/>
+<path d="m4 8 3-4 3 4" transform="translate(0 1004.36)"/>
+<path d="m39 1042.36 4 3-4 3"/>
+</g>
+</g>
+</g>
+</svg>
