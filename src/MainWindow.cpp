@@ -107,6 +107,7 @@ void MainWindow::createActions()
 
     m = menuBar()->addMenu(tr("Graph"));
     _actnGraphRefresh = m->addAction(tr("Refresh"), _operations, &Operations::graphRefresh, QKeySequence("Ctrl+R"));
+    m->addAction(tr("Reopen..."), _operations, &Operations::graphReopen);
 
     m = menuBar()->addMenu(tr("Modify"));
     _actnModifyOffset = m->addAction(tr("Offset"), _operations, &Operations::modifyOffset, Qt::Key_Plus);
@@ -177,8 +178,6 @@ Graph* MainWindow::selectedGraph() const
 void MainWindow::newProject()
 {
     newPlot();
-
-    _operations->addRandomSample();
 }
 
 void MainWindow::newPlot()

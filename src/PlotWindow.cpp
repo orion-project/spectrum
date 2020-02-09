@@ -142,6 +142,7 @@ bool PlotWindow::updateGraph(Graph* graph)
     auto item = itemForGraph(graph);
     if (!item) return false;
 
+    item->line->setName(graph->title());
     _plot->updateGraph(item->line, graph->data().xs, graph->data().ys);
     return true;
 }

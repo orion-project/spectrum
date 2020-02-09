@@ -10,15 +10,17 @@ public:
     virtual GraphResult getData() const = 0;
     virtual QString makeTitle() const = 0;
     virtual QString canRefresh() const { return QString(); }
+    virtual bool configure() { return true; }
 };
 
 
 class TextFileDataSource : public DataSource
 {
 public:
-    TextFileDataSource(const QString& fileName);
+    TextFileDataSource();
     GraphResult getData() const override;
     QString makeTitle() const override;
+    bool configure() override;
 private:
     QString _fileName;
 };

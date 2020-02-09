@@ -6,7 +6,6 @@
 #include "helpers/OriDialogs.h"
 
 #include <QApplication>
-#include <QFileDialog>
 #include <QDebug>
 
 Operations::Operations(QObject *parent) : QObject(parent)
@@ -15,12 +14,7 @@ Operations::Operations(QObject *parent) : QObject(parent)
 
 void Operations::addFromFile() const
 {
-    QString fileName = QFileDialog::getOpenFileName(qApp->activeWindow());
-    if (fileName.isEmpty()) return;
-
-    // TODO choose a data source respecting to the file extension and selected filter
-
-    addGraph(new TextFileDataSource(fileName));
+    addGraph(new TextFileDataSource());
 }
 
 void Operations::addFromClipboard() const
@@ -45,6 +39,11 @@ void Operations::modifyScale() const
 
 void Operations::addGraph(DataSource* dataSource) const
 {
+    if (!dataSource->configure())
+    {
+        delete dataSource;
+        return;
+    }
     auto graph = new Graph(dataSource);
     auto res = graph->refreshData();
     if (!res.isEmpty())
@@ -61,7 +60,7 @@ void Operations::modifyGraph(Modificator* mod) const
     auto graph = getSelectedGraph();
     if (!graph)
     {
-        Ori::Dlg::info("Select some graph");
+        Ori::Dlg::info(qApp->tr("Please select a graph"));
         return;
     }
     if (!mod->configure())
@@ -84,7 +83,7 @@ void Operations::graphRefresh() const
     auto graph = getSelectedGraph();
     if (!graph)
     {
-        Ori::Dlg::info("Select some graph");
+        Ori::Dlg::info(qApp->tr("Please select a graph"));
         return;
     }
     auto res = graph->canRefreshData();
@@ -94,6 +93,31 @@ void Operations::graphRefresh() const
         return;
     }
     res = graph->refreshData();
+    if (!res.isEmpty())
+    {
+        Ori::Dlg::error(res);
+        return;
+    }
+    emit graphUpdated(graph);
+}
+
+void Operations::graphReopen() const
+{
+    auto graph = getSelectedGraph();
+    if (!graph)
+    {
+        Ori::Dlg::info(qApp->tr("Please select a graph"));
+        return;
+    }
+    auto fileDataSource = dynamic_cast<TextFileDataSource*>(graph->dataSource());
+    if (!fileDataSource)
+    {
+        Ori::Dlg::info(qApp->tr("Graph's data source is not a file"));
+        return;
+    }
+    if (!fileDataSource->configure())
+        return;
+    auto res = graph->refreshData();
     if (!res.isEmpty())
     {
         Ori::Dlg::error(res);

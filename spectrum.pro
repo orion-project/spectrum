@@ -32,6 +32,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 RESOURCES += src/images.qrc
 
 SOURCES += src/main.cpp\
+    src/CustomPrefs.cpp \
     src/HelpSystem.cpp \
         src/MainWindow.cpp \
     src/PlotWindow.cpp \
@@ -44,6 +45,7 @@ SOURCES += src/main.cpp\
     src/Settings.cpp
 
 HEADERS  += \
+    src/CustomPrefs.h \
     src/HelpSystem.h \
         src/MainWindow.h \
     src/PlotWindow.h \

@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QFile>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QMimeData>
 
@@ -112,8 +113,24 @@ DataSource::~DataSource()
 //                             TextFileDataSource
 //------------------------------------------------------------------------------
 
-TextFileDataSource::TextFileDataSource(const QString& fileName) : _fileName(fileName)
+TextFileDataSource::TextFileDataSource()
 {
+}
+
+bool TextFileDataSource::configure()
+{
+    QFileDialog dlg(qApp->activeWindow());
+    dlg.selectFile(_fileName);
+    if (dlg.exec() == QDialog::Accepted)
+    {
+        auto files = dlg.selectedFiles();
+        if (files.isEmpty()) return false;
+        auto fileName = files.first();
+        if (fileName.isEmpty()) return false;
+        _fileName = fileName;
+        return true;
+    }
+    return false;
 }
 
 GraphResult TextFileDataSource::getData() const

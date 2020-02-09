@@ -1,6 +1,8 @@
 #include "Modificators.h"
 
 #include "GraphMath.h"
+#include "../CustomPrefs.h"
+
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"
@@ -53,6 +55,11 @@ public:
             if (_buttons[key]->isChecked())
                 return static_cast<TOption>(key);
         return static_cast<TOption>(0);
+    }
+
+    void setSelection(int id)
+    {
+        _buttons[id]->setChecked(true);
     }
 
     void makeEditor(int option)
@@ -115,6 +122,12 @@ bool OffsetModificator::configure()
         mode.makeGroup(qApp->tr("Quantity")),
     }).setMargin(0).useFor(&paramEditor);
 
+    QJsonObject root = CustomDataHelpers::loadCustomData("modifs");
+    QJsonObject state = root["offset"].toObject();
+    direction.setSelection(state["dir"].toInt(0));
+    mode.setSelection(state["mode"].toInt(0));
+    mode.editor()->setValue(state["value"].toDouble(0));
+
     if (Ori::Dlg::Dialog(&paramEditor, false)
             .withTitle(qApp->tr("Offset"))
             .withContentToButtonsSpacingFactor(2)
@@ -123,6 +136,14 @@ bool OffsetModificator::configure()
         _params.dir = direction.selection<Offset::Direction>();
         _params.mode = mode.selection<Offset::Mode>();
         _params.value = mode.editor()->value();
+
+        QJsonObject state;
+        state["dir"] = _params.dir;
+        state["mode"] = _params.mode;
+        state["value"] = _params.value;
+        root["offset"] = state;
+        CustomDataHelpers::saveCustomData(root, "modifs");
+
         return true;
     }
     return false;
@@ -158,6 +179,13 @@ bool ScaleModificator::configure()
         groupV(qApp->tr("Factor"), { editorScaleFactor })
     }).setMargin(0).useFor(&paramEditor);
 
+    QJsonObject root = CustomDataHelpers::loadCustomData("modifs");
+    QJsonObject state = root["scale"].toObject();
+    direction.setSelection(state["dir"].toInt(0));
+    centerMode.setSelection(state["centerMode"].toInt(0));
+    centerMode.editor()->setValue(state["centerValue"].toDouble(0));
+    editorScaleFactor->setValue(state["scaleFactor"].toDouble(1));
+
     if (Ori::Dlg::Dialog(&paramEditor, false)
             .withTitle(qApp->tr("Scale"))
             .withContentToButtonsSpacingFactor(2)
@@ -167,6 +195,15 @@ bool ScaleModificator::configure()
         _params.centerMode = centerMode.selection<Scale::CenterMode>();
         _params.centerValue = centerMode.editor()->value();
         _params.scaleFactor = editorScaleFactor->value();
+
+        QJsonObject state;
+        state["dir"] = _params.dir;
+        state["centerMode"] = _params.centerMode;
+        state["centerValue"] = _params.centerValue;
+        state["scaleFactor"] = _params.scaleFactor;
+        root["scale"] = state;
+        CustomDataHelpers::saveCustomData(root, "modifs");
+
         return true;
     }
     return false;

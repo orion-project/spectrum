@@ -23,6 +23,7 @@ public:
     const QIcon& icon() const { return _icon; }
     void setIcon(const QIcon& icon) { _icon = icon; }
 
+    DataSource* dataSource() const { return _dataSource; }
     const GraphPoints& data() const { return _data; }
     int pointsCount() const { return _data.xs.size(); }
 

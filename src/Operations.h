@@ -21,6 +21,7 @@ public:
     void modifyOffset() const;
     void modifyScale() const;
     void graphRefresh() const;
+    void graphReopen() const;
 
     std::function<Graph*()> getSelectedGraph;
 
