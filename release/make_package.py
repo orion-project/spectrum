@@ -53,6 +53,8 @@ def make_package_for_windows():
     'libgcc_s_dw2-1.dll',  # for Qt 5.7
   ], '.')
 
+  # TODO: copy samples
+
   print_header('Pack files to zip...')
   global package_name
   package_name = '{}-win-x{}.zip'.format(package_name, get_exe_bits(PROJECT_EXE))

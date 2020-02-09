@@ -1,5 +1,7 @@
 #include "DataSources.h"
 
+#include "../CustomPrefs.h"
+
 #include <QApplication>
 #include <QClipboard>
 #include <QFile>
@@ -12,8 +14,19 @@ namespace {
 const QVector<QString>& valueSeparators()
 {
     // TODO: make configurable
-    static QVector<QString> separators({" ", ";", "\t"});
+    static QVector<QString> separators({" ", "\t", ";", ","});
     return separators;
+}
+
+QString selectValueSeparator(const QStringRef& line)
+{
+    for (const QString& separator : valueSeparators())
+    {
+        QVector<QStringRef> parts = line.split(separator, QString::SkipEmptyParts);
+        if (parts.size() > 1)
+            return separator;
+    }
+    return QString();
 }
 
 GraphResult readDataFromText(const QString& text)
@@ -22,6 +35,8 @@ GraphResult readDataFromText(const QString& text)
         return GraphResult::fail(qApp->tr("Processing text is empty."));
 
     QVector<QStringRef> lines = text.splitRef('\n', QString::SkipEmptyParts);
+    if (lines.isEmpty())
+        return GraphResult::fail(qApp->tr("Processing text is empty."));
 
     // It may be line of numbers, we can plot it spliting by a separator
     // 0.403922 0.419608 0.443137 0.458824 0.458824 0.466667 0.482353...
@@ -42,14 +57,52 @@ GraphResult readDataFromText(const QString& text)
     bool ok, gotX, gotY;
     double value, x, y;
     QVector<double> xs, ys, onlyY;
+//    bool hasValueSeparator = false;
+//    bool hasOnlyOneColumn = false;
+//    QString valueSeparator;
 
-    for (int i = 0; i < lines.size(); i++)
+    for (const QStringRef& line : lines)
     {
-        gotX = gotY = false;
-        QVector<QStringRef> parts = lines.at(i).split('\t', QString::SkipEmptyParts);
-        for (int j = 0; j < parts.size(); j++)
+        if (line.isEmpty()) continue;
+
+        /*if (!hasValueSeparator)
         {
-            value = parts.at(j).toDouble(&ok);
+            valueSeparator = selectValueSeparator(line);
+            if (valueSeparator.isEmpty())
+            {
+                // Try if the whole line is a single value
+                value = line.toDouble(&ok);
+                if (ok)
+                {
+                    hasValueSeparator = true;
+                    hasOnlyOneColumn = true;
+                }
+                else continue;
+            }
+            // If `valueSeparator` is not empty, stil don't set `hasValueSeparator`
+            // until we'll be sure it really separates values but not some header words
+        }*/
+
+        /*if (hasValueSeparator && hasOnlyOneColumn)
+        {
+            value = line.toDouble(&ok);
+            if (ok)
+                onlyY.push_back(value);
+            continue;
+        }*/
+
+
+        QVector<QStringRef> parts;
+        for (const QString& valueSeparator : valueSeparators())
+        {
+            parts = line.split(valueSeparator, QString::SkipEmptyParts);
+            if (parts.size() > 1) break;
+        }
+
+        gotX = gotY = false;
+        for (const QStringRef& part : parts)
+        {
+            value = part.toDouble(&ok);
             if (!ok)
             {
                 // TODO try another decimal separator
@@ -75,12 +128,15 @@ GraphResult readDataFromText(const QString& text)
                 continue;
             }
             onlyY.push_back(x);
+            gotY = true;
         }
         else
         {
             xs.push_back(x);
             ys.push_back(y);
         }
+        //if (!hasValueSeparator && (gotX || gotY))
+          //  hasValueSeparator = true;
     }
 
     if (ys.size() < 2 && onlyY.size() < 2)
@@ -119,8 +175,19 @@ TextFileDataSource::TextFileDataSource()
 
 bool TextFileDataSource::configure()
 {
+    auto root = CustomDataHelpers::loadCustomData("datasources");
+    auto state = root["file"].toObject();
+
     QFileDialog dlg(qApp->activeWindow());
-    dlg.selectFile(_fileName);
+    if (_fileName.isEmpty())
+    {
+        auto dir = state["dir"].toString();
+        if (!dir.isEmpty())
+            dlg.setDirectory(dir);
+    }
+    else
+        dlg.selectFile(_fileName);
+
     if (dlg.exec() == QDialog::Accepted)
     {
         auto files = dlg.selectedFiles();
@@ -128,6 +195,11 @@ bool TextFileDataSource::configure()
         auto fileName = files.first();
         if (fileName.isEmpty()) return false;
         _fileName = fileName;
+
+        state["dir"] = dlg.directory().path();
+        root["file"] = state;
+        CustomDataHelpers::saveCustomData(root, "datasources");
+
         return true;
     }
     return false;

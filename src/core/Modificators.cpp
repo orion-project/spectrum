@@ -122,8 +122,8 @@ bool OffsetModificator::configure()
         mode.makeGroup(qApp->tr("Quantity")),
     }).setMargin(0).useFor(&paramEditor);
 
-    QJsonObject root = CustomDataHelpers::loadCustomData("modifs");
-    QJsonObject state = root["offset"].toObject();
+    auto root = CustomDataHelpers::loadCustomData("modificators");
+    auto state = root["offset"].toObject();
     direction.setSelection(state["dir"].toInt(0));
     mode.setSelection(state["mode"].toInt(0));
     mode.editor()->setValue(state["value"].toDouble(0));
@@ -142,7 +142,7 @@ bool OffsetModificator::configure()
         state["mode"] = _params.mode;
         state["value"] = _params.value;
         root["offset"] = state;
-        CustomDataHelpers::saveCustomData(root, "modifs");
+        CustomDataHelpers::saveCustomData(root, "modificators");
 
         return true;
     }
@@ -179,8 +179,8 @@ bool ScaleModificator::configure()
         groupV(qApp->tr("Factor"), { editorScaleFactor })
     }).setMargin(0).useFor(&paramEditor);
 
-    QJsonObject root = CustomDataHelpers::loadCustomData("modifs");
-    QJsonObject state = root["scale"].toObject();
+    auto root = CustomDataHelpers::loadCustomData("modificators");
+    auto state = root["scale"].toObject();
     direction.setSelection(state["dir"].toInt(0));
     centerMode.setSelection(state["centerMode"].toInt(0));
     centerMode.editor()->setValue(state["centerValue"].toDouble(0));
@@ -202,7 +202,7 @@ bool ScaleModificator::configure()
         state["centerValue"] = _params.centerValue;
         state["scaleFactor"] = _params.scaleFactor;
         root["scale"] = state;
-        CustomDataHelpers::saveCustomData(root, "modifs");
+        CustomDataHelpers::saveCustomData(root, "modificators");
 
         return true;
     }

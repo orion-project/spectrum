@@ -5,7 +5,7 @@ namespace GraphMath {
 MinMax minMax(const GraphPoints& data)
 {
     int count = data.xs.size();
-    assert(count == data.ys.size());
+    Q_ASSERT(count == data.ys.size());
     MinMax res;
     res.minX = std::numeric_limits<double>::max();
     res.maxX = -std::numeric_limits<double>::max();

@@ -86,7 +86,7 @@ void MainWindow::createActions()
 
     QMenu *m;
 
-    m = menuBar()->addMenu(tr("Project"));
+    m = menuBar()->addMenu(tr("Plot"));
     _actnPlotNew = m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
@@ -156,11 +156,12 @@ void MainWindow::createStatusBar()
     _statusBar = new Ori::Widgets::StatusBar(STATUS_PANELS_COUNT);
 
     auto versionLabel = new QLabel(Z::HelpSystem::appVersion());
-        versionLabel->setContentsMargins(3, 0, 3, 0);
-        versionLabel->setForegroundRole(QPalette::Mid);
-        _statusBar->addPermanentWidget(versionLabel);
+    versionLabel->setContentsMargins(3, 0, 3, 0);
+    versionLabel->setForegroundRole(QPalette::Mid);
+    _statusBar->addPermanentWidget(versionLabel);
 
-        setStatusBar(_statusBar);}
+    setStatusBar(_statusBar);
+}
 
 PlotWindow* MainWindow::activePlot() const
 {
@@ -225,6 +226,8 @@ void MainWindow::graphUpdated(Graph* graph) const
 
 void MainWindow::graphSelected(Graph* graph) const
 {
+    if (!graph) return;
+
     _statusBar->setText(STATUS_POINTS, tr("Points: %1").arg(graph->pointsCount()));
 
     if (!_panelDataGrid->isVisible()) return;
@@ -266,6 +269,7 @@ void MainWindow::toggleTitle()
     auto plot = activePlot();
     if (plot) plot->setTitleVisible(!plot->isTitleVisible());
 }
+
 void MainWindow::toggleLegend()
 {
     auto plot = activePlot();
