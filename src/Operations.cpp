@@ -13,7 +13,7 @@ Operations::Operations(QObject *parent) : QObject(parent)
 {
 }
 
-void Operations::makeFromFile() const
+void Operations::addFromFile() const
 {
     QString fileName = QFileDialog::getOpenFileName(qApp->activeWindow());
     if (fileName.isEmpty()) return;
@@ -23,19 +23,14 @@ void Operations::makeFromFile() const
     addGraph(new TextFileDataSource(fileName));
 }
 
-void Operations::makeFromClipboard() const
+void Operations::addFromClipboard() const
 {
     addGraph(new ClipboardDataSource);
 }
 
-void Operations::makeRandomSample() const
+void Operations::addRandomSample() const
 {
     addGraph(new RandomSampleDataSource);
-}
-
-void Operations::makeRandomSampleParams() const
-{
-    // TODO
 }
 
 void Operations::modifyOffset() const

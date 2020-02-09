@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,8 +14,9 @@ DESTDIR = $$_PRO_FILE_PWD_/bin
 
 win32: RC_FILE = src/app.rc
 
-include("orion/orion.pri")
-include("custom-plot-lab/custom-plot-lab.pri")
+include(orion/orion.pri)
+include(custom-plot-lab/custom-plot-lab.pri)
+include(release/version.pri)
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked as deprecated (the exact warnings
@@ -31,6 +32,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 RESOURCES += src/images.qrc
 
 SOURCES += src/main.cpp\
+    src/HelpSystem.cpp \
         src/MainWindow.cpp \
     src/PlotWindow.cpp \
     src/Operations.cpp \
@@ -42,6 +44,7 @@ SOURCES += src/main.cpp\
     src/Settings.cpp
 
 HEADERS  += \
+    src/HelpSystem.h \
         src/MainWindow.h \
     src/PlotWindow.h \
     src/Operations.h \

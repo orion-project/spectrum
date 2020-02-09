@@ -16,6 +16,11 @@ class DataGridPanel;
 class Operations;
 class PlotWindow;
 
+namespace Ori {
+namespace Widgets {
+    class StatusBar;
+}}
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -31,19 +36,17 @@ private:
     Operations* _operations;
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
-    QToolBar *_toolbarMdi, *_toolbarProject, *_toolbarGraph, *_toolbarLimits;
-    QAction *_projNewPlot;
-    QAction *_viewTitle, *_viewLegend;
-    QAction *_actnMakeRandomSample, *_actnMakeRandomSampleParams, *_actnMakeFromClipboard, *_actnMakeFromFile;
+    QAction *_actnPlotNew;
+    QAction *_actnViewTitle, *_actnViewLegend;
+    QAction *_actnAddRandomSample, *_actnAddFromClipboard, *_actnAddFromFile;
     QAction *_actnGraphRefresh;
     QAction *_actnModifyOffset;
-    QAction *_limitsAuto;
+    QAction *_actnLimitsAuto;
+    Ori::Widgets::StatusBar *_statusBar;
 
-    void createMenu();
+    void createActions();
     void createDocks();
-    void createToolBars();
     void createStatusBar();
-    void fillToolbars();
     void saveSettings();
     void loadSettings();
     void newProject();

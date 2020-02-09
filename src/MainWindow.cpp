@@ -1,23 +1,39 @@
 #include "MainWindow.h"
+
+#include "HelpSystem.h"
 #include "Operations.h"
 #include "PlotWindow.h"
 #include "Settings.h"
 #include "core/Graph.h"
+#include "widgets/DataGridPanel.h"
+
 #include "helpers/OriWindows.h"
 #include "helpers/OriWidgets.h"
 #include "tools/OriSettings.h"
-#include "widgets/DataGridPanel.h"
 #include "widgets/OriMdiToolBar.h"
-#include "widgets/OriStylesMenu.h"
+#include "widgets/OriStatusBar.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QDockWidget>
+#include <QLabel>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QStyle>
 #include <QTimer>
+
+enum StatusPanels
+{
+    STATUS_GRAPHS,
+    STATUS_MODIF,
+    STATUS_POINTS,
+    STATUS_FACTOR_X,
+    STATUS_FACTOR_Y,
+    STATUS_FILE,
+
+    STATUS_PANELS_COUNT,
+};
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -32,14 +48,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(_operations, &Operations::graphUpdated, this, &MainWindow::graphUpdated);
 
     _mdiArea = new QMdiArea;
+    _mdiArea->setBackground(QBrush(QPixmap(":/misc/mdi_background")));
     connect(_mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::mdiSubWindowActivated);
     setCentralWidget(_mdiArea);
 
-    createToolBars();
     createDocks();
-    createMenu();
+    createActions();
     createStatusBar();
-    fillToolbars();
 
     loadSettings();
 
@@ -56,7 +71,6 @@ void MainWindow::saveSettings()
     Ori::Settings s;
     s.storeWindowGeometry(this);
     s.storeDockState(this);
-    s.setValue("style", qApp->style()->objectName());
 }
 
 void MainWindow::loadSettings()
@@ -64,48 +78,67 @@ void MainWindow::loadSettings()
     Ori::Settings s;
     s.restoreWindowGeometry(this);
     s.restoreDockState(this);
-    qApp->setStyle(s.strValue("style"));
 }
 
-void MainWindow::createMenu()
+void MainWindow::createActions()
 {
+#define A_ Ori::Gui::action
+
     QMenu *m;
 
     m = menuBar()->addMenu(tr("Project"));
-    _projNewPlot = m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
+    _actnPlotNew = m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
 
     m = menuBar()->addMenu(tr("View"));
     connect(m, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
-    _viewTitle = m->addAction(tr("Title"), this, &MainWindow::toggleTitle);
-    _viewTitle->setCheckable(true);
-    _viewLegend = m->addAction(tr("Legend"), this, &MainWindow::toggleLegend);
-    _viewLegend->setCheckable(true);
+    _actnViewTitle = m->addAction(tr("Title"), this, &MainWindow::toggleTitle);
+    _actnViewTitle->setCheckable(true);
+    _actnViewLegend = m->addAction(tr("Legend"), this, &MainWindow::toggleLegend);
+    _actnViewLegend->setCheckable(true);
     m->addSeparator();
     Ori::Gui::makeToggleWidgetsMenu(m, tr("Panels"), {_dockDataGrid});
-    Ori::Gui::makeToggleWidgetsMenu(m, tr("Toolbars"), {_toolbarProject, _toolbarGraph, _toolbarLimits, _toolbarMdi});
-    m->addSeparator();
-    m->addMenu(new Ori::Widgets::StylesMenu(this));
+
+    m = menuBar()->addMenu(tr("Add"));
+    _actnAddFromFile = m->addAction(tr("From File..."), _operations, &Operations::addFromFile, Qt::Key_Insert);
+    _actnAddFromClipboard = m->addAction(tr("From Clipboard"), _operations, &Operations::addFromClipboard);
+    _actnAddRandomSample = m->addAction(tr("Random Sample"), _operations, &Operations::addRandomSample);
 
     m = menuBar()->addMenu(tr("Graph"));
-    _actnMakeFromFile = m->addAction(tr("Make From File"), _operations, &Operations::makeFromFile);
-    _actnMakeFromClipboard = m->addAction(tr("Make From Clipboard"), _operations, &Operations::makeFromClipboard);
-    _actnMakeRandomSample = m->addAction(tr("Make Random Sample"), _operations, &Operations::makeRandomSample);
-    _actnMakeRandomSampleParams = m->addAction(tr("Make Random Sample (params)"), _operations, &Operations::makeRandomSampleParams);
-    m->addSeparator();
-    _actnGraphRefresh = m->addAction(tr("Refresh Graph"), _operations, &Operations::graphRefresh);
+    _actnGraphRefresh = m->addAction(tr("Refresh"), _operations, &Operations::graphRefresh, QKeySequence("Ctrl+R"));
 
     m = menuBar()->addMenu(tr("Modify"));
-    _actnModifyOffset = m->addAction(tr("Offset"), _operations, &Operations::modifyOffset);
-    _actnModifyOffset = m->addAction(tr("Scale"), _operations, &Operations::modifyScale);
+    _actnModifyOffset = m->addAction(tr("Offset"), _operations, &Operations::modifyOffset, Qt::Key_Plus);
+    _actnModifyOffset = m->addAction(tr("Scale"), _operations, &Operations::modifyScale, Qt::Key_Asterisk);
 
     m = menuBar()->addMenu(tr("Limits"));
-    _limitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));
+    _actnLimitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));
 
     m = menuBar()->addMenu(tr("Windows"));
     m->addAction(tr("Cascade"), _mdiArea, &QMdiArea::cascadeSubWindows);
     m->addAction(tr("Tile"), _mdiArea, &QMdiArea::tileSubWindows);
+
+    auto help = Z::HelpSystem::instance();
+    auto actnHelpContent = A_(tr("Contents"), help, SLOT(showContents()), ":/toolbar/help", QKeySequence::HelpContents);
+    auto actnHelpIndex = A_(tr("Index"), help, SLOT(showIndex()));
+    auto actnHelpBugReport = A_(tr("Send Bug Report"), help, SLOT(sendBugReport()), ":/toolbar/bug");
+    auto actnHelpUpdates = A_(tr("Check for Updates"), help, SLOT(checkUpdates()), ":/toolbar/update");
+    auto actnHelpHomepage = A_(tr("Visit Homepage"), help, SLOT(visitHomePage()), ":/toolbar/home");
+    auto actnHelpAbout = A_(tr("About..."), help, SLOT(showAbout()));
+
+    m = menuBar()->addMenu(tr("Help"));
+    Ori::Gui::populate(m, {actnHelpContent, actnHelpIndex, nullptr,
+                           actnHelpBugReport, actnHelpUpdates, actnHelpHomepage, nullptr,
+                           actnHelpAbout});
+
+    auto toolbarMdi = new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea);
+    toolbarMdi->setMovable(false);
+    toolbarMdi->setFloatable(false);
+    toolbarMdi->flat = true;
+    addToolBar(Qt::BottomToolBarArea, toolbarMdi);
+
+#undef A_
 }
 
 void MainWindow::createDocks()
@@ -119,37 +152,14 @@ void MainWindow::createDocks()
 
 void MainWindow::createStatusBar()
 {
-    // TODO
-}
+    _statusBar = new Ori::Widgets::StatusBar(STATUS_PANELS_COUNT);
 
-void MainWindow::createToolBars()
-{
-    _toolbarProject = new QToolBar(tr("Project"));
-    _toolbarProject->setObjectName("ToolbarProject");
-    addToolBar(Qt::TopToolBarArea, _toolbarProject);
+    auto versionLabel = new QLabel(Z::HelpSystem::appVersion());
+        versionLabel->setContentsMargins(3, 0, 3, 0);
+        versionLabel->setForegroundRole(QPalette::Mid);
+        _statusBar->addPermanentWidget(versionLabel);
 
-    _toolbarGraph = new QToolBar(tr("Graph"));
-    _toolbarGraph->setObjectName("ToolbarGraph");
-    addToolBar(Qt::TopToolBarArea, _toolbarGraph);
-
-    _toolbarLimits = new QToolBar(tr("Limits"));
-    _toolbarLimits->setObjectName("ToolbarLimits");
-    addToolBar(Qt::TopToolBarArea, _toolbarLimits);
-
-    _toolbarMdi = new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea);
-    addToolBar(Qt::BottomToolBarArea, _toolbarMdi);
-}
-
-void MainWindow::fillToolbars()
-{
-    // TODO load button set for each toolbar from saved state
-
-    Ori::Gui::populate(_toolbarProject, {_projNewPlot});
-
-    Ori::Gui::populate(_toolbarGraph, {_actnMakeFromFile, _actnMakeFromClipboard, _actnMakeRandomSample});
-
-    Ori::Gui::populate(_toolbarLimits, {_limitsAuto});
-}
+        setStatusBar(_statusBar);}
 
 PlotWindow* MainWindow::activePlot() const
 {
@@ -168,7 +178,7 @@ void MainWindow::newProject()
 {
     newPlot();
 
-    _operations->makeRandomSample();
+    _operations->addRandomSample();
 }
 
 void MainWindow::newPlot()
@@ -216,6 +226,8 @@ void MainWindow::graphUpdated(Graph* graph) const
 
 void MainWindow::graphSelected(Graph* graph) const
 {
+    _statusBar->setText(STATUS_POINTS, tr("Points: %1").arg(graph->pointsCount()));
+
     if (!_panelDataGrid->isVisible()) return;
 
     auto plot = qobject_cast<PlotWindow*>(sender());
@@ -246,8 +258,8 @@ void MainWindow::autolimits()
 void MainWindow::updateViewMenu()
 {
     auto plot = activePlot();
-    _viewTitle->setChecked(plot && plot->isTitleVisible());
-    _viewLegend->setChecked(plot && plot->isLegendVisible());
+    _actnViewTitle->setChecked(plot && plot->isTitleVisible());
+    _actnViewLegend->setChecked(plot && plot->isLegendVisible());
 }
 
 void MainWindow::toggleTitle()

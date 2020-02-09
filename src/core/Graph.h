@@ -24,6 +24,7 @@ public:
     void setIcon(const QIcon& icon) { _icon = icon; }
 
     const GraphPoints& data() const { return _data; }
+    int pointsCount() const { return _data.xs.size(); }
 
     QString canRefreshData() const;
     QString refreshData();

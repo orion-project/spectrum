@@ -15,10 +15,9 @@ class Operations : public QObject
 public:
     explicit Operations(QObject *parent = nullptr);
 
-    void makeFromFile() const;
-    void makeFromClipboard() const;
-    void makeRandomSample() const;
-    void makeRandomSampleParams() const;
+    void addFromFile() const;
+    void addFromClipboard() const;
+    void addRandomSample() const;
     void modifyOffset() const;
     void modifyScale() const;
     void graphRefresh() const;

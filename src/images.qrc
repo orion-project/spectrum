@@ -1,5 +1,14 @@
 <RCC>
+    <qresource prefix="/toolbar">
+        <file alias="bug">../img/toolbar/bug.svg</file>
+        <file alias="help">../img/toolbar/help.svg</file>
+        <file alias="home">../img/toolbar/home.svg</file>
+        <file alias="update">../img/toolbar/update.svg</file>
+    </qresource>
     <qresource prefix="/window_icons">
         <file alias="main">../img/icons/spectrum.svg</file>
+    </qresource>
+    <qresource prefix="/misc">
+        <file alias="mdi_background">../img/background.bmp</file>
     </qresource>
 </RCC>

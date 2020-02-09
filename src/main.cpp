@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     app.setApplicationName("Spectrum");
     app.setOrganizationName("orion-project.org");
+    app.setStyle("Fusion");
 
     MainWindow w;
     w.show();
