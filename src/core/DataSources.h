@@ -7,10 +7,13 @@ class DataSource
 {
 public:
     virtual ~DataSource();
-    virtual GraphResult getData() const = 0;
+    virtual GraphResult getData() = 0;
     virtual QString makeTitle() const = 0;
     virtual QString canRefresh() const { return QString(); }
     virtual bool configure() { return true; }
+    const GraphPoints& initialData() { return _initialData; }
+protected:
+    GraphPoints _initialData;
 };
 
 
@@ -18,7 +21,7 @@ class TextFileDataSource : public DataSource
 {
 public:
     TextFileDataSource();
-    GraphResult getData() const override;
+    GraphResult getData() override;
     QString makeTitle() const override;
     bool configure() override;
 private:
@@ -29,7 +32,7 @@ private:
 class CsvFileDataSource : public DataSource
 {
 public:
-    GraphResult getData() const override;
+    GraphResult getData() override;
     QString makeTitle() const override;
     bool configure() override;
 private:
@@ -38,7 +41,6 @@ private:
     bool _decimalPoint;
     int _columnX, _columnY;
     int _skipFirstLines;
-    GraphPoints _initialData;
     friend class CsvConfigDialog;
 };
 
@@ -46,7 +48,7 @@ class RandomSampleDataSource : public DataSource
 {
 public:
     RandomSampleDataSource();
-    GraphResult getData() const override;
+    GraphResult getData() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
 private:
@@ -58,7 +60,7 @@ class ClipboardDataSource : public DataSource
 {
 public:
     ClipboardDataSource();
-    GraphResult getData() const override;
+    GraphResult getData() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
 private:

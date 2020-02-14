@@ -27,13 +27,9 @@ void Operations::addFromCsvFile() const
         Ori::Dlg::error(dataSources.error());
         return;
     }
+    // TODO: optimize repainting
     for (auto dataSource : dataSources.result())
-    {
-        auto graph = new Graph(dataSource);
-        graph->refreshData();
-        // TODO: optimize repainting
-        emit graphCreated(graph);
-    }
+        emit graphCreated(new Graph(dataSource));
 }
 
 void Operations::addFromClipboard() const

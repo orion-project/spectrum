@@ -1,6 +1,7 @@
 #include "CsvConfigDialog.h"
 
 #include "CustomPrefs.h"
+#include "core/DataReaders.h"
 #include "core/DataSources.h"
 
 #include "helpers/OriDialogs.h"
@@ -29,132 +30,6 @@
 #define DEFAULT_COL_Y 2
 
 using namespace Ori::Layouts;
-
-struct LineSplitter
-{
-    LineSplitter(const QString& separators) : separators(separators) {}
-
-    bool empty = true;
-    QChar separator;
-    QString separators;
-    QVector<QStringRef> parts;
-    QString::SplitBehavior splitBehavior;
-
-    void detect(const QString& line)
-    {
-        // Don't skip empty parts; a line like "1,,3" should issue 3 columns
-        splitBehavior = QString::KeepEmptyParts;
-        for (auto sep = separators.cbegin(); sep != separators.cend(); sep++)
-        {
-            separator = *sep;
-            parts = line.splitRef(separator, splitBehavior);
-            if (parts.size() > 1)
-            {
-                empty = false;
-                return;
-            }
-        }
-        // Skip empty parts; a line like "1    3" should issue only 2 columns
-        splitBehavior = QString::SkipEmptyParts;
-        separator = ' ';
-        parts = line.splitRef(separator, splitBehavior);
-        if (parts.size() > 1)
-        {
-            empty = false;
-            return;
-        }
-        separator = '\t';
-        parts = line.splitRef(separator, splitBehavior);
-        if (parts.size() > 1)
-        {
-            empty = false;
-            return;
-        }
-        return;
-    }
-
-    void split(const QString& line)
-    {
-        if (empty)
-            detect(line);
-        else
-            parts = line.splitRef(separator, splitBehavior);
-    }
-};
-
-struct ValueParser
-{
-    ValueParser(bool decimalPoint)
-    {
-        locale = QLocale(decimalPoint ? QLocale::C : QLocale::Russian);
-    }
-
-    void parse(const QStringRef& s)
-    {
-        value = locale.toDouble(s, &ok);
-    }
-
-    bool ok;
-    double value;
-    QLocale locale;
-};
-
-struct CsvMultiReader
-{
-    QString fileName;
-    QString valueSeparators;
-    bool decimalPoint;
-    int skipFirstLines;
-
-    struct GraphItem
-    {
-        QString title;
-        int columnX, columnY;
-        QVector<double> xs, ys;
-    };
-    QVector<GraphItem> graphItems;
-
-    QString read()
-    {
-        QFile f(fileName);
-        if (!f.exists())
-            return qApp->tr("File '%1' not found").arg(fileName);
-
-        bool ok = f.open(QIODevice::ReadOnly | QIODevice::Text);
-        if (!ok)
-            return qApp->tr("Failed to read file '%1': %2").arg(fileName, f.errorString());
-
-        QTextStream stream(&f);
-        LineSplitter lineSplitter(valueSeparators);
-        ValueParser valueParser(decimalPoint);
-        int linesSkipped = 0;
-        while (true)
-        {
-            QString line;
-            if (!stream.readLineInto(&line)) break;
-            if (linesSkipped++ < skipFirstLines) continue;
-            if (line.isEmpty()) continue;
-
-            lineSplitter.split(line);
-            int colCount = lineSplitter.parts.size();
-
-            for (GraphItem& item : graphItems)
-            {
-                if (item.columnX < 1 || item.columnX > colCount) continue;
-                if (item.columnY < 1 || item.columnY > colCount) continue;
-                valueParser.parse(lineSplitter.parts.at(item.columnX-1));
-                if (!valueParser.ok) continue;
-                double x = valueParser.value;
-                valueParser.parse(lineSplitter.parts.at(item.columnY-1));
-                if (!valueParser.ok) continue;
-                double y = valueParser.value;
-                item.xs.append(x);
-                item.ys.append(y);
-            }
-        }
-        return QString();
-    }
-};
 
 CsvOpenResult CsvConfigDialog::openFile()
 {
@@ -226,6 +101,7 @@ CsvOpenResult CsvConfigDialog::openFile()
     csvReader.valueSeparators = paramsEditor._valueSeparator->text().trimmed();
     csvReader.decimalPoint = paramsEditor._decSepPoint->isChecked();
     csvReader.skipFirstLines = paramsEditor._skipFirstLines->value();
+
     stateFile["dir"] = fileDlg.directory().path();
     stateCsv["window_width"] = dlg.size().width();
     stateCsv["window_height"] = dlg.size().height();

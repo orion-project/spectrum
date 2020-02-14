@@ -5,6 +5,8 @@
 
 Graph::Graph(DataSource* dataSource): _dataSource(dataSource)
 {
+    _data = _dataSource->initialData();
+    _title = _dataSource->makeTitle();
 }
 
 Graph::~Graph()

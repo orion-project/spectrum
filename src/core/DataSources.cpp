@@ -1,5 +1,6 @@
 #include "DataSources.h"
 
+#include "DataReaders.h"
 #include "../CustomPrefs.h"
 
 #include <QApplication>
@@ -8,111 +9,6 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMimeData>
-
-namespace {
-
-const QVector<QString>& valueSeparators()
-{
-    // TODO: make configurable
-    static QVector<QString> separators({" ", "\t", ",", ";"});
-    return separators;
-}
-
-GraphResult readDataFromText(const QString& text)
-{
-    if (text.isEmpty())
-        return GraphResult::fail(qApp->tr("Processing text is empty."));
-
-    QVector<QStringRef> lines = text.splitRef('\n', QString::SkipEmptyParts);
-    if (lines.isEmpty())
-        return GraphResult::fail(qApp->tr("Processing text is empty."));
-
-    // It may be line of numbers, we can plot it spliting by a separator
-    // 0.403922 0.419608 0.443137 0.458824 0.458824 0.466667 0.482353...
-    if (lines.size() == 1)
-    {
-        for (const QString& separator : valueSeparators())
-        {
-            lines = text.splitRef(separator, QString::SkipEmptyParts);
-            if (lines.size() >= 2)
-                break;
-        }
-    }
-
-    if (lines.size() < 2)
-        // TODO try another line separator
-        return GraphResult::fail(qApp->tr("Processing text contains too few lines."));
-
-    bool ok, gotX, gotY;
-    double value, x, y;
-    QVector<double> xs, ys, onlyY;
-
-    for (const QStringRef& line : lines)
-    {
-        if (line.isEmpty()) continue;
-
-        QVector<QStringRef> parts;
-        for (const QString& valueSeparator : valueSeparators())
-        {
-            parts = line.split(valueSeparator, QString::SkipEmptyParts);
-            if (parts.size() > 1) break;
-        }
-
-        gotX = gotY = false;
-        for (const QStringRef& part : parts)
-        {
-            value = part.toDouble(&ok);
-            if (!ok)
-            {
-                // TODO try another decimal separator
-                continue;
-            }
-            if (!gotX)
-            {
-                x = value;
-                gotX = true;
-            }
-            else
-            {
-                y = value;
-                gotY = true;
-            }
-            if (gotX && gotY) break;
-        }
-        if (!gotY)
-        {
-            if (!gotX)
-            {
-                // TODO try another value separator
-                continue;
-            }
-            onlyY.push_back(x);
-            gotY = true;
-        }
-        else
-        {
-            xs.push_back(x);
-            ys.push_back(y);
-        }
-    }
-
-    if (ys.size() < 2 && onlyY.size() < 2)
-        return GraphResult::fail(qApp->tr("Too few points for plotting."));
-
-    if (onlyY.size() > ys.size())
-    {
-        // treat data as single column
-        ys = onlyY;
-        xs.resize(ys.size());
-        for (int i = 0; i < xs.size(); i++)
-            xs[i] = i;
-    }
-
-    Q_ASSERT(xs.size() == ys.size());
-    return GraphResult::ok({xs, ys});
-}
-
-} // namespace
 
 //------------------------------------------------------------------------------
 //                                 DataSource
@@ -162,17 +58,16 @@ bool TextFileDataSource::configure()
     return false;
 }
 
-GraphResult TextFileDataSource::getData() const
+GraphResult TextFileDataSource::getData()
 {
-    QFile f(_fileName);
-    if (!f.exists())
-        return GraphResult::fail(qApp->tr("File '%1' not found").arg(_fileName));
+    TextReader reader;
+    reader.fileName = _fileName;
+    QString res = reader.read();
+    if (!res.isEmpty())
+        return GraphResult::fail(res);
 
-    bool ok = f.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (!ok)
-        return GraphResult::fail(qApp->tr("Failed to read file '%1': %2").arg(_fileName, f.errorString()));
-
-    return readDataFromText(f.readAll());
+    _initialData = {reader.xs, reader.ys};
+    return GraphResult::ok(_initialData);
 }
 
 QString TextFileDataSource::makeTitle() const
@@ -184,19 +79,31 @@ QString TextFileDataSource::makeTitle() const
 //                             CsvFileMultiDataSource
 //------------------------------------------------------------------------------
 
-GraphResult CsvFileDataSource::getData() const
+bool CsvFileDataSource::configure()
 {
+    return true;
+}
+
+GraphResult CsvFileDataSource::getData()
+{
+    CsvSingleReader reader;
+    reader.fileName = _fileName;
+    reader.columnX = _columnX;
+    reader.columnY = _columnY;
+    reader.decimalPoint = _decimalPoint;
+    reader.skipFirstLines = _skipFirstLines;
+    reader.valueSeparators = _valueSeparators;
+    QString res = reader.read();
+    if (!res.isEmpty())
+        return GraphResult::fail(res);
+
+    _initialData = {reader.xs, reader.ys};
     return GraphResult::ok(_initialData);
 }
 
 QString CsvFileDataSource::makeTitle() const
 {
     return _title;
-}
-
-bool CsvFileDataSource::configure()
-{
-    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -210,7 +117,7 @@ RandomSampleDataSource::RandomSampleDataSource()
     _index = ++__randomSampleIndex;
 }
 
-GraphResult RandomSampleDataSource::getData() const
+GraphResult RandomSampleDataSource::getData()
 {
     const double H = 25;
     const int count = 100;
@@ -227,7 +134,8 @@ GraphResult RandomSampleDataSource::getData() const
         ys[i] = y;
     }
 
-    return GraphResult::ok({xs, ys});
+    _initialData = {xs, ys};
+    return GraphResult::ok(_initialData);
 }
 
 QString RandomSampleDataSource::canRefresh() const
@@ -252,13 +160,20 @@ ClipboardDataSource::ClipboardDataSource()
         _index = ++__clipboardCallCount;
 }
 
-GraphResult ClipboardDataSource::getData() const
+GraphResult ClipboardDataSource::getData()
 {
     QString text = qApp->clipboard()->text();
     if (text.isEmpty())
         return GraphResult::fail(qApp->tr("Clipboard does not contain suitable data"));
 
-    return readDataFromText(text);
+    TextReader reader;
+    reader.text = text;
+    QString res = reader.read();
+    if (!res.isEmpty())
+        return GraphResult::fail(res);
+
+    _initialData = {reader.xs, reader.ys};
+    return GraphResult::ok(_initialData);
 }
 
 QString ClipboardDataSource::canRefresh() const
