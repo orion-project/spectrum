@@ -60,10 +60,18 @@ void storeWindowSize(QJsonObject& root, QWidget* wnd)
     root["window_height"] = wnd->height();
 }
 
+void restoreWindowSize(const QJsonObject& root, QWidget* wnd)
+{
+    int w = root["window_width"].toInt(0);
+    int h = root["window_height"].toInt(0);
+    if (w > 0 && h > 0)
+        wnd->resize(w, h);
+}
+
 void restoreWindowSize(const QJsonObject& root, QWidget* wnd, int defaultW, int defaultH)
 {
-    int w = root["window_width"].toInt();
-    int h = root["window_height"].toInt();
+    int w = root["window_width"].toInt(0);
+    int h = root["window_height"].toInt(0);
     if (w == 0 || h == 0)
     {
         w = defaultW;

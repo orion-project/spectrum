@@ -1,5 +1,6 @@
 #include "Operations.h"
 
+#include "CsvConfigDialog.h"
 #include "core/Graph.h"
 #include "core/DataSources.h"
 #include "core/Modificators.h"
@@ -14,7 +15,25 @@ Operations::Operations(QObject *parent) : QObject(parent)
 
 void Operations::addFromFile() const
 {
+    // TODO: open several files in the same time
     addGraph(new TextFileDataSource());
+}
+
+void Operations::addFromCsvFile() const
+{
+    auto dataSources = CsvConfigDialog::openFile();
+    if (!dataSources.ok())
+    {
+        Ori::Dlg::error(dataSources.error());
+        return;
+    }
+    for (auto dataSource : dataSources.result())
+    {
+        auto graph = new Graph(dataSource);
+        graph->refreshData();
+        // TODO: optimize repainting
+        emit graphCreated(graph);
+    }
 }
 
 void Operations::addFromClipboard() const

@@ -32,6 +32,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 RESOURCES += src/images.qrc
 
 SOURCES += src/main.cpp\
+    src/CsvConfigDialog.cpp \
     src/CustomPrefs.cpp \
     src/HelpSystem.cpp \
         src/MainWindow.cpp \
@@ -45,6 +46,7 @@ SOURCES += src/main.cpp\
     src/Settings.cpp
 
 HEADERS  += \
+    src/CsvConfigDialog.h \
     src/CustomPrefs.h \
     src/HelpSystem.h \
         src/MainWindow.h \

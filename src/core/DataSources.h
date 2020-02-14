@@ -26,6 +26,22 @@ private:
 };
 
 
+class CsvFileDataSource : public DataSource
+{
+public:
+    GraphResult getData() const override;
+    QString makeTitle() const override;
+    bool configure() override;
+private:
+    QString _fileName, _title;
+    QString _valueSeparators;
+    bool _decimalPoint;
+    int _columnX, _columnY;
+    int _skipFirstLines;
+    GraphPoints _initialData;
+    friend class CsvConfigDialog;
+};
+
 class RandomSampleDataSource : public DataSource
 {
 public:

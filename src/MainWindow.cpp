@@ -102,6 +102,7 @@ void MainWindow::createActions()
 
     m = menuBar()->addMenu(tr("Add"));
     _actnAddFromFile = m->addAction(tr("From File..."), _operations, &Operations::addFromFile, Qt::Key_Insert);
+    m->addAction(tr("From CSV File..."), _operations, &Operations::addFromCsvFile, QKeySequence("Shift+Ctrl+Ins"));
     _actnAddFromClipboard = m->addAction(tr("From Clipboard"), _operations, &Operations::addFromClipboard);
     _actnAddRandomSample = m->addAction(tr("Random Sample"), _operations, &Operations::addRandomSample);
 
@@ -248,6 +249,7 @@ void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window) const
     auto graph = plot->selectedGraph();
     if (!graph) return;
 
+    // TODO: it resets selection in the data table when the whole application is activated
     _panelDataGrid->showData(plot->plotObj(), graph);
 }
 

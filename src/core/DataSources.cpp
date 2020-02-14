@@ -14,19 +14,8 @@ namespace {
 const QVector<QString>& valueSeparators()
 {
     // TODO: make configurable
-    static QVector<QString> separators({" ", "\t", ";", ","});
+    static QVector<QString> separators({" ", "\t", ",", ";"});
     return separators;
-}
-
-QString selectValueSeparator(const QStringRef& line)
-{
-    for (const QString& separator : valueSeparators())
-    {
-        QVector<QStringRef> parts = line.split(separator, QString::SkipEmptyParts);
-        if (parts.size() > 1)
-            return separator;
-    }
-    return QString();
 }
 
 GraphResult readDataFromText(const QString& text)
@@ -57,40 +46,10 @@ GraphResult readDataFromText(const QString& text)
     bool ok, gotX, gotY;
     double value, x, y;
     QVector<double> xs, ys, onlyY;
-//    bool hasValueSeparator = false;
-//    bool hasOnlyOneColumn = false;
-//    QString valueSeparator;
 
     for (const QStringRef& line : lines)
     {
         if (line.isEmpty()) continue;
-
-        /*if (!hasValueSeparator)
-        {
-            valueSeparator = selectValueSeparator(line);
-            if (valueSeparator.isEmpty())
-            {
-                // Try if the whole line is a single value
-                value = line.toDouble(&ok);
-                if (ok)
-                {
-                    hasValueSeparator = true;
-                    hasOnlyOneColumn = true;
-                }
-                else continue;
-            }
-            // If `valueSeparator` is not empty, stil don't set `hasValueSeparator`
-            // until we'll be sure it really separates values but not some header words
-        }*/
-
-        /*if (hasValueSeparator && hasOnlyOneColumn)
-        {
-            value = line.toDouble(&ok);
-            if (ok)
-                onlyY.push_back(value);
-            continue;
-        }*/
-
 
         QVector<QStringRef> parts;
         for (const QString& valueSeparator : valueSeparators())
@@ -135,8 +94,6 @@ GraphResult readDataFromText(const QString& text)
             xs.push_back(x);
             ys.push_back(y);
         }
-        //if (!hasValueSeparator && (gotX || gotY))
-          //  hasValueSeparator = true;
     }
 
     if (ys.size() < 2 && onlyY.size() < 2)
@@ -221,6 +178,25 @@ GraphResult TextFileDataSource::getData() const
 QString TextFileDataSource::makeTitle() const
 {
     return QFileInfo(_fileName).fileName();
+}
+
+//------------------------------------------------------------------------------
+//                             CsvFileMultiDataSource
+//------------------------------------------------------------------------------
+
+GraphResult CsvFileDataSource::getData() const
+{
+    return GraphResult::ok(_initialData);
+}
+
+QString CsvFileDataSource::makeTitle() const
+{
+    return _title;
+}
+
+bool CsvFileDataSource::configure()
+{
+    return true;
 }
 
 //------------------------------------------------------------------------------

@@ -14,6 +14,7 @@ QJsonObject loadCustomData(const QString& spec);
 void saveCustomData(const QJsonObject& root, const QString& spec);
 
 void storeWindowSize(QJsonObject& root, QWidget* wnd);
+void restoreWindowSize(const QJsonObject& root, QWidget* wnd);
 void restoreWindowSize(const QJsonObject& root, QWidget* wnd, int defaultW, int defaultH);
 
 } // namespace CustomData

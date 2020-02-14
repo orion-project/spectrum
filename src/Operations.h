@@ -16,6 +16,7 @@ public:
     explicit Operations(QObject *parent = nullptr);
 
     void addFromFile() const;
+    void addFromCsvFile() const;
     void addFromClipboard() const;
     void addRandomSample() const;
     void modifyOffset() const;

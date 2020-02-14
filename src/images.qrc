@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/toolbar">
         <file alias="bug">../img/toolbar/bug.svg</file>
+        <file alias="delete">../img/toolbar/delete.svg</file>
         <file alias="help">../img/toolbar/help.svg</file>
         <file alias="home">../img/toolbar/home.svg</file>
         <file alias="update">../img/toolbar/update.svg</file>
