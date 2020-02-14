@@ -102,8 +102,9 @@ void MainWindow::createActions()
 
     m = menuBar()->addMenu(tr("Add"));
     _actnAddFromFile = m->addAction(tr("From File..."), _operations, &Operations::addFromFile, Qt::Key_Insert);
-    m->addAction(tr("From CSV File..."), _operations, &Operations::addFromCsvFile, QKeySequence("Shift+Ctrl+Ins"));
-    _actnAddFromClipboard = m->addAction(tr("From Clipboard"), _operations, &Operations::addFromClipboard);
+    m->addAction(tr("From File as CSV..."), _operations, &Operations::addFromCsvFile, QKeySequence("Shift+Ctrl+Ins"));
+    _actnAddFromClipboard = m->addAction(tr("From Clipboard"), _operations, &Operations::addFromClipboard, QKeySequence("Shift+Ctrl+V"));
+    m->addAction(tr("From Clipboard as CSV..."), _operations, &Operations::addFromClipboardCsv, QKeySequence("Ctrl+Alt+V"));
     _actnAddRandomSample = m->addAction(tr("Random Sample"), _operations, &Operations::addRandomSample);
 
     m = menuBar()->addMenu(tr("Graph"));

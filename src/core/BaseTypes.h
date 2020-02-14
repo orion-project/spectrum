@@ -13,4 +13,13 @@ struct GraphPoints
 
 using GraphResult = Ori::Result<GraphPoints>;
 
+struct CsvGraphParams
+{
+    QString title;
+    QString valueSeparators;
+    bool decimalPoint;
+    int columnX, columnY;
+    int skipFirstLines;
+};
+
 #endif // BASE_TYPES_H

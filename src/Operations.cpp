@@ -32,6 +32,19 @@ void Operations::addFromCsvFile() const
         emit graphCreated(new Graph(dataSource));
 }
 
+void Operations::addFromClipboardCsv() const
+{
+    auto dataSources = CsvConfigDialog::openClipboard();
+    if (!dataSources.ok())
+    {
+        Ori::Dlg::error(dataSources.error());
+        return;
+    }
+    // TODO: optimize repainting
+    for (auto dataSource : dataSources.result())
+        emit graphCreated(new Graph(dataSource));
+}
+
 void Operations::addFromClipboard() const
 {
     addGraph(new ClipboardDataSource);

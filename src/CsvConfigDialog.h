@@ -6,6 +6,8 @@
 #include <QWidget>
 
 class DataSource;
+struct CsvOpenerState;
+struct CsvMultiReader;
 
 QT_BEGIN_NAMESPACE
 class QGridLayout;
@@ -17,6 +19,7 @@ class QRadioButton;
 class QSpinBox;
 class QStackedWidget;
 class QTableView;
+class QTextStream;
 QT_END_NAMESPACE
 
 using CsvOpenResult = Ori::Result<QVector<DataSource*>>;
@@ -29,6 +32,7 @@ public:
     explicit CsvConfigDialog(QWidget *parent = nullptr);
 
     static CsvOpenResult openFile();
+    static CsvOpenResult openClipboard();
 
 private:
     struct CvsGraphItemView
@@ -39,7 +43,7 @@ private:
         QPushButton *buttonDel;
     };
 
-    QString _fileName, _graphBaseName;
+    QString _fileName, _text, _graphBaseName;
     QStringList _previewLines;
     QStackedWidget *_tabs;
     QPlainTextEdit *_fileTextPreview;
@@ -53,9 +57,14 @@ private:
 
     void updateFullPreview();
     void updatePreviewText();
+    void updatePreviewText(QTextStream& stream);
     void updatePreviewData();
     void addNewGraph();
     void addGraphItem(int colX, int colY);
+    bool showDialog(const QString& title, CsvOpenerState& state);
+    void initReader(CsvMultiReader& reader);
+
+    friend struct CsvOpenerState;
 };
 
 #endif // CSV_CONFIG_DIALOG_H

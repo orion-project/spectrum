@@ -5,10 +5,12 @@
 
 #include <QApplication>
 #include <QClipboard>
-#include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMimeData>
+
+static int __randomSampleIndex = 0;
+static int __clipboardCallCount = 0;
 
 //------------------------------------------------------------------------------
 //                                 DataSource
@@ -88,11 +90,7 @@ GraphResult CsvFileDataSource::getData()
 {
     CsvSingleReader reader;
     reader.fileName = _fileName;
-    reader.columnX = _columnX;
-    reader.columnY = _columnY;
-    reader.decimalPoint = _decimalPoint;
-    reader.skipFirstLines = _skipFirstLines;
-    reader.valueSeparators = _valueSeparators;
+    reader.params = _params;
     QString res = reader.read();
     if (!res.isEmpty())
         return GraphResult::fail(res);
@@ -103,14 +101,12 @@ GraphResult CsvFileDataSource::getData()
 
 QString CsvFileDataSource::makeTitle() const
 {
-    return _title;
+    return _params.title;
 }
 
 //------------------------------------------------------------------------------
 //                             RandomSampleDataSource
 //------------------------------------------------------------------------------
-
-static int __randomSampleIndex = 0;
 
 RandomSampleDataSource::RandomSampleDataSource()
 {
@@ -152,8 +148,6 @@ QString RandomSampleDataSource::makeTitle() const
 //                             ClipboardDataSource
 //------------------------------------------------------------------------------
 
-static int __clipboardCallCount = 0;
-
 ClipboardDataSource::ClipboardDataSource()
 {
     if (qApp->clipboard()->mimeData()->hasText())
@@ -178,10 +172,29 @@ GraphResult ClipboardDataSource::getData()
 
 QString ClipboardDataSource::canRefresh() const
 {
-    return qApp->tr("Refreshing of graph data from the clipboard is not supported");
+    return qApp->tr("Refreshing of graph data from clipboard is not supported");
 }
 
 QString ClipboardDataSource::makeTitle() const
 {
      return QString("clipboard (%1)").arg(_index);
+}
+
+//------------------------------------------------------------------------------
+//                             ClipboardCsvDataSource
+//------------------------------------------------------------------------------
+
+GraphResult ClipboardCsvDataSource::getData()
+{
+    return GraphResult::fail("Getting data from Clipboard as CSV must be done via CsvConfigDialog::openClipboard()");
+}
+
+QString ClipboardCsvDataSource::canRefresh() const
+{
+    return qApp->tr("Refreshing of graph data from clipboard is not supported");
+}
+
+QString ClipboardCsvDataSource::makeTitle() const
+{
+     return _params.title;
 }

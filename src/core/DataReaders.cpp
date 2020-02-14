@@ -70,15 +70,30 @@ struct TextFileOpener
 
 QString CsvMultiReader::read()
 {
-    QFile f(fileName);
-    if (!f.exists())
-        return qApp->tr("File '%1' not found").arg(fileName);
+    Q_ASSERT(!fileName.isEmpty() || !text.isEmpty());
 
-    bool ok = f.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (!ok)
-        return qApp->tr("Failed to read file '%1': %2").arg(fileName, f.errorString());
+    if (!fileName.isEmpty())
+    {
+        QFile f(fileName);
+        if (!f.exists())
+            return qApp->tr("File '%1' not found").arg(fileName);
+        if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+            return qApp->tr("Failed to read file '%1': %2").arg(fileName, f.errorString());
 
-    QTextStream stream(&f);
+        QTextStream stream(&f);
+        read(stream);
+        return QString();
+    }
+    else
+    {
+        QTextStream stream(&text);
+        read(stream);
+        return QString();
+    }
+}
+
+void CsvMultiReader::read(QTextStream& stream)
+{
     LineSplitter lineSplitter(valueSeparators);
     ValueParser valueParser(decimalPoint);
     int linesSkipped = 0;
@@ -106,7 +121,18 @@ QString CsvMultiReader::read()
             item.ys.append(y);
         }
     }
-    return QString();
+}
+
+CsvGraphParams CsvMultiReader::makeParams(const GraphItem &item) const
+{
+    CsvGraphParams p;
+    p.title = item.title;
+    p.columnX = item.columnX;
+    p.columnY = item.columnY;
+    p.valueSeparators = valueSeparators;
+    p.skipFirstLines = skipFirstLines;
+    p.decimalPoint = decimalPoint;
+    return p;
 }
 
 //------------------------------------------------------------------------------
@@ -118,31 +144,29 @@ QString CsvSingleReader::read()
     QFile f(fileName);
     if (!f.exists())
         return qApp->tr("File '%1' not found").arg(fileName);
-
-    bool ok = f.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (!ok)
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
         return qApp->tr("Failed to read file '%1': %2").arg(fileName, f.errorString());
 
     QTextStream stream(&f);
-    LineSplitter lineSplitter(valueSeparators);
-    ValueParser valueParser(decimalPoint);
+    LineSplitter lineSplitter(params.valueSeparators);
+    ValueParser valueParser(params.decimalPoint);
     int linesSkipped = 0;
     while (true)
     {
         QString line;
         if (!stream.readLineInto(&line)) break;
-        if (linesSkipped++ < skipFirstLines) continue;
+        if (linesSkipped++ < params.skipFirstLines) continue;
         if (line.isEmpty()) continue;
 
         lineSplitter.split(line);
         int colCount = lineSplitter.parts.size();
 
-        if (columnX < 1 || columnX > colCount) continue;
-        if (columnY < 1 || columnY > colCount) continue;
-        valueParser.parse(lineSplitter.parts.at(columnX-1));
+        if (params.columnX < 1 || params.columnX > colCount) continue;
+        if (params.columnY < 1 || params.columnY > colCount) continue;
+        valueParser.parse(lineSplitter.parts.at(params.columnX-1));
         if (!valueParser.ok) continue;
         double x = valueParser.value;
-        valueParser.parse(lineSplitter.parts.at(columnY-1));
+        valueParser.parse(lineSplitter.parts.at(params.columnY-1));
         if (!valueParser.ok) continue;
         double y = valueParser.value;
         xs.append(x);

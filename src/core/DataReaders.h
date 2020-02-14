@@ -39,6 +39,7 @@ struct ValueParser
 struct CsvMultiReader
 {
     QString fileName;
+    QString text;
     QString valueSeparators;
     bool decimalPoint;
     int skipFirstLines;
@@ -52,15 +53,14 @@ struct CsvMultiReader
     QVector<GraphItem> graphItems;
 
     QString read();
+    void read(QTextStream &stream);
+    CsvGraphParams makeParams(const GraphItem& item) const;
 };
 
 struct CsvSingleReader
 {
     QString fileName;
-    QString valueSeparators;
-    bool decimalPoint;
-    int skipFirstLines;
-    int columnX, columnY;
+    CsvGraphParams params;
     QVector<double> xs, ys;
 
     QString read();

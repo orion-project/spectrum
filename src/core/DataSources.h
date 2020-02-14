@@ -36,11 +36,8 @@ public:
     QString makeTitle() const override;
     bool configure() override;
 private:
-    QString _fileName, _title;
-    QString _valueSeparators;
-    bool _decimalPoint;
-    int _columnX, _columnY;
-    int _skipFirstLines;
+    QString _fileName;
+    CsvGraphParams _params;
     friend class CsvConfigDialog;
 };
 
@@ -65,6 +62,18 @@ public:
     QString canRefresh() const override;
 private:
     int _index;
+};
+
+
+class ClipboardCsvDataSource : public DataSource
+{
+public:
+    GraphResult getData() override;
+    QString makeTitle() const override;
+    QString canRefresh() const override;
+private:
+    CsvGraphParams _params;
+    friend class CsvConfigDialog;
 };
 
 #endif // DATA_SOURCES_H

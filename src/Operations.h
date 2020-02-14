@@ -18,6 +18,7 @@ public:
     void addFromFile() const;
     void addFromCsvFile() const;
     void addFromClipboard() const;
+    void addFromClipboardCsv() const;
     void addRandomSample() const;
     void modifyOffset() const;
     void modifyScale() const;

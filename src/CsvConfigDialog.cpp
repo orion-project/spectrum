@@ -9,6 +9,7 @@
 #include "helpers/OriWidgets.h"
 
 #include <QApplication>
+#include <QClipboard>
 #include <QDebug>
 #include <QFile>
 #include <QFileDialog>
@@ -28,108 +29,137 @@
 
 #define DEFAULT_COL_X 1
 #define DEFAULT_COL_Y 2
+#define DEFAULT_DLG_W 750
+#define DEFAULT_DLG_H 550
 
 using namespace Ori::Layouts;
 
+struct CsvOpenerState
+{
+    CsvOpenerState()
+    {
+        root = CustomDataHelpers::loadCustomData("datasources");
+        file = root["file"].toObject();
+        csv = root["csv"].toObject();
+    }
+
+    void restore(CsvConfigDialog& paramsEditor)
+    {
+        paramsEditor._valueSeparator->setText(csv["value_separator"].toString(",;"));
+        paramsEditor._skipFirstLines->setValue(csv["skip_first_lines"].toInt(0));
+        paramsEditor._previewLinesCount->setValue(csv["preview_lines_count"].toInt(15));
+        paramsEditor._decSepPoint->setChecked(csv["dep_sep_point"].toBool(true));
+        paramsEditor._decSepComma->setChecked(!csv["dep_sep_point"].toBool(true));
+
+        auto jsonGraphs = csv["graphs"].toArray();
+        for (auto it = jsonGraphs.begin(); it != jsonGraphs.end(); it++)
+        {
+            auto graphItem = (*it).toObject();
+            int colX = graphItem["col_x"].toInt(0);
+            int colY = graphItem["col_y"].toInt(0);
+            if (colX > 0 && colY > 0)
+                paramsEditor.addGraphItem(colX, colY);
+        }
+    }
+
+    void save(CsvConfigDialog& paramsEditor)
+    {
+        QJsonArray jsonGraphs;
+        for (auto item : paramsEditor._graphsItems)
+            jsonGraphs.append(QJsonObject({{"col_x", item.colX->value()},
+                                           {"col_y", item.colY->value()}}));
+        csv["graphs"] = jsonGraphs;
+        csv["value_separator"] = paramsEditor._valueSeparator->text().trimmed();
+        csv["dep_sep_point"] = paramsEditor._decSepPoint->isChecked();
+        csv["skip_first_lines"] = paramsEditor._skipFirstLines->value();
+        csv["preview_lines_count"] = paramsEditor._previewLinesCount->value();
+        root["file"] = file;
+        root["csv"] = csv;
+        CustomDataHelpers::saveCustomData(root, "datasources");
+    }
+
+    QJsonObject root, file, csv;
+};
+
 CsvOpenResult CsvConfigDialog::openFile()
 {
-    auto root = CustomDataHelpers::loadCustomData("datasources");
-    auto stateFile = root["file"].toObject();
+    CsvOpenerState state;
 
     QFileDialog fileDlg(qApp->activeWindow());
-    auto dir = stateFile["dir"].toString();
+    auto dir = state.file["dir"].toString();
     if (!dir.isEmpty())
         fileDlg.setDirectory(dir);
-
-    QVector<DataSource*> dataSources;
     if (fileDlg.exec() != QDialog::Accepted)
-        return CsvOpenResult::ok(dataSources);
+        return CsvOpenResult::ok({});
     auto files = fileDlg.selectedFiles();
     if (files.isEmpty())
-        return CsvOpenResult::ok(dataSources);
+        return CsvOpenResult::ok({});
     auto fileName = files.first();
     if (fileName.isEmpty())
-        return CsvOpenResult::ok(dataSources);
+        return CsvOpenResult::ok({});
 
     CsvConfigDialog paramsEditor;
-    auto stateCsv = root["csv_file"].toObject();
-    paramsEditor._valueSeparator->setText(stateCsv["value_separator"].toString(",;"));
-    paramsEditor._skipFirstLines->setValue(stateCsv["skip_first_lines"].toInt(0));
-    paramsEditor._previewLinesCount->setValue(stateCsv["preview_lines_count"].toInt(15));
-    paramsEditor._decSepPoint->setChecked(stateCsv["dep_sep_point"].toBool(true));
-    paramsEditor._decSepComma->setChecked(!stateCsv["dep_sep_point"].toBool(true));
     paramsEditor._fileName = fileName;
     paramsEditor._graphBaseName = QFileInfo(fileName).fileName();
-    paramsEditor.updateFullPreview();
+    state.restore(paramsEditor); // do after setting `_graphBaseName`
 
-    auto jsonGraphs = stateCsv["graphs"].toArray();
-    for (auto it = jsonGraphs.begin(); it != jsonGraphs.end(); it++)
-    {
-        auto graphItem = (*it).toObject();
-        int colX = graphItem["col_x"].toInt(0);
-        int colY = graphItem["col_y"].toInt(0);
-        if (colX > 0 && colY > 0)
-            paramsEditor.addGraphItem(colX, colY);
-    }
+    if (!paramsEditor.showDialog(fileName, state))
+        return CsvOpenResult::ok({});
 
-    auto validator = [&paramsEditor](){
-        if (paramsEditor._graphsItems.isEmpty())
-            return tr("There is nothing to plot!");
-        return QString();
-    };
+    state.file["dir"] = fileDlg.directory().path();
+    state.save(paramsEditor);
 
-    auto dlg = Ori::Dlg::Dialog(&paramsEditor, false)
-            .withInitialSize({stateCsv["window_width"].toInt(750),
-                              stateCsv["window_height"].toInt(550)})
-            .withVerification(validator)
-            .withTitle(fileName);
-    if (!dlg.exec())
-        return CsvOpenResult::ok(dataSources);
-
-    jsonGraphs = QJsonArray();
     CsvMultiReader csvReader;
-    for (const CvsGraphItemView& item : paramsEditor._graphsItems)
-    {
-        CsvMultiReader::GraphItem it;
-        it.columnX = item.colX->value();
-        it.columnY = item.colY->value();
-        it.title = item.title->text().trimmed();
-        jsonGraphs.append(QJsonObject({{"col_x", it.columnX}, {"col_y", it.columnY}}));
-        csvReader.graphItems.append(it);
-    }
-    csvReader.fileName = fileName;
-    csvReader.valueSeparators = paramsEditor._valueSeparator->text().trimmed();
-    csvReader.decimalPoint = paramsEditor._decSepPoint->isChecked();
-    csvReader.skipFirstLines = paramsEditor._skipFirstLines->value();
-
-    stateFile["dir"] = fileDlg.directory().path();
-    stateCsv["window_width"] = dlg.size().width();
-    stateCsv["window_height"] = dlg.size().height();
-    stateCsv["value_separator"] = csvReader.valueSeparators;
-    stateCsv["dep_sep_point"] = csvReader.decimalPoint;
-    stateCsv["skip_first_lines"] = csvReader.skipFirstLines;
-    stateCsv["preview_lines_count"] = paramsEditor._previewLinesCount->value();
-    stateCsv["graphs"] = jsonGraphs;
-    root["file"] = stateFile;
-    root["csv_file"] = stateCsv;
-    CustomDataHelpers::saveCustomData(root, "datasources");
-
+    paramsEditor.initReader(csvReader);
     QString res = csvReader.read();
     if (!res.isEmpty())
         return CsvOpenResult::fail(res);
 
+    QVector<DataSource*> dataSources;
     for (const CsvMultiReader::GraphItem& item : csvReader.graphItems)
     {
+        Q_ASSERT(item.xs.size() == item.ys.size());
         if (item.xs.isEmpty()) continue;
-        if (item.xs.size() != item.ys.size()) continue;
         auto dataSource = new CsvFileDataSource;
-        dataSource->_fileName = fileName;
-        dataSource->_title = item.title;
-        dataSource->_columnX = item.columnX;
-        dataSource->_columnY = item.columnY;
-        dataSource->_valueSeparators = csvReader.valueSeparators;
-        dataSource->_decimalPoint = csvReader.decimalPoint;
-        dataSource->_skipFirstLines = csvReader.skipFirstLines;
+        dataSource->_fileName = csvReader.fileName;
+        dataSource->_params = csvReader.makeParams(item);
+        dataSource->_initialData.xs = item.xs;
+        dataSource->_initialData.ys = item.ys;
+        dataSources << dataSource;
+    }
+    return CsvOpenResult::ok(dataSources);
+}
+
+CsvOpenResult CsvConfigDialog::openClipboard()
+{
+    QString text = qApp->clipboard()->text();
+    if (text.isEmpty())
+        return CsvOpenResult::fail(qApp->tr("Clipboard does not contain suitable data"));
+
+    CsvOpenerState state;
+    CsvConfigDialog paramsEditor;
+    paramsEditor._text = text;
+    paramsEditor._graphBaseName = "clipboard";
+    state.restore(paramsEditor); // do after setting `_graphBaseName`
+
+    if (!paramsEditor.showDialog(tr("Paste as CSV"), state))
+        return CsvOpenResult::ok({});
+
+    state.save(paramsEditor);
+
+    CsvMultiReader csvReader;
+    paramsEditor.initReader(csvReader);
+    QString res = csvReader.read();
+    if (!res.isEmpty())
+        return CsvOpenResult::fail(res);
+
+    QVector<DataSource*> dataSources;
+    for (const CsvMultiReader::GraphItem& item : csvReader.graphItems)
+    {
+        Q_ASSERT(item.xs.size() == item.ys.size());
+        if (item.xs.isEmpty()) continue;
+        auto dataSource = new ClipboardCsvDataSource;
+        dataSource->_params = csvReader.makeParams(item);
         dataSource->_initialData.xs = item.xs;
         dataSource->_initialData.ys = item.ys;
         dataSources << dataSource;
@@ -249,10 +279,49 @@ CsvConfigDialog::CsvConfigDialog(QWidget *parent) : QWidget(parent)
     }).setMargin(0).useFor(this);
 }
 
+bool CsvConfigDialog::showDialog(const QString &title, CsvOpenerState &state)
+{
+    updateFullPreview();
+
+    auto validator = [this](){
+        if (_graphsItems.isEmpty())
+            return tr("There is nothing to plot!");
+        return QString();
+    };
+
+    auto dlg = Ori::Dlg::Dialog(this, false)
+            .withInitialSize({state.csv["window_width"].toInt(DEFAULT_DLG_W),
+                              state.csv["window_height"].toInt(DEFAULT_DLG_H)})
+            .withVerification(validator)
+            .withTitle(title);
+    if (!dlg.exec()) return false;
+    auto size = dlg.size();
+    state.csv["window_width"] = size.width();
+    state.csv["window_height"] = size.height();
+    return true;
+}
+
+void CsvConfigDialog::initReader(CsvMultiReader& reader)
+{
+    reader.text = _text;
+    reader.fileName = _fileName;
+    reader.decimalPoint = _decSepPoint->isChecked();
+    reader.skipFirstLines = _skipFirstLines->value();
+    reader.valueSeparators = _valueSeparator->text().trimmed();
+
+    for (const CvsGraphItemView& item : _graphsItems)
+    {
+        CsvMultiReader::GraphItem it;
+        it.columnX = item.colX->value();
+        it.columnY = item.colY->value();
+        it.title = item.title->text().trimmed();
+        reader.graphItems.append(it);
+    }
+}
+
 void CsvConfigDialog::updateFullPreview()
 {
-    if (_fileName.isEmpty()) return;
-
+    Q_ASSERT(!_fileName.isEmpty() || !_text.isEmpty());
     updatePreviewText();
     updatePreviewData();
 }
@@ -262,15 +331,26 @@ void CsvConfigDialog::updatePreviewText()
     _previewLines.clear();
     _fileTextPreview->clear();
 
-    QFile file(_fileName);
-    bool ok = file.open(QIODevice::ReadOnly | QIODevice::Text);
-    if (!ok)
+    if (!_fileName.isEmpty())
     {
-        _fileTextPreview->setPlainText(qApp->tr("Failed to read the file: %2").arg(file.errorString()));
-        return;
+        QFile file(_fileName);
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            _fileTextPreview->setPlainText(qApp->tr("Failed to read the file: %2").arg(file.errorString()));
+            return;
+        }
+        QTextStream stream(&file);
+        updatePreviewText(stream);
     }
+    else
+    {
+        QTextStream stream(&_text);
+        updatePreviewText(stream);
+    }
+}
 
-    QTextStream stream(&file);
+void CsvConfigDialog::updatePreviewText(QTextStream& stream)
+{
     int linesToRead = _previewLinesCount->value();
     int linesToSkip = _skipFirstLines->value();
     int linesRead = 0;
