@@ -56,13 +56,27 @@ void LineSplitter::split(const QString& line)
         parts = line.splitRef(separator, splitBehavior);
 }
 
-struct TextFileOpener
-{
-    TextFileOpener(const QString& fileName);
+//------------------------------------------------------------------------------
+//                                 ValueAutoParser
+//------------------------------------------------------------------------------
 
-    QFile file;
-    QString error;
-};
+void ValueAutoParser::parse(const QStringRef& s)
+{
+    if (decimalPoint)
+    {
+        value = localePoint.toDouble(s, &ok);
+        if (ok) return;
+        value = localeComma.toDouble(s, &ok);
+        if (ok) decimalPoint = false;
+    }
+    else
+    {
+        value = localeComma.toDouble(s, &ok);
+        if (ok) return;
+        value = localePoint.toDouble(s, &ok);
+        if (ok) decimalPoint = true;
+    }
+}
 
 //------------------------------------------------------------------------------
 //                                  CsvMultiReader
@@ -222,12 +236,12 @@ QString TextReader::read()
     }
 
     if (lines.size() < 2)
-        // TODO try another line separator
         return qApp->tr("Processing text contains too few lines.");
 
-    bool ok, gotX, gotY;
-    double value, x, y;
+    bool gotX, gotY;
+    double x, y;
     QVector<double> onlyY;
+    ValueAutoParser valueParser;
 
     for (const QStringRef& line : lines)
     {
@@ -243,20 +257,17 @@ QString TextReader::read()
         gotX = gotY = false;
         for (const QStringRef& part : parts)
         {
-            value = part.toDouble(&ok);
-            if (!ok)
-            {
-                // TODO try another decimal separator
+            valueParser.parse(part);
+            if (!valueParser.ok)
                 continue;
-            }
             if (!gotX)
             {
-                x = value;
+                x = valueParser.value;
                 gotX = true;
             }
             else
             {
-                y = value;
+                y = valueParser.value;
                 gotY = true;
             }
             if (gotX && gotY) break;

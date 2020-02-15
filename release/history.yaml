@@ -2,7 +2,8 @@ history:
   - version: 7.0.1-alpha1
     date: 2020-??-??
     changes:
-      - text: 'Function: Add -> From CSV file'
+      - text: 'Function: Add -> From file as CSV'
+      - text: 'Function: Add -> From clipboard as CSV'
       - text: 'Optimized performance of the data table'
 
   - version: 7.0.0-alpha0

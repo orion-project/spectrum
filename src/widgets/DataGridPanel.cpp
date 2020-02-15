@@ -34,3 +34,13 @@ void DataGridPanel::showData(PlotObj *plot, Graph *graph)
     _titleGraph->setText(graph->title());
     _dataGrid->setData(graph->data().xs, graph->data().ys);
 }
+
+void DataGridPanel::copyData()
+{
+    _dataGrid->copy();
+}
+
+bool DataGridPanel::hasFocus() const
+{
+    return _dataGrid->hasFocus();
+}

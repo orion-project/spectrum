@@ -38,6 +38,7 @@ SOURCES += src/main.cpp\
         src/MainWindow.cpp \
     src/PlotWindow.cpp \
     src/Operations.cpp \
+    src/core/DataExporters.cpp \
     src/core/DataReaders.cpp \
     src/core/DataSources.cpp \
     src/core/Graph.cpp \
@@ -54,6 +55,7 @@ HEADERS  += \
     src/PlotWindow.h \
     src/Operations.h \
     src/core/BaseTypes.h \
+    src/core/DataExporters.h \
     src/core/DataReaders.h \
     src/core/DataSources.h \
     src/core/Graph.h \

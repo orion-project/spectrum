@@ -29,8 +29,6 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-
 private:
     QMdiArea* _mdiArea;
     Operations* _operations;
@@ -55,6 +53,8 @@ private:
     void updateViewMenu();
     void toggleLegend();
     void toggleTitle();
+    void editCopy();
+    void editPaste();
 
     PlotWindow* activePlot() const;
     Graph* selectedGraph() const;

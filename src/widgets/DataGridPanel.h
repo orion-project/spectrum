@@ -19,9 +19,11 @@ class DataGridPanel : public QWidget
     Q_OBJECT
 
 public:
-    explicit DataGridPanel(QWidget *parent = 0);
+    explicit DataGridPanel(QWidget *parent = nullptr);
 
+    bool hasFocus() const;
     void showData(PlotObj* plot, Graph* graph);
+    void copyData();
 
 private:
     QLabel *_titlePlot, *_titleGraph;

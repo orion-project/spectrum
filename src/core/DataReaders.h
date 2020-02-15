@@ -36,6 +36,17 @@ struct ValueParser
     QLocale locale;
 };
 
+struct ValueAutoParser
+{
+    void parse(const QStringRef& s);
+
+    bool ok;
+    double value;
+    bool decimalPoint = true;
+    QLocale localePoint = QLocale(QLocale::C);
+    QLocale localeComma = QLocale(QLocale::Russian);
+};
+
 struct CsvMultiReader
 {
     QString fileName;

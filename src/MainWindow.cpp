@@ -5,6 +5,7 @@
 #include "PlotWindow.h"
 #include "Settings.h"
 #include "core/Graph.h"
+#include "core/DataExporters.h"
 #include "widgets/DataGridPanel.h"
 
 #include "helpers/OriWindows.h"
@@ -86,7 +87,7 @@ void MainWindow::createActions()
 
     QMenu *m;
 
-    m = menuBar()->addMenu(tr("Plot"));
+    m = menuBar()->addMenu(tr("Project"));
     _actnPlotNew = m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
     m->addSeparator();
     m->addAction(tr("Exit"), this, &MainWindow::close);
@@ -99,6 +100,10 @@ void MainWindow::createActions()
     _actnViewLegend->setCheckable(true);
     m->addSeparator();
     Ori::Gui::makeToggleWidgetsMenu(m, tr("Panels"), {_dockDataGrid});
+
+    m = menuBar()->addMenu(tr("Edit"));
+    m->addAction(tr("Copy"), this, &MainWindow::editCopy, QKeySequence::Copy);
+    m->addAction(tr("Paste"), this, &MainWindow::editPaste, QKeySequence::Paste);
 
     m = menuBar()->addMenu(tr("Add"));
     _actnAddFromFile = m->addAction(tr("From File..."), _operations, &Operations::addFromFile, Qt::Key_Insert);
@@ -114,6 +119,8 @@ void MainWindow::createActions()
     m = menuBar()->addMenu(tr("Modify"));
     _actnModifyOffset = m->addAction(tr("Offset"), _operations, &Operations::modifyOffset, Qt::Key_Plus);
     _actnModifyOffset = m->addAction(tr("Scale"), _operations, &Operations::modifyScale, Qt::Key_Asterisk);
+
+    m = menuBar()->addMenu(tr("Plot"));
 
     m = menuBar()->addMenu(tr("Limits"));
     _actnLimitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));
@@ -277,4 +284,34 @@ void MainWindow::toggleLegend()
 {
     auto plot = activePlot();
     if (plot) plot->setLegendVisible(!plot->isLegendVisible());
+}
+
+void MainWindow::editCopy()
+{
+    if (_panelDataGrid->isVisible() && _panelDataGrid->hasFocus())
+    {
+        _panelDataGrid->copyData();
+        return;
+    }
+
+    auto plot = activePlot();
+    if (plot)
+    {
+        auto graph = plot->selectedGraph();
+        if (graph)
+        {
+            DataExporters::copyToClipboard(graph->data());
+            return;
+        }
+    }
+}
+
+void MainWindow::editPaste()
+{
+    auto plot = activePlot();
+    if (plot)
+    {
+        _operations->addFromClipboard();
+        return;
+    }
 }
