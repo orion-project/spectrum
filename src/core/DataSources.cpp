@@ -81,11 +81,6 @@ QString TextFileDataSource::makeTitle() const
 //                             CsvFileMultiDataSource
 //------------------------------------------------------------------------------
 
-bool CsvFileDataSource::configure()
-{
-    return true;
-}
-
 GraphResult CsvFileDataSource::getData()
 {
     CsvSingleReader reader;

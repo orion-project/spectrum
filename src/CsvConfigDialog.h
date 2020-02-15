@@ -6,6 +6,7 @@
 #include <QWidget>
 
 class DataSource;
+class CsvFileDataSource;
 struct CsvOpenerState;
 struct CsvMultiReader;
 
@@ -29,10 +30,9 @@ class CsvConfigDialog : public QWidget
     Q_OBJECT
 
 public:
-    explicit CsvConfigDialog(QWidget *parent = nullptr);
-
     static CsvOpenResult openFile();
     static CsvOpenResult openClipboard();
+    static bool openExisted(CsvFileDataSource* dataSource);
 
 private:
     struct CvsGraphItemView
@@ -54,13 +54,16 @@ private:
     QGridLayout *_layoutGraphs;
     QList<CvsGraphItemView> _graphsItems;
     QRadioButton *_decSepPoint, *_decSepComma;
+    bool _editMode = false;
+
+    explicit CsvConfigDialog(bool editMode = false);
 
     void updateFullPreview();
     void updatePreviewText();
     void updatePreviewText(QTextStream& stream);
     void updatePreviewData();
     void addNewGraph();
-    void addGraphItem(int colX, int colY);
+    void addGraphItem(int colX, int colY, const QString &title = QString());
     bool showDialog(const QString& title, CsvOpenerState& state);
     void initReader(CsvMultiReader& reader);
 

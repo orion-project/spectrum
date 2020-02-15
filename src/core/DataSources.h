@@ -34,7 +34,6 @@ class CsvFileDataSource : public DataSource
 public:
     GraphResult getData() override;
     QString makeTitle() const override;
-    bool configure() override;
 private:
     QString _fileName;
     CsvGraphParams _params;

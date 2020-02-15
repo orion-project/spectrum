@@ -137,14 +137,23 @@ void Operations::graphReopen() const
         Ori::Dlg::info(qApp->tr("Please select a graph"));
         return;
     }
-    auto fileDataSource = dynamic_cast<TextFileDataSource*>(graph->dataSource());
-    if (!fileDataSource)
+
+    auto dataSource = graph->dataSource();
+    if (dynamic_cast<TextFileDataSource*>(dataSource))
+    {
+        if (!dataSource->configure())
+            return;
+    }
+    else if (dynamic_cast<CsvFileDataSource*>(dataSource))
+    {
+        if (!CsvConfigDialog::openExisted(dynamic_cast<CsvFileDataSource*>(dataSource)))
+            return;
+    }
+    else
     {
         Ori::Dlg::info(qApp->tr("Graph's data source is not a file"));
         return;
     }
-    if (!fileDataSource->configure())
-        return;
     auto res = graph->refreshData();
     if (!res.isEmpty())
     {
