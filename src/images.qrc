@@ -11,5 +11,6 @@
     </qresource>
     <qresource prefix="/misc">
         <file alias="mdi_background">../img/background.bmp</file>
+        <file alias="about">../img/about/about.png</file>
     </qresource>
 </RCC>

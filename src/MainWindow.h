@@ -39,7 +39,6 @@ private:
     QAction *_actnAddRandomSample, *_actnAddFromClipboard, *_actnAddFromFile;
     QAction *_actnGraphRefresh;
     QAction *_actnModifyOffset;
-    QAction *_actnLimitsAuto;
     Ori::Widgets::StatusBar *_statusBar;
 
     void createActions();
@@ -50,6 +49,7 @@ private:
     void newProject();
     void newPlot();
     void autolimits();
+    void limitsToSelection();
     void updateViewMenu();
     void toggleLegend();
     void toggleTitle();

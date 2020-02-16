@@ -123,7 +123,24 @@ void MainWindow::createActions()
     m = menuBar()->addMenu(tr("Plot"));
 
     m = menuBar()->addMenu(tr("Limits"));
-    _actnLimitsAuto = m->addAction(tr("Autolimits"), this, &MainWindow::autolimits, QKeySequence("Ctrl+0"));
+    m->addAction(tr("Limits for Both Axes..."), [this](){ auto p = activePlot(); if (p) p->limitsDlg(); }, QKeySequence("Shift+Ctrl+="));
+    m->addAction(tr("Limits for X-axis..."), [this](){ auto p = activePlot(); if (p) p->limitsDlgX(); }, QKeySequence("Shift+Ctrl+X"));
+    m->addAction(tr("Limits for Y-axis..."), [this](){ auto p = activePlot(); if (p) p->limitsDlgY(); }, QKeySequence("Shift+Ctrl+Y"));
+    m->addSeparator();
+    m->addAction(tr("Autolimits"), [this](){ auto p = activePlot(); if (p) p->autolimits(); }, QKeySequence("Alt+0"));
+    m->addAction(tr("Autolimits over X"), [this](){ auto p = activePlot(); if (p) p->autolimitsX(); }, QKeySequence("Alt+X"));
+    m->addAction(tr("Autolimits over Y"), [this](){ auto p = activePlot(); if (p) p->autolimitsY(); }, QKeySequence("Alt+Y"));
+    m->addSeparator();
+    m->addAction(tr("Fit Selection"), [this](){ auto p = activePlot(); if (p) p->limitsToSelection(); }, QKeySequence("Ctrl+/"));
+    m->addAction(tr("Fit Selection over X"), [this](){ auto p = activePlot(); if (p) p->limitsToSelectionX(); }, QKeySequence("Shift+Ctrl+/,x"));
+    m->addAction(tr("Fit Selection over Y"), [this](){ auto p = activePlot(); if (p) p->limitsToSelectionY(); }, QKeySequence("Shift+Ctrl+/,y"));
+    m->addSeparator();
+    m->addAction(tr("Zoom-in"), [this](){ auto p = activePlot(); if (p) p->zoomIn(); }, QKeySequence("Ctrl+Alt+="));
+    m->addAction(tr("Zoom-out"), [this](){ auto p = activePlot(); if (p) p->zoomOut(); }, QKeySequence("Ctrl+Alt+-"));
+    m->addAction(tr("Zoom-in over X"), [this](){ auto p = activePlot(); if (p) p->zoomInX(); }, QKeySequence("Alt+="));
+    m->addAction(tr("Zoom-in over Y"), [this](){ auto p = activePlot(); if (p) p->zoomInY(); }, QKeySequence("Ctrl+="));
+    m->addAction(tr("Zoom-out over X"), [this](){ auto p = activePlot(); if (p) p->zoomOutX(); }, QKeySequence("Alt+-"));
+    m->addAction(tr("Zoom-out over Y"), [this](){ auto p = activePlot(); if (p) p->zoomOutY(); }, QKeySequence("Ctrl+-"));
 
     m = menuBar()->addMenu(tr("Windows"));
     m->addAction(tr("Cascade"), _mdiArea, &QMdiArea::cascadeSubWindows);
@@ -265,6 +282,12 @@ void MainWindow::autolimits()
 {
     auto plot = activePlot();
     if (plot) plot->autolimits();
+}
+
+void MainWindow::limitsToSelection()
+{
+    auto plot = activePlot();
+    if (plot) plot->limitsToSelection();
 }
 
 void MainWindow::updateViewMenu()

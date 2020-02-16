@@ -1,10 +1,13 @@
 #include "PlotWindow.h"
+
+#include "core/Graph.h"
+#include "core/GraphMath.h"
+
 #include "qcpl_plot.h"
 #include "qcpl_colors.h"
-#include "core/Graph.h"
+
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
-#include "qcpl_colors.h"
 
 PlotItem::~PlotItem()
 {
@@ -88,9 +91,94 @@ void PlotWindow::addGraph(Graph* g)
     _items.append(item);
 }
 
+void PlotWindow::limitsDlg()
+{
+    _plot->setLimitsDlgXY();
+}
+
+void PlotWindow::limitsDlgX()
+{
+    _plot->setLimitsDlgX();
+}
+
+void PlotWindow::limitsDlgY()
+{
+    _plot->setLimitsDlgY();
+}
+
 void PlotWindow::autolimits()
 {
     _plot->autolimits();
+}
+
+void PlotWindow::autolimitsX()
+{
+    _plot->autolimitsX();
+}
+
+void PlotWindow::autolimitsY()
+{
+    _plot->autolimitsY();
+}
+
+void PlotWindow::limitsToSelection()
+{
+    // TODO: process multiselection
+    auto g = selectedGraph();
+    if (!g) return;
+    auto minMax = GraphMath::minMax(g->data());
+    _plot->setLimitsX(minMax.minX, minMax.maxX, false);
+    _plot->setLimitsY(minMax.minY.y, minMax.maxY.y);
+}
+
+void PlotWindow::limitsToSelectionX()
+{
+    // TODO: process multiselection
+    auto g = selectedGraph();
+    if (!g) return;
+    // TODO: process only visible part
+    auto minMax = GraphMath::minMax(g->data());
+    _plot->setLimitsX(minMax.minX, minMax.maxX);
+}
+
+void PlotWindow::limitsToSelectionY()
+{
+    // TODO: process multiselection
+    auto g = selectedGraph();
+    if (!g) return;
+    // TODO: process only visible part
+    auto minMax = GraphMath::minMax(g->data());
+    _plot->setLimitsY(minMax.minY.y, minMax.maxY.y);
+}
+
+void PlotWindow::zoomIn()
+{
+    _plot->zoomIn();
+}
+
+void PlotWindow::zoomOut()
+{
+    _plot->zoomOut();
+}
+
+void PlotWindow::zoomInX()
+{
+    _plot->zoomInX();
+}
+
+void PlotWindow::zoomOutX()
+{
+    _plot->zoomOutX();
+}
+
+void PlotWindow::zoomInY()
+{
+    _plot->zoomInY();
+}
+
+void PlotWindow::zoomOutY()
+{
+    _plot->zoomOutY();
 }
 
 void PlotWindow::graphLineSelected(bool selected)

@@ -218,7 +218,7 @@ void HelpSystem::showAbout()
     w->setAttribute(Qt::WA_DeleteOnClose);
     w->setWindowTitle(tr("About %1").arg(qApp->applicationName()));
 
-    QPixmap bckgnd(":/style/about"); // TODO
+    QPixmap bckgnd(":/misc/about");
     w->setMaximumSize(bckgnd.size());
     w->setMinimumSize(bckgnd.size());
     w->resize(bckgnd.size());
@@ -229,7 +229,7 @@ void HelpSystem::showAbout()
 
     auto f = w->font();
 #ifdef Q_OS_WIN
-    f.setFamily("Consolas");
+    f.setFamily("Trebuchet MS");
 #endif
 #ifdef Q_OS_MAC
     f.setFamily("Monaco"); // Menlo?
@@ -238,71 +238,65 @@ void HelpSystem::showAbout()
     f.setFamily("monospace");
 #endif
 
+    const QString textColor("color:#ddffffff");
+
     auto labelVersion = new QLabel(QString("%1.%2.%3").arg(APP_VER_MAJOR).arg(APP_VER_MINOR).arg(APP_VER_PATCH));
     f.setPixelSize(40);
-    f.setBold(true);
     labelVersion->setFont(f);
-    labelVersion->setStyleSheet("color:white");
+    labelVersion->setStyleSheet(textColor);
 
     f.setPixelSize(32);
     auto labelCodename = new QLabel(APP_VER_CODENAME);
     labelCodename->setFont(f);
-    labelCodename->setStyleSheet("color:white");
+    labelCodename->setStyleSheet(textColor);
 
-    f.setBold(false);
-    f.setPixelSize(18);
+    f.setPixelSize(20);
     auto labelDate = new QLabel(BUILDDATE);
     labelDate->setFont(f);
-    labelDate->setStyleSheet("color:white");
+    labelDate->setStyleSheet(textColor);
 
     auto labelQt = new Ori::Widgets::Label(QString("Powered by Qt %1").arg(QT_VERSION_STR));
     connect(labelQt, &Ori::Widgets::Label::clicked, []{ qApp->aboutQt(); });
     labelQt->setCursor(Qt::PointingHandCursor);
-    labelQt->setStyleSheet("color:white");
+    labelQt->setStyleSheet(textColor);
     labelQt->setFont(f);
 
-    auto makeInfo = [f](const QString& text){
+    auto makeInfo = [f, textColor](const QString& text){
         auto label = new QLabel(text);
-        label->setStyleSheet("color:white");
+        label->setStyleSheet(textColor);
         label->setFont(f);
         return label;
     };
 
-    auto makeLink = [f](const QString& address, const QString& href = QString()) {
+    auto makeLink = [f, textColor](const QString& address, const QString& href = QString()) {
         auto label = new Ori::Widgets::Label(address);
         connect(label, &Ori::Widgets::Label::clicked, [address, href]{
             QDesktopServices::openUrl(QUrl(href.isEmpty() ? address : href));
         });
         label->setCursor(Qt::PointingHandCursor);
-        label->setStyleSheet("color:white");
+        label->setStyleSheet(textColor);
         label->setFont(f);
         return label;
     };
 
-    f.setPixelSize(9);
-    auto labelDescr = new QLabel(
-        "The program is provided as is with no warranty of any kind, "
-        "including the warranty of design, merchantability and fitness for a particular purpose.");
-    labelDescr->setWordWrap(true);
-    labelDescr->setStyleSheet("color:#88FFFFFF");
-    labelDescr->setFont(f);
-
+    const int horzMargin = 18;
+    const int lineSpacing = 7;
     LayoutV({
-        LayoutH({Stretch(), labelVersion, Space(4)}),
-        LayoutH({Stretch(), labelCodename, Space(4)}),
-        Space(4),
-        LayoutH({Stretch(), labelDate, Space(4)}),
+        LayoutH({Stretch(), labelVersion, Space(horzMargin)}),
+        LayoutH({Stretch(), labelCodename, Space(horzMargin)}),
+        Space(lineSpacing),
+        LayoutH({Stretch(), labelDate, Space(horzMargin)}),
         Stretch(),
-        LayoutH({Space(4), labelQt, Stretch()}),
-        Space(4),
-        LayoutH({Space(4), makeInfo(QString("Chunosov N.I. © 2005-%1").arg(APP_VER_YEAR)), Stretch()}),
-        Space(4),
-        LayoutH({Space(4), makeLink(email(), QString("mailto:%1").arg(email())), Stretch()}),
-        Space(4),
-        LayoutH({Space(4), makeLink(homepage()), Stretch()}),
-        Space(4),
-        LayoutH({Space(4), makeLink(sourcepage()), Stretch()}),
-        Space(4),
+        LayoutH({Space(horzMargin), labelQt, Stretch()}),
+        Space(lineSpacing),
+        LayoutH({Space(horzMargin), makeInfo(QString("Chunosov N.I. © 2005-%1").arg(APP_VER_YEAR)), Stretch()}),
+        Space(lineSpacing),
+        LayoutH({Space(horzMargin), makeLink(email(), QString("mailto:%1").arg(email())), Stretch()}),
+        Space(lineSpacing),
+        LayoutH({Space(horzMargin), makeLink(homepage()), Stretch()}),
+        Space(lineSpacing),
+        LayoutH({Space(horzMargin), makeLink(sourcepage()), Stretch()}),
+        Space(lineSpacing),
     }).setMargin(12).setSpacing(0).useFor(w);
 
     w->exec();

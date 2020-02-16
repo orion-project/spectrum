@@ -34,7 +34,21 @@ public:
 
     void addGraph(Graph* g);
 
+    void limitsDlg();
+    void limitsDlgX();
+    void limitsDlgY();
     void autolimits();
+    void autolimitsX();
+    void autolimitsY();
+    void limitsToSelection();
+    void limitsToSelectionX();
+    void limitsToSelectionY();
+    void zoomIn();
+    void zoomOut();
+    void zoomInX();
+    void zoomOutX();
+    void zoomInY();
+    void zoomOutY();
 
     Graph* selectedGraph() const;
     void selectGraph(Graph* graph);
