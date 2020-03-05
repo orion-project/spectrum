@@ -57,6 +57,37 @@ void LineSplitter::split(const QString& line)
 }
 
 //------------------------------------------------------------------------------
+//                                 ValueParser
+//------------------------------------------------------------------------------
+
+void ValueParser::parse(const QStringRef& s)
+{
+    QStringRef s1;
+    if (stripNonDigits)
+    {
+        int len = s.length();
+        int start = 0;
+        while (start < len)
+        {
+            QChar ch = s.at(start);
+            if (ch.isDigit() || ch == '+' || ch == '-')
+                break;
+            start++;
+        }
+        int stop = len - 1;
+        while (stop > start)
+        {
+            if ( s.at(stop).isDigit())
+                break;
+            stop--;
+        }
+        s1 = s.mid(start, stop-start+1);
+    }
+    else s1 = s;
+    value = locale.toDouble(s1, &ok);
+}
+
+//------------------------------------------------------------------------------
 //                                 ValueAutoParser
 //------------------------------------------------------------------------------
 

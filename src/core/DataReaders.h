@@ -26,14 +26,12 @@ struct ValueParser
         locale = QLocale(decimalPoint ? QLocale::C : QLocale::Russian);
     }
 
-    void parse(const QStringRef& s)
-    {
-        value = locale.toDouble(s, &ok);
-    }
+    void parse(const QStringRef& s);
 
     bool ok;
     double value;
     QLocale locale;
+    bool stripNonDigits = true;
 };
 
 struct ValueAutoParser

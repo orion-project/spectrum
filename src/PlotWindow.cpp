@@ -5,9 +5,12 @@
 
 #include "qcpl_plot.h"
 #include "qcpl_colors.h"
+#include "qcpl_cursor.h"
+#include "qcpl_cursor_panel.h"
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
+#include "widgets/OriFlatToolBar.h"
 
 PlotItem::~PlotItem()
 {
@@ -68,7 +71,16 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
         _plot->title()->setText(_plotObj->title());
     connect(_plot, &QCPL::Plot::editTitleRequest, this, &PlotWindow::editTitle);
 
-    Ori::Layouts::LayoutV({_plot}).setMargin(0).setSpacing(0).useFor(this);
+    _cursor = new QCPL::Cursor(_plot);
+    _plot->serviceGraphs().append(_cursor);
+
+    auto toolbar = new Ori::Widgets::FlatToolBar;
+    toolbar->setIconSize({16, 16});
+
+    _cursorPanel = new QCPL::CursorPanel(_cursor);
+    _cursorPanel->placeIn(toolbar);
+
+    Ori::Layouts::LayoutV({toolbar, _plot}).setMargin(0).setSpacing(0).useFor(this);
 }
 
 PlotWindow::~PlotWindow()

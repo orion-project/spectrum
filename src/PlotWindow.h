@@ -4,13 +4,13 @@
 #include <QMdiSubWindow>
 
 namespace QCPL {
+class Cursor;
+class CursorPanel;
 class Plot;
 }
-
 class Graph;
 class PlotObj;
 class QCPGraph;
-
 
 class PlotItem
 {
@@ -71,6 +71,8 @@ private slots:
 private:
     PlotObj* _plotObj;
     QCPL::Plot* _plot;
+    QCPL::Cursor* _cursor;
+    QCPL::CursorPanel* _cursorPanel;
     QList<PlotItem*> _items;
 
     PlotItem* itemForLine(QCPGraph* line) const;

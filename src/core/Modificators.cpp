@@ -104,15 +104,15 @@ bool OffsetModificator::configure()
 {
     RadioOptions direction({{ Offset::DIR_X, qApp->tr("Along X Axis") },
                             { Offset::DIR_Y, qApp->tr("Along Y Axis") }});
-    RadioOptions mode({{ Offset::MODE_MAX, "X @ Y_max --> 0" },
-                       { Offset::MODE_MIN, "X @ Y_min --> 0" },
+    RadioOptions mode({{ Offset::MODE_MAX, "X_max --> 0" },
+                       { Offset::MODE_MIN, "X_min --> 0" },
                        { Offset::MODE_AVG, "X_avg --> 0" },
                        { Offset::MODE_VAL, qApp->tr("Arbitrary value") }});
     mode.makeEditor(Offset::MODE_VAL);
 
     qApp->connect(direction.button(Offset::DIR_X), &QRadioButton::toggled, [mode](bool alongX){
-        mode.button(Offset::MODE_MAX)->setText(alongX ? "X @ Y_max --> 0" : "Y_max --> 0");
-        mode.button(Offset::MODE_MIN)->setText(alongX ? "X @ Y_min --> 0" : "Y_min --> 0");
+        mode.button(Offset::MODE_MAX)->setText(alongX ? "X_max --> 0" : "Y_max --> 0");
+        mode.button(Offset::MODE_MIN)->setText(alongX ? "X_min --> 0" : "Y_min --> 0");
         mode.button(Offset::MODE_AVG)->setText(alongX ? "X_avg --> 0" : "Y_avg --> 0");
     });
 

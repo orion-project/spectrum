@@ -232,10 +232,10 @@ void HelpSystem::showAbout()
     f.setFamily("Trebuchet MS");
 #endif
 #ifdef Q_OS_MAC
-    f.setFamily("Monaco"); // Menlo?
+    f.setFamily("Monaco"); // TODO check font look
 #endif
 #ifdef Q_OS_LINUX
-    f.setFamily("monospace");
+    //f.setFamily("monospace"); system font looks well enough
 #endif
 
     const QString textColor("color:#ddffffff");
