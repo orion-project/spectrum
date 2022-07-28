@@ -9,6 +9,7 @@ class QDockWidget;
 class QMdiArea;
 class QMdiSubWindow;
 class QToolBar;
+class QTabWidget;
 QT_END_NAMESPACE
 
 class Graph;
@@ -34,12 +35,9 @@ private:
     Operations* _operations;
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
-    QAction *_actnPlotNew;
     QAction *_actnViewTitle, *_actnViewLegend;
-    QAction *_actnAddRandomSample, *_actnAddFromClipboard, *_actnAddFromFile;
-    QAction *_actnGraphRefresh;
-    QAction *_actnModifyOffset;
     Ori::Widgets::StatusBar *_statusBar;
+    QTabWidget *_toolTabs;
 
     void createActions();
     void createDocks();
@@ -47,14 +45,9 @@ private:
     void saveSettings();
     void loadSettings();
     void newProject();
-    void newPlot();
-    void autolimits();
-    void limitsToSelection();
     void updateViewMenu();
     void toggleLegend();
     void toggleTitle();
-    void editCopy();
-    void editPaste();
 
     PlotWindow* activePlot() const;
     Graph* selectedGraph() const;
@@ -62,6 +55,26 @@ private:
     void graphCreated(Graph* graph) const;
     void graphUpdated(Graph* graph) const;
     void mdiSubWindowActivated(QMdiSubWindow *window) const;
+
+private slots:
+    void newPlot();
+    void editCopy();
+    void editPaste();
+    void limitsDlg();
+    void limitsDlgX();
+    void limitsDlgY();
+    void autolimits();
+    void autolimitsX();
+    void autolimitsY();
+    void limitsToSelection();
+    void limitsToSelectionX();
+    void limitsToSelectionY();
+    void zoomIn();
+    void zoomOut();
+    void zoomInX();
+    void zoomOutX();
+    void zoomInY();
+    void zoomOutY();
 };
 
 #endif // MAINWINDOW_H

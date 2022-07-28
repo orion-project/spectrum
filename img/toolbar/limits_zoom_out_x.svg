@@ -1,0 +1,32 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="#305080"/>
+    <stop offset="1" stop-color="#5b79a4"/>
+  </linearGradient>
+  <linearGradient id="b" gradientUnits="userSpaceOnUse" x1="-.5" x2="17.99222" xlink:href="#a" y1="21.5" y2="21.5"/>
+  <linearGradient id="c" gradientUnits="userSpaceOnUse" x1="23.273118" x2="20.36291" xlink:href="#a" y1="21.5" y2="21.5"/>
+  <linearGradient id="d" gradientUnits="userSpaceOnUse" x1="15.277012" x2="6.998474" y1="20.538941" y2="8.712457">
+    <stop offset="0" stop-color="#550e0e"/>
+    <stop offset="1" stop-color="#f1a5a5"/>
+  </linearGradient>
+  <linearGradient id="e" gradientUnits="userSpaceOnUse" x1="13.048836" x2="4.086309" y1="18.966317" y2="15.051063">
+    <stop offset="0" stop-color="#705526"/>
+    <stop offset="1" stop-color="#c69c59"/>
+  </linearGradient>
+  <linearGradient id="f" gradientUnits="userSpaceOnUse" x1="13.048836" x2="4.086309" y1="18.966317" y2="15.051063">
+    <stop offset="0" stop-color="#f3c668"/>
+    <stop offset="1" stop-color="#f9f398"/>
+  </linearGradient>
+  <g transform="translate(0 -1.5)">
+    <path d="m0 21.5h21" fill="none" stroke="url(#b)" stroke-width="2"/>
+    <path d="m18.86292 17.5 5 4-5 4" fill="url(#c)" fill-rule="evenodd"/>
+  </g>
+  <rect fill="url(#f)" height="3.769373" ry="1.186501" stroke="url(#e)" stroke-linejoin="round" transform="matrix(.70710678 -.70710678 .70710678 .70710678 0 0)" width="11.176455" x="3.119175" y="14.628243"/>
+  <g transform="translate(-1.042683)">
+    <circle cx="9.152542" cy="15.406779" fill="#eacbe0" r="7.192111" stroke="url(#d)" stroke-width="1.7"/>
+    <path d="m5.6550924 19.747515c-4.5822932-4.411439.0277239-11.719874 6.0339916-9.614086-4.6775749.247611-7.5334893 6.827709-6.0339916 9.614086z" fill="#9e42c9" fill-opacity=".559211"/>
+    <ellipse cx="-5.706565" cy="21.376614" fill="#fff" rx="3.04013" ry="1.077241" transform="matrix(.72828307 -.68527642 .74778228 .66394402 0 0)"/>
+    <path d="m3.9185858 15.40678h10.5757782" fill="none" stroke="#642d2d" stroke-width="3"/>
+    <ellipse cx="-4.473101" cy="12.088474" fill="#fff" rx="2.395521" ry=".845706" transform="matrix(.68323739 -.73019632 .70412203 .71007899 0 0)"/>
+  </g>
+</svg>

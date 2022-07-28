@@ -52,8 +52,6 @@ static QIcon nextPlotIcon()
     return makeGraphIcon(c);
 }
 
-//------------------------------------------------------------------------------
-
 PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
 {
     static int plotIndex = 0;

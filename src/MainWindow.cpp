@@ -11,6 +11,7 @@
 #include "helpers/OriWindows.h"
 #include "helpers/OriWidgets.h"
 #include "tools/OriSettings.h"
+#include "widgets/OriFlatToolBar.h"
 #include "widgets/OriMdiToolBar.h"
 #include "widgets/OriStatusBar.h"
 
@@ -22,7 +23,9 @@
 #include <QMdiSubWindow>
 #include <QMenuBar>
 #include <QStyle>
+#include <QTabWidget>
 #include <QTimer>
+#include <QToolButton>
 
 enum StatusPanels
 {
@@ -51,6 +54,16 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     _mdiArea = new QMdiArea;
     _mdiArea->setBackground(QBrush(QPixmap(":/misc/mdi_background")));
     connect(_mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::mdiSubWindowActivated);
+
+    _toolTabs = new QTabWidget;
+
+    auto mainToolbar = new Ori::Widgets::FlatToolBar;
+    mainToolbar->addWidget(_toolTabs);
+    mainToolbar->setFloatable(false);
+    mainToolbar->setAllowedAreas(Qt::TopToolBarArea);
+    mainToolbar->setMovable(false);
+    addToolBar(mainToolbar);
+
     setCentralWidget(_mdiArea);
 
     createDocks();
@@ -59,7 +72,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     loadSettings();
 
-    QTimer::singleShot(200, [this](){ this->newProject(); });
+    QTimer::singleShot(200, this, [this](){ this->newProject(); });
 }
 
 MainWindow::~MainWindow()
@@ -84,13 +97,28 @@ void MainWindow::loadSettings()
 void MainWindow::createActions()
 {
 #define A_ Ori::Gui::action
+#define T_ Ori::Gui::textToolButton
 
     QMenu *m;
 
-    m = menuBar()->addMenu(tr("Project"));
-    _actnPlotNew = m->addAction(tr("New Plot"), this, &MainWindow::newPlot, QKeySequence("Ctrl+N"));
-    m->addSeparator();
-    m->addAction(tr("Exit"), this, &MainWindow::close);
+    //---------------------------------------------------------
+
+    auto actNewPlot = A_(tr("New Plot"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
+
+    auto menuProject = menuBar()->addMenu(tr("Project"));
+    Ori::Gui::populate(menuProject, {
+                           actNewPlot,
+                       });
+    menuProject->addSeparator();
+    menuProject->addAction(tr("Exit"), this, &MainWindow::close);
+
+    auto toolbarProject = new Ori::Widgets::FlatToolBar;
+    Ori::Gui::populate(toolbarProject, {
+                           T_(actNewPlot),
+                       });
+    _toolTabs->addTab(toolbarProject, menuProject->title());
+
+    //---------------------------------------------------------
 
     m = menuBar()->addMenu(tr("View"));
     connect(m, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
@@ -101,50 +129,119 @@ void MainWindow::createActions()
     m->addSeparator();
     Ori::Gui::makeToggleWidgetsMenu(m, tr("Panels"), {_dockDataGrid});
 
-    m = menuBar()->addMenu(tr("Edit"));
-    m->addAction(tr("Copy"), this, &MainWindow::editCopy, QKeySequence::Copy);
-    m->addAction(tr("Paste"), this, &MainWindow::editPaste, QKeySequence::Paste);
+    //---------------------------------------------------------
 
-    m = menuBar()->addMenu(tr("Add"));
-    _actnAddFromFile = m->addAction(tr("From File..."), _operations, &Operations::addFromFile, Qt::Key_Insert);
-    m->addAction(tr("From File as CSV..."), _operations, &Operations::addFromCsvFile, QKeySequence("Shift+Ctrl+Ins"));
-    _actnAddFromClipboard = m->addAction(tr("From Clipboard"), _operations, &Operations::addFromClipboard, QKeySequence("Shift+Ctrl+V"));
-    m->addAction(tr("From Clipboard as CSV..."), _operations, &Operations::addFromClipboardCsv, QKeySequence("Ctrl+Alt+V"));
-    _actnAddRandomSample = m->addAction(tr("Random Sample"), _operations, &Operations::addRandomSample);
+    auto actCopy = A_(tr("Copy"), this, SLOT(editCopy()), ":/toolbar/copy", QKeySequence::Copy);
+    auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
 
-    m = menuBar()->addMenu(tr("Graph"));
-    _actnGraphRefresh = m->addAction(tr("Refresh"), _operations, &Operations::graphRefresh, QKeySequence("Ctrl+R"));
-    m->addAction(tr("Reopen..."), _operations, &Operations::graphReopen);
+    auto menuEdit = menuBar()->addMenu(tr("Edit"));
+    Ori::Gui::populate(menuEdit, {
+                           actCopy, actPaste,
+                       });
 
-    m = menuBar()->addMenu(tr("Modify"));
-    _actnModifyOffset = m->addAction(tr("Offset"), _operations, &Operations::modifyOffset, Qt::Key_Plus);
-    _actnModifyOffset = m->addAction(tr("Scale"), _operations, &Operations::modifyScale, Qt::Key_Asterisk);
+    auto toolbarEdit = new Ori::Widgets::FlatToolBar;
+    Ori::Gui::populate(toolbarEdit, {
+                           actCopy, actPaste,
+                       });
+    _toolTabs->addTab(toolbarEdit, menuEdit->title());
 
-    m = menuBar()->addMenu(tr("Plot"));
+    //---------------------------------------------------------
 
-    m = menuBar()->addMenu(tr("Limits"));
-    m->addAction(tr("Limits for Both Axes..."), [this](){ auto p = activePlot(); if (p) p->limitsDlg(); }, QKeySequence("Shift+Ctrl+="));
-    m->addAction(tr("Limits for X-axis..."), [this](){ auto p = activePlot(); if (p) p->limitsDlgX(); }, QKeySequence("Shift+Ctrl+X"));
-    m->addAction(tr("Limits for Y-axis..."), [this](){ auto p = activePlot(); if (p) p->limitsDlgY(); }, QKeySequence("Shift+Ctrl+Y"));
-    m->addSeparator();
-    m->addAction(tr("Autolimits"), [this](){ auto p = activePlot(); if (p) p->autolimits(); }, QKeySequence("Alt+0"));
-    m->addAction(tr("Autolimits over X"), [this](){ auto p = activePlot(); if (p) p->autolimitsX(); }, QKeySequence("Alt+X"));
-    m->addAction(tr("Autolimits over Y"), [this](){ auto p = activePlot(); if (p) p->autolimitsY(); }, QKeySequence("Alt+Y"));
-    m->addSeparator();
-    m->addAction(tr("Fit Selection"), [this](){ auto p = activePlot(); if (p) p->limitsToSelection(); }, QKeySequence("Ctrl+/"));
-    m->addAction(tr("Fit Selection over X"), [this](){ auto p = activePlot(); if (p) p->limitsToSelectionX(); }, QKeySequence("Shift+Ctrl+/,x"));
-    m->addAction(tr("Fit Selection over Y"), [this](){ auto p = activePlot(); if (p) p->limitsToSelectionY(); }, QKeySequence("Shift+Ctrl+/,y"));
-    m->addSeparator();
-    m->addAction(tr("Zoom-in"), [this](){ auto p = activePlot(); if (p) p->zoomIn(); }, QKeySequence("Ctrl+Alt+="));
-    m->addAction(tr("Zoom-out"), [this](){ auto p = activePlot(); if (p) p->zoomOut(); }, QKeySequence("Ctrl+Alt+-"));
-    m->addAction(tr("Zoom-in over X"), [this](){ auto p = activePlot(); if (p) p->zoomInX(); }, QKeySequence("Alt+="));
-    m->addAction(tr("Zoom-in over Y"), [this](){ auto p = activePlot(); if (p) p->zoomInY(); }, QKeySequence("Ctrl+="));
-    m->addAction(tr("Zoom-out over X"), [this](){ auto p = activePlot(); if (p) p->zoomOutX(); }, QKeySequence("Alt+-"));
-    m->addAction(tr("Zoom-out over Y"), [this](){ auto p = activePlot(); if (p) p->zoomOutY(); }, QKeySequence("Ctrl+-"));
+    auto actAddFile = A_(tr("From File..."), _operations, SLOT(addFromFile()), ":/toolbar/add_file", Qt::Key_Insert);
+    auto actAddClipboard = A_(tr("From Clipboard"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste", QKeySequence("Shift+Ctrl+V"));
+    auto actAddCsv = A_(tr("From File as CSV..."), _operations, SLOT(addFromCsvFile()), ":/toolbar/add_table", QKeySequence("Shift+Ctrl+Ins"));
+    auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table", QKeySequence("Ctrl+Alt+V"));
+    auto actAddRandom = A_(tr("Random Sample"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
+
+    auto menuAdd = menuBar()->addMenu(tr("Add"));
+    Ori::Gui::populate(menuAdd, {
+                           actAddFile, actAddClipboard, actAddCsv, actAddCsvClipboard, actAddRandom,
+                       });
+
+    auto toolbarAdd = new Ori::Widgets::FlatToolBar;
+    Ori::Gui::populate(toolbarAdd, {
+                           T_(actAddFile), T_(actAddClipboard), T_(actAddCsv), T_(actAddCsvClipboard), T_(actAddRandom),
+                       });
+    _toolTabs->addTab(toolbarAdd, menuAdd->title());
+
+    //---------------------------------------------------------
+
+    auto actnGraphRefresh = A_(tr("Refresh"), _operations, SLOT(graphRefresh()), ":/toolbar/todo", QKeySequence("Ctrl+R"));
+    auto actGraphReopen = A_(tr("Reopen..."), _operations, SLOT(graphReopen()), ":/toolbar/todo");
+
+    auto menuGraph = menuBar()->addMenu(tr("Graph"));
+    Ori::Gui::populate(menuGraph, {
+                           actnGraphRefresh, actGraphReopen,
+                       });
+
+    auto toolbarGraph = new Ori::Widgets::FlatToolBar;
+    Ori::Gui::populate(toolbarGraph, {
+                           T_(actnGraphRefresh), nullptr,
+                           T_(actGraphReopen), nullptr
+                       });
+    _toolTabs->addTab(toolbarGraph, menuGraph->title());
+
+
+    //---------------------------------------------------------
+
+    auto actOffset = A_(tr("Offset"), _operations, SLOT(modifyOffset()), ":/toolbar/graph_offset", Qt::Key_Plus);
+    auto actScale = A_(tr("Scale"), _operations, SLOT(modifyScale()), ":/toolbar/graph_scale", Qt::Key_Asterisk);
+
+    auto menuModify = menuBar()->addMenu(tr("Modify"));
+    Ori::Gui::populate(menuModify, {
+                           actOffset, nullptr,
+                           actScale, nullptr
+                       });
+
+    auto toolbarModify = new Ori::Widgets::FlatToolBar;
+    Ori::Gui::populate(toolbarModify, {
+                           T_(actOffset), nullptr,
+                           T_(actScale), nullptr
+                       });
+    _toolTabs->addTab(toolbarModify, menuModify->title());
+
+    //---------------------------------------------------------
+
+    auto actLimitsBoth = A_(tr("Limits for Both Axes..."), this, SLOT(limitsDlg()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+="));
+    auto actLimitsX = A_(tr("Limits for X-axis..."), this, SLOT(limitsDlgX()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+X"));
+    auto actLimitsY = A_(tr("Limits for Y-axis..."), this, SLOT(limitsDlgY()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+Y"));
+    auto actAutolimits = A_(tr("Autolimits"), this, SLOT(autolimits()), ":/toolbar/limits_auto", QKeySequence("Alt+0"));
+    auto actAutolimitsX = A_(tr("Autolimits over X"), this, SLOT(autolimitsX()), ":/toolbar/limits_auto_x", QKeySequence("Alt+X"));
+    auto actAutolimitsY = A_(tr("Autolimits over Y"), this, SLOT(autolimitsY()), ":/toolbar/limits_auto_y", QKeySequence("Alt+Y"));
+    auto actFitSelection = A_(tr("Fit Selection"), this, SLOT(limitsToSelection()), ":/toolbar/todo", QKeySequence("Ctrl+/"));
+    auto actFitSelectionX = A_(tr("Fit Selection over X"), this, SLOT(limitsToSelectionX()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+/,x"));
+    auto actFitSelectionY = A_(tr("Fit Selection over Y"), this, SLOT(limitsToSelectionY()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+/,y"));
+    auto actZoomIn = A_(tr("Zoom-in"), this, SLOT(zoomIn()), ":/toolbar/limits_zoom_in", QKeySequence("Ctrl+Alt+="));
+    auto actZoomOut = A_(tr("Zoom-out"), this, SLOT(zoomOut()), ":/toolbar/limits_zoom_out", QKeySequence("Ctrl+Alt+-"));
+    auto actZoomInX = A_(tr("Zoom-in over X"), this, SLOT(zoomInX()), ":/toolbar/limits_zoom_in_x", QKeySequence("Alt+="));
+    auto actZoomInY = A_(tr("Zoom-in over Y"), this, SLOT(zoomInY()), ":/toolbar/limits_zoom_in_y", QKeySequence("Ctrl+="));
+    auto actZoomOutX = A_(tr("Zoom-out over X"), this, SLOT(zoomOutX()), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
+    auto actZoomOutY = A_(tr("Zoom-out over Y"), this, SLOT(zoomOutY()), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
+
+    auto menuLimits = menuBar()->addMenu(tr("Limits"));
+    Ori::Gui::populate(menuLimits, {
+                           actLimitsBoth, actLimitsX, actLimitsY, nullptr,
+                           actAutolimits, actAutolimitsX, actAutolimitsY, nullptr,
+                           actFitSelection, actFitSelectionX, actFitSelectionY, nullptr,
+                           actZoomIn, actZoomOut, actZoomInX, actZoomOutX, actZoomInY, actZoomOutY,
+                       });
+
+    auto toolbarLimits = new Ori::Widgets::FlatToolBar;
+    Ori::Gui::populate(toolbarLimits, {
+                           actLimitsBoth, actLimitsX, actLimitsY, nullptr,
+                           actAutolimits, actAutolimitsX, actAutolimitsY, nullptr,
+                           actFitSelection, actFitSelectionX, actFitSelectionY, nullptr,
+                           actZoomIn, actZoomOut, nullptr, actZoomInX, actZoomOutX, nullptr, actZoomInY, actZoomOutY,
+                       });
+    _toolTabs->addTab(toolbarLimits, menuLimits->title());
+
+    //---------------------------------------------------------
 
     m = menuBar()->addMenu(tr("Windows"));
     m->addAction(tr("Cascade"), _mdiArea, &QMdiArea::cascadeSubWindows);
     m->addAction(tr("Tile"), _mdiArea, &QMdiArea::tileSubWindows);
+
+    //---------------------------------------------------------
 
     auto help = Z::HelpSystem::instance();
     auto actnHelpContent = A_(tr("Contents"), help, SLOT(showContents()), ":/toolbar/help", QKeySequence::HelpContents);
@@ -159,6 +256,8 @@ void MainWindow::createActions()
                            actnHelpBugReport, actnHelpUpdates, actnHelpHomepage, nullptr,
                            actnHelpAbout});
 
+    //---------------------------------------------------------
+
     auto toolbarMdi = new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea);
     toolbarMdi->setMovable(false);
     toolbarMdi->setFloatable(false);
@@ -166,6 +265,7 @@ void MainWindow::createActions()
     addToolBar(Qt::BottomToolBarArea, toolbarMdi);
 
 #undef A_
+#undef T_
 }
 
 void MainWindow::createDocks()
@@ -278,16 +378,94 @@ void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window) const
     _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
+void MainWindow::limitsDlg()
+{
+    auto plot = activePlot();
+    if (plot) plot->limitsDlg();
+}
+
+void MainWindow::limitsDlgX()
+{
+    auto plot = activePlot();
+    if (plot) plot->limitsDlgX();
+}
+
+void MainWindow::limitsDlgY()
+{
+    auto plot = activePlot();
+    if (plot) plot->limitsDlgY();
+}
+
 void MainWindow::autolimits()
 {
     auto plot = activePlot();
     if (plot) plot->autolimits();
 }
 
+void MainWindow::autolimitsX()
+{
+    auto plot = activePlot();
+    if (plot) plot->autolimitsX();
+}
+
+void MainWindow::autolimitsY()
+{
+    auto plot = activePlot();
+    if (plot) plot->autolimitsY();
+}
+
 void MainWindow::limitsToSelection()
 {
     auto plot = activePlot();
     if (plot) plot->limitsToSelection();
+}
+
+void MainWindow::limitsToSelectionX()
+{
+    auto plot = activePlot();
+    if (plot) plot->limitsToSelectionX();
+}
+
+void MainWindow::limitsToSelectionY()
+{
+    auto plot = activePlot();
+    if (plot) plot->limitsToSelectionY();
+}
+
+void MainWindow::zoomIn()
+{
+    auto plot = activePlot();
+    if (plot) plot->zoomIn();
+}
+
+void MainWindow::zoomOut()
+{
+    auto plot = activePlot();
+    if (plot) plot->zoomOut();
+}
+
+void MainWindow::zoomInX()
+{
+    auto plot = activePlot();
+    if (plot) plot->zoomInX();
+}
+
+void MainWindow::zoomOutX()
+{
+    auto plot = activePlot();
+    if (plot) plot->zoomOutX();
+}
+
+void MainWindow::zoomInY()
+{
+    auto plot = activePlot();
+    if (plot) plot->zoomInY();
+}
+
+void MainWindow::zoomOutY()
+{
+    auto plot = activePlot();
+    if (plot) plot->zoomOutY();
 }
 
 void MainWindow::updateViewMenu()

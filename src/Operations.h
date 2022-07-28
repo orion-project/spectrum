@@ -15,6 +15,9 @@ class Operations : public QObject
 public:
     explicit Operations(QObject *parent = nullptr);
 
+    std::function<Graph*()> getSelectedGraph;
+
+public slots:
     void addFromFile() const;
     void addFromCsvFile() const;
     void addFromClipboard() const;
@@ -24,8 +27,6 @@ public:
     void modifyScale() const;
     void graphRefresh() const;
     void graphReopen() const;
-
-    std::function<Graph*()> getSelectedGraph;
 
 signals:
     void graphCreated(Graph* g) const;
