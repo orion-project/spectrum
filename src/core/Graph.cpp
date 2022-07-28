@@ -1,7 +1,7 @@
 #include "Graph.h"
 
 #include "DataSources.h"
-#include "Modificators.h"
+#include "Modifiers.h"
 
 Graph::Graph(DataSource* dataSource): _dataSource(dataSource)
 {
@@ -12,7 +12,7 @@ Graph::Graph(DataSource* dataSource): _dataSource(dataSource)
 Graph::~Graph()
 {
     delete _dataSource;
-    qDeleteAll(_modificators);
+    qDeleteAll(_modifiers);
 }
 
 QString Graph::canRefreshData() const
@@ -31,7 +31,7 @@ QString Graph::refreshData()
 
     _data = res.result();
 
-    for (auto mod : _modificators)
+    foreach (auto mod, _modifiers)
     {
         auto res = mod->modify(_data);
         if (!res.ok())
@@ -43,13 +43,13 @@ QString Graph::refreshData()
     return QString();
 }
 
-QString Graph::modify(Modificator* mod)
+QString Graph::modify(Modifier* mod)
 {
     auto res = mod->modify(_data);
     if (!res.ok())
         return res.error();
 
-    _modificators.append(mod);
+    _modifiers.append(mod);
 
     _data = res.result();
     return QString();

@@ -43,7 +43,7 @@ SOURCES += src/main.cpp\
     src/core/DataSources.cpp \
     src/core/Graph.cpp \
     src/core/GraphMath.cpp \
-    src/core/Modificators.cpp \
+    src/core/Modifiers.cpp \
     src/widgets/DataGridPanel.cpp \
     src/Settings.cpp
 
@@ -60,6 +60,6 @@ HEADERS  += \
     src/core/DataSources.h \
     src/core/Graph.h \
     src/core/GraphMath.h \
-    src/core/Modificators.h \
+    src/core/Modifiers.h \
     src/widgets/DataGridPanel.h \
     src/Settings.h

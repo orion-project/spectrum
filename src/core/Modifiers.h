@@ -1,19 +1,19 @@
-#ifndef MODIFICATORS_H
-#define MODIFICATORS_H
+#ifndef MODIFIERS_H
+#define MODIFIERS_H
 
 #include "BaseTypes.h"
 #include "GraphMath.h"
 
-class Modificator
+class Modifier
 {
 public:
-    virtual ~Modificator();
+    virtual ~Modifier();
     virtual GraphResult modify(const GraphPoints& data) const = 0;
     virtual bool configure() { return true; }
 };
 
 
-class OffsetModificator : public Modificator
+class OffsetModifier : public Modifier
 {
 public:
     GraphResult modify(const GraphPoints& data) const override;
@@ -23,7 +23,7 @@ private:
 };
 
 
-class ScaleModificator : public Modificator
+class ScaleModifier : public Modifier
 {
 public:
     GraphResult modify(const GraphPoints& data) const override;
@@ -32,4 +32,4 @@ private:
     GraphMath::Scale _params;
 };
 
-#endif // MODIFICATORS_H
+#endif // MODIFIERS_H

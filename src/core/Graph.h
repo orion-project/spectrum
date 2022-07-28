@@ -5,8 +5,9 @@
 
 #include "BaseTypes.h"
 
+
 class DataSource;
-class Modificator;
+class Modifier;
 
 class Graph
 {
@@ -31,12 +32,12 @@ public:
     QString refreshData();
 
     /// The graph takes ownership on the modificator.
-    QString modify(Modificator* mod);
+    QString modify(Modifier* mod);
 
 private:
     bool _autoTitle = true;
     DataSource* _dataSource;
-    QList<Modificator*> _modificators;
+    QList<Modifier*> _modifiers;
     GraphPoints _data;
     QString _title;
     QIcon _icon;

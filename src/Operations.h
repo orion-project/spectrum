@@ -6,7 +6,7 @@
 
 class Graph;
 class DataSource;
-class Modificator;
+class Modifier;
 
 class Operations : public QObject
 {
@@ -33,7 +33,7 @@ signals:
 
 private:
     void addGraph(DataSource* dataSource) const;
-    void modifyGraph(Modificator* mod) const;
+    void modifyGraph(Modifier *mod) const;
 };
 
 #endif // OPERATIONS_H

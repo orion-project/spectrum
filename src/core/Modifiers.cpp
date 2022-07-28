@@ -1,4 +1,4 @@
-#include "Modificators.h"
+#include "Modifiers.h"
 
 #include "GraphMath.h"
 #include "../CustomPrefs.h"
@@ -84,23 +84,23 @@ private:
 } // namespace
 
 //------------------------------------------------------------------------------
-//                                 Modificator
+//                                 Modifier
 //------------------------------------------------------------------------------
 
-Modificator::~Modificator()
+Modifier::~Modifier()
 {
 }
 
 //------------------------------------------------------------------------------
-//                              OffsetModificator
+//                              OffsetModifier
 //------------------------------------------------------------------------------
 
-GraphResult OffsetModificator::modify(const GraphPoints &data) const
+GraphResult OffsetModifier::modify(const GraphPoints &data) const
 {
     return GraphResult::ok(_params.calc(data));
 }
 
-bool OffsetModificator::configure()
+bool OffsetModifier::configure()
 {
     RadioOptions direction({{ Offset::DIR_X, qApp->tr("Along X Axis") },
                             { Offset::DIR_Y, qApp->tr("Along Y Axis") }});
@@ -150,15 +150,15 @@ bool OffsetModificator::configure()
 }
 
 //------------------------------------------------------------------------------
-//                              ScaleModificator
+//                              ScaleModifier
 //------------------------------------------------------------------------------
 
-GraphResult ScaleModificator::modify(const GraphPoints &data) const
+GraphResult ScaleModifier::modify(const GraphPoints &data) const
 {
     return GraphResult::ok(_params.calc(data));
 }
 
-bool ScaleModificator::configure()
+bool ScaleModifier::configure()
 {
     auto editorScaleFactor = makeEditor();
     editorScaleFactor->setValue(1);

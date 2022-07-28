@@ -3,7 +3,7 @@
 #include "CsvConfigDialog.h"
 #include "core/Graph.h"
 #include "core/DataSources.h"
-#include "core/Modificators.h"
+#include "core/Modifiers.h"
 #include "helpers/OriDialogs.h"
 
 #include <QApplication>
@@ -57,12 +57,12 @@ void Operations::addRandomSample() const
 
 void Operations::modifyOffset() const
 {
-    modifyGraph(new OffsetModificator);
+    modifyGraph(new OffsetModifier);
 }
 
 void Operations::modifyScale() const
 {
-    modifyGraph(new ScaleModificator);
+    modifyGraph(new ScaleModifier);
 }
 
 void Operations::addGraph(DataSource* dataSource) const
@@ -83,7 +83,7 @@ void Operations::addGraph(DataSource* dataSource) const
     emit graphCreated(graph);
 }
 
-void Operations::modifyGraph(Modificator* mod) const
+void Operations::modifyGraph(Modifier* mod) const
 {
     auto graph = getSelectedGraph();
     if (!graph)
