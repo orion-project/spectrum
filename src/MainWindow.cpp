@@ -10,6 +10,7 @@
 
 #include "helpers/OriWindows.h"
 #include "helpers/OriWidgets.h"
+#include "helpers/OriLayouts.h"
 #include "tools/OriSettings.h"
 #include "widgets/OriFlatToolBar.h"
 #include "widgets/OriMdiToolBar.h"
@@ -56,13 +57,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(_mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::mdiSubWindowActivated);
 
     _toolTabs = new QTabWidget;
-
-    auto mainToolbar = new Ori::Widgets::FlatToolBar;
-    mainToolbar->addWidget(_toolTabs);
-    mainToolbar->setFloatable(false);
-    mainToolbar->setAllowedAreas(Qt::TopToolBarArea);
-    mainToolbar->setMovable(false);
-    addToolBar(mainToolbar);
+    auto toolWidget = Ori::Layouts::LayoutV({_toolTabs}).setMargin(3).makeWidget();
 
     setCentralWidget(_mdiArea);
 
@@ -71,6 +66,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createStatusBar();
 
     loadSettings();
+
+    setMenuWidget(toolWidget);
 
     QTimer::singleShot(200, this, [this](){ this->newProject(); });
 }
@@ -94,167 +91,124 @@ void MainWindow::loadSettings()
     s.restoreDockState(this);
 }
 
+void MainWindow::createTools(QString title, std::initializer_list<QObject*> items)
+{
+    auto t = new Ori::Widgets::FlatToolBar;
+    Ori::Gui::populate(t, items);
+    _toolTabs->addTab(t, title);
+}
+
 void MainWindow::createActions()
 {
 #define A_ Ori::Gui::action
 #define T_ Ori::Gui::textToolButton
 
-    QMenu *m;
-
     //---------------------------------------------------------
 
     auto actNewPlot = A_(tr("New Plot"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
 
-    auto menuProject = menuBar()->addMenu(tr("Project"));
-    Ori::Gui::populate(menuProject, {
-                           actNewPlot,
-                       });
-    menuProject->addSeparator();
-    menuProject->addAction(tr("Exit"), this, &MainWindow::close);
-
-    auto toolbarProject = new Ori::Widgets::FlatToolBar;
-    Ori::Gui::populate(toolbarProject, {
-                           T_(actNewPlot),
-                       });
-    _toolTabs->addTab(toolbarProject, menuProject->title());
+    createTools(tr("Plot"), {T_(actNewPlot)});
 
     //---------------------------------------------------------
 
-    m = menuBar()->addMenu(tr("View"));
-    connect(m, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
-    _actnViewTitle = m->addAction(tr("Title"), this, &MainWindow::toggleTitle);
-    _actnViewTitle->setCheckable(true);
-    _actnViewLegend = m->addAction(tr("Legend"), this, &MainWindow::toggleLegend);
-    _actnViewLegend->setCheckable(true);
-    m->addSeparator();
-    Ori::Gui::makeToggleWidgetsMenu(m, tr("Panels"), {_dockDataGrid});
+//    auto menuView = menuBar()->addMenu(tr("View"));
+//    connect(menuView, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
+//    _actnViewTitle = menuView->addAction(tr("Title"), this, &MainWindow::toggleTitle);
+//    _actnViewTitle->setCheckable(true);
+//    _actnViewLegend = menuView->addAction(tr("Legend"), this, &MainWindow::toggleLegend);
+//    _actnViewLegend->setCheckable(true);
+//    menuView->addSeparator();
+//    Ori::Gui::makeToggleWidgetsMenu(menuView, tr("Panels"), {_dockDataGrid});
 
     //---------------------------------------------------------
 
     auto actCopy = A_(tr("Copy"), this, SLOT(editCopy()), ":/toolbar/copy", QKeySequence::Copy);
     auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
+    auto actPasteCsv = A_(tr("Paste as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
 
-    auto menuEdit = menuBar()->addMenu(tr("Edit"));
-    Ori::Gui::populate(menuEdit, {
-                           actCopy, actPaste,
-                       });
-
-    auto toolbarEdit = new Ori::Widgets::FlatToolBar;
-    Ori::Gui::populate(toolbarEdit, {
-                           actCopy, actPaste,
-                       });
-    _toolTabs->addTab(toolbarEdit, menuEdit->title());
+    createTools(tr("Edit"), {
+                    actCopy, actPaste, T_(actPasteCsv),
+                });
 
     //---------------------------------------------------------
 
     auto actAddFile = A_(tr("From File..."), _operations, SLOT(addFromFile()), ":/toolbar/add_file", Qt::Key_Insert);
     auto actAddClipboard = A_(tr("From Clipboard"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste", QKeySequence("Shift+Ctrl+V"));
-    auto actAddCsv = A_(tr("From File as CSV..."), _operations, SLOT(addFromCsvFile()), ":/toolbar/add_table", QKeySequence("Shift+Ctrl+Ins"));
+    auto actAddCsv = A_(tr("From CSV File..."), _operations, SLOT(addFromCsvFile()), ":/toolbar/add_table", QKeySequence("Shift+Ctrl+Ins"));
     auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table", QKeySequence("Ctrl+Alt+V"));
     auto actAddRandom = A_(tr("Random Sample"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
 
-    auto menuAdd = menuBar()->addMenu(tr("Add"));
-    Ori::Gui::populate(menuAdd, {
-                           actAddFile, actAddClipboard, actAddCsv, actAddCsvClipboard, actAddRandom,
-                       });
-
-    auto toolbarAdd = new Ori::Widgets::FlatToolBar;
-    Ori::Gui::populate(toolbarAdd, {
-                           T_(actAddFile), T_(actAddClipboard), T_(actAddCsv), T_(actAddCsvClipboard), T_(actAddRandom),
-                       });
-    _toolTabs->addTab(toolbarAdd, menuAdd->title());
+    createTools(tr("Add"), {
+                    T_(actAddFile), T_(actAddClipboard), T_(actAddCsv), T_(actAddCsvClipboard), T_(actAddRandom),
+                });
 
     //---------------------------------------------------------
 
     auto actnGraphRefresh = A_(tr("Refresh"), _operations, SLOT(graphRefresh()), ":/toolbar/todo", QKeySequence("Ctrl+R"));
     auto actGraphReopen = A_(tr("Reopen..."), _operations, SLOT(graphReopen()), ":/toolbar/todo");
 
-    auto menuGraph = menuBar()->addMenu(tr("Graph"));
-    Ori::Gui::populate(menuGraph, {
-                           actnGraphRefresh, actGraphReopen,
-                       });
-
-    auto toolbarGraph = new Ori::Widgets::FlatToolBar;
-    Ori::Gui::populate(toolbarGraph, {
-                           T_(actnGraphRefresh), nullptr,
-                           T_(actGraphReopen), nullptr
-                       });
-    _toolTabs->addTab(toolbarGraph, menuGraph->title());
-
+    createTools(tr("Graph"), {
+                    T_(actnGraphRefresh), nullptr,
+                    T_(actGraphReopen), nullptr
+                });
 
     //---------------------------------------------------------
 
     auto actOffset = A_(tr("Offset"), _operations, SLOT(modifyOffset()), ":/toolbar/graph_offset", Qt::Key_Plus);
     auto actScale = A_(tr("Scale"), _operations, SLOT(modifyScale()), ":/toolbar/graph_scale", Qt::Key_Asterisk);
 
-    auto menuModify = menuBar()->addMenu(tr("Modify"));
-    Ori::Gui::populate(menuModify, {
-                           actOffset, nullptr,
-                           actScale, nullptr
-                       });
-
-    auto toolbarModify = new Ori::Widgets::FlatToolBar;
-    Ori::Gui::populate(toolbarModify, {
-                           T_(actOffset), nullptr,
-                           T_(actScale), nullptr
-                       });
-    _toolTabs->addTab(toolbarModify, menuModify->title());
+    createTools(tr("Modify"), {
+                    T_(actOffset), nullptr,
+                    T_(actScale), nullptr
+                });
 
     //---------------------------------------------------------
 
-    auto actLimitsBoth = A_(tr("Limits for Both Axes..."), this, SLOT(limitsDlg()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+="));
-    auto actLimitsX = A_(tr("Limits for X-axis..."), this, SLOT(limitsDlgX()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+X"));
-    auto actLimitsY = A_(tr("Limits for Y-axis..."), this, SLOT(limitsDlgY()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+Y"));
+    auto actLimitsBoth = A_(tr("Limits for Both Axes..."), this, SLOT(limitsDlg()), ":/toolbar/limits", QKeySequence("Shift+Ctrl+="));
+    auto actLimitsX = A_(tr("Limits X..."), this, SLOT(limitsDlgX()), ":/toolbar/limits_x", QKeySequence("Shift+Ctrl+X"));
+    auto actLimitsY = A_(tr("Limits Y..."), this, SLOT(limitsDlgY()), ":/toolbar/limits_y", QKeySequence("Shift+Ctrl+Y"));
     auto actAutolimits = A_(tr("Autolimits"), this, SLOT(autolimits()), ":/toolbar/limits_auto", QKeySequence("Alt+0"));
-    auto actAutolimitsX = A_(tr("Autolimits over X"), this, SLOT(autolimitsX()), ":/toolbar/limits_auto_x", QKeySequence("Alt+X"));
-    auto actAutolimitsY = A_(tr("Autolimits over Y"), this, SLOT(autolimitsY()), ":/toolbar/limits_auto_y", QKeySequence("Alt+Y"));
-    auto actFitSelection = A_(tr("Fit Selection"), this, SLOT(limitsToSelection()), ":/toolbar/todo", QKeySequence("Ctrl+/"));
-    auto actFitSelectionX = A_(tr("Fit Selection over X"), this, SLOT(limitsToSelectionX()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+/,x"));
-    auto actFitSelectionY = A_(tr("Fit Selection over Y"), this, SLOT(limitsToSelectionY()), ":/toolbar/todo", QKeySequence("Shift+Ctrl+/,y"));
+    auto actAutolimitsX = A_(tr("Autolimits X"), this, SLOT(autolimitsX()), ":/toolbar/limits_auto_x", QKeySequence("Alt+X"));
+    auto actAutolimitsY = A_(tr("Autolimits Y"), this, SLOT(autolimitsY()), ":/toolbar/limits_auto_y", QKeySequence("Alt+Y"));
+    auto actFitSelection = A_(tr("Fit Selection"), this, SLOT(limitsToSelection()), ":/toolbar/limits_fit", QKeySequence("Ctrl+/"));
+    auto actFitSelectionX = A_(tr("Fit Selection X"), this, SLOT(limitsToSelectionX()), ":/toolbar/limits_fit_x", QKeySequence("Shift+Ctrl+/,x"));
+    auto actFitSelectionY = A_(tr("Fit Selection Y"), this, SLOT(limitsToSelectionY()), ":/toolbar/limits_fit_y", QKeySequence("Shift+Ctrl+/,y"));
     auto actZoomIn = A_(tr("Zoom-in"), this, SLOT(zoomIn()), ":/toolbar/limits_zoom_in", QKeySequence("Ctrl+Alt+="));
     auto actZoomOut = A_(tr("Zoom-out"), this, SLOT(zoomOut()), ":/toolbar/limits_zoom_out", QKeySequence("Ctrl+Alt+-"));
-    auto actZoomInX = A_(tr("Zoom-in over X"), this, SLOT(zoomInX()), ":/toolbar/limits_zoom_in_x", QKeySequence("Alt+="));
-    auto actZoomInY = A_(tr("Zoom-in over Y"), this, SLOT(zoomInY()), ":/toolbar/limits_zoom_in_y", QKeySequence("Ctrl+="));
-    auto actZoomOutX = A_(tr("Zoom-out over X"), this, SLOT(zoomOutX()), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
-    auto actZoomOutY = A_(tr("Zoom-out over Y"), this, SLOT(zoomOutY()), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
+    auto actZoomInX = A_(tr("Zoom-in X"), this, SLOT(zoomInX()), ":/toolbar/limits_zoom_in_x", QKeySequence("Alt+="));
+    auto actZoomInY = A_(tr("Zoom-in Y"), this, SLOT(zoomInY()), ":/toolbar/limits_zoom_in_y", QKeySequence("Ctrl+="));
+    auto actZoomOutX = A_(tr("Zoom-out X"), this, SLOT(zoomOutX()), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
+    auto actZoomOutY = A_(tr("Zoom-out Y"), this, SLOT(zoomOutY()), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
-    auto menuLimits = menuBar()->addMenu(tr("Limits"));
-    Ori::Gui::populate(menuLimits, {
-                           actLimitsBoth, actLimitsX, actLimitsY, nullptr,
-                           actAutolimits, actAutolimitsX, actAutolimitsY, nullptr,
-                           actFitSelection, actFitSelectionX, actFitSelectionY, nullptr,
-                           actZoomIn, actZoomOut, actZoomInX, actZoomOutX, actZoomInY, actZoomOutY,
-                       });
-
-    auto toolbarLimits = new Ori::Widgets::FlatToolBar;
-    Ori::Gui::populate(toolbarLimits, {
-                           actLimitsBoth, actLimitsX, actLimitsY, nullptr,
-                           actAutolimits, actAutolimitsX, actAutolimitsY, nullptr,
-                           actFitSelection, actFitSelectionX, actFitSelectionY, nullptr,
-                           actZoomIn, actZoomOut, nullptr, actZoomInX, actZoomOutX, nullptr, actZoomInY, actZoomOutY,
-                       });
-    _toolTabs->addTab(toolbarLimits, menuLimits->title());
+    createTools(tr("Limits"), {
+                    actLimitsBoth, T_(actAutolimits), T_(actFitSelection), actZoomIn, actZoomOut, nullptr,
+                    T_(actLimitsX), actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, nullptr,
+                    T_(actLimitsY), actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
+                });
 
     //---------------------------------------------------------
 
-    m = menuBar()->addMenu(tr("Windows"));
-    m->addAction(tr("Cascade"), _mdiArea, &QMdiArea::cascadeSubWindows);
-    m->addAction(tr("Tile"), _mdiArea, &QMdiArea::tileSubWindows);
+    auto actWndCascade = A_(tr("Cascade"), _mdiArea, SLOT(cascadeSubWindows()), ":/toolbar/wnd_cascade");
+    auto actWndTile = A_(tr("Tile"), _mdiArea, SLOT(tileSubWindows()), ":/toolbar/wnd_tile");
+
+    createTools(tr("Windows"), {
+                    T_(actWndCascade), T_(actWndTile),
+                });
 
     //---------------------------------------------------------
 
     auto help = Z::HelpSystem::instance();
-    auto actnHelpContent = A_(tr("Contents"), help, SLOT(showContents()), ":/toolbar/help", QKeySequence::HelpContents);
-    auto actnHelpIndex = A_(tr("Index"), help, SLOT(showIndex()));
-    auto actnHelpBugReport = A_(tr("Send Bug Report"), help, SLOT(sendBugReport()), ":/toolbar/bug");
-    auto actnHelpUpdates = A_(tr("Check for Updates"), help, SLOT(checkUpdates()), ":/toolbar/update");
-    auto actnHelpHomepage = A_(tr("Visit Homepage"), help, SLOT(visitHomePage()), ":/toolbar/home");
-    auto actnHelpAbout = A_(tr("About..."), help, SLOT(showAbout()));
+    auto actHelpIndex = A_(tr("Index"), help, SLOT(showIndex()), ":/toolbar/help", QKeySequence::HelpContents);
+    auto actHelpBugReport = A_(tr("Send Bug Report"), help, SLOT(sendBugReport()), ":/toolbar/bug");
+    auto actHelpUpdates = A_(tr("Check for Updates"), help, SLOT(checkUpdates()), ":/toolbar/update");
+    auto actHelpHomepage = A_(tr("Visit Homepage"), help, SLOT(visitHomePage()), ":/toolbar/home");
+    auto actHelpAbout = A_(tr("About..."), help, SLOT(showAbout()), ":/window_icons/main");
 
-    m = menuBar()->addMenu(tr("Help"));
-    Ori::Gui::populate(m, {actnHelpContent, actnHelpIndex, nullptr,
-                           actnHelpBugReport, actnHelpUpdates, actnHelpHomepage, nullptr,
-                           actnHelpAbout});
+    createTools(tr("Help"), {
+                    T_(actHelpIndex), nullptr,
+                    T_(actHelpBugReport), T_(actHelpUpdates), T_(actHelpHomepage), nullptr,
+                    T_(actHelpAbout),
+                });
 
     //---------------------------------------------------------
 

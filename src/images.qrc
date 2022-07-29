@@ -1,13 +1,24 @@
 <RCC>
     <qresource prefix="/toolbar">
+        <file alias="add_file">../img/toolbar/folder_page.svg</file>
+        <file alias="add_random">../img/toolbar/dice.svg</file>
+        <file alias="add_table">../img/toolbar/folder_table.svg</file>
         <file alias="bug">../img/toolbar/bug.svg</file>
         <file alias="copy">../img/toolbar/copy.svg</file>
         <file alias="delete">../img/toolbar/delete.svg</file>
         <file alias="help">../img/toolbar/help.svg</file>
         <file alias="home">../img/toolbar/home.svg</file>
+        <file alias="graph_offset">../img/toolbar/graph_offset.svg</file>
+        <file alias="graph_scale">../img/toolbar/graph_scale.svg</file>
+        <file alias="limits">../img/toolbar/limits.svg</file>
+        <file alias="limits_x">../img/toolbar/limits_x.svg</file>
+        <file alias="limits_y">../img/toolbar/limits_y.svg</file>
         <file alias="limits_auto_x">../img/toolbar/limits_auto_x.svg</file>
         <file alias="limits_auto_y">../img/toolbar/limits_auto_y.svg</file>
         <file alias="limits_auto">../img/toolbar/limits_auto.svg</file>
+        <file alias="limits_fit">../img/toolbar/limits_fit.svg</file>
+        <file alias="limits_fit_x">../img/toolbar/limits_fit_x.svg</file>
+        <file alias="limits_fit_y">../img/toolbar/limits_fit_y.svg</file>
         <file alias="limits_zoom_in_x">../img/toolbar/limits_zoom_in_x.svg</file>
         <file alias="limits_zoom_in_y">../img/toolbar/limits_zoom_in_y.svg</file>
         <file alias="limits_zoom_in">../img/toolbar/limits_zoom_in.svg</file>
@@ -15,16 +26,13 @@
         <file alias="limits_zoom_out_y">../img/toolbar/limits_zoom_out_y.svg</file>
         <file alias="limits_zoom_out">../img/toolbar/limits_zoom_out.svg</file>
         <file alias="paste">../img/toolbar/paste.svg</file>
+        <file alias="paste_table">../img/toolbar/paste_table.svg</file>
+        <file alias="plot_new">../img/toolbar/plot_page.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
         <file alias="update">../img/toolbar/update.svg</file>
+        <file alias="wnd_cascade">../img/toolbar/windows_cascade.svg</file>
+        <file alias="wnd_tile">../img/toolbar/windows_tile.svg</file>
 
-        <file alias="add_file">../img/toolbar/add_file_24.png</file>
-        <file alias="add_random">../img/toolbar/add_random_24.png</file>
-        <file alias="add_table">../img/toolbar/add_table_24.png</file>
-        <file alias="graph_offset">../img/toolbar/graph_offset_24.png</file>
-        <file alias="graph_scale">../img/toolbar/graph_scale_24.png</file>
-        <file alias="paste_table">../img/toolbar/edit_paste_table_24.png</file>
-        <file alias="plot_new">../img/toolbar/plot_new_24.png</file>
     </qresource>
     <qresource prefix="/window_icons">
         <file alias="main">../img/icons/spectrum.svg</file>

@@ -42,6 +42,7 @@ private:
     void createActions();
     void createDocks();
     void createStatusBar();
+    void createTools(QString title, std::initializer_list<QObject *> items);
     void saveSettings();
     void loadSettings();
     void newProject();
