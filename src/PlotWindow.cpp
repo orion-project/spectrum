@@ -103,17 +103,17 @@ void PlotWindow::addGraph(Graph* g)
 
 void PlotWindow::limitsDlg()
 {
-    _plot->setLimitsDlgXY();
+    _plot->limitsDlgXY();
 }
 
 void PlotWindow::limitsDlgX()
 {
-    _plot->setLimitsDlgX();
+    _plot->limitsDlgX();
 }
 
 void PlotWindow::limitsDlgY()
 {
-    _plot->setLimitsDlgY();
+    _plot->limitsDlgY();
 }
 
 void PlotWindow::autolimits()
