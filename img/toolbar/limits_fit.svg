@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -63,8 +63,8 @@
      id="namedview10233"
      showgrid="false"
      inkscape:zoom="19.666667"
-     inkscape:cx="8.0666336"
-     inkscape:cy="8.8105069"
+     inkscape:cx="21.973413"
+     inkscape:cy="12.674914"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
@@ -152,48 +152,6 @@
      style="fill:url(#linearGradient10788);fill-rule:evenodd;stroke:none;stroke-linecap:round"
      id="path10195"
      d="m 0.5,3 2,-3 2,3" />
-  <g
-     transform="translate(40,1)"
-     id="g10217">
-    <path
-       d="M 12.5,18 V 3"
-       id="path10209"
-       inkscape:connector-curvature="0"
-       style="fill:none;stroke:#000000" />
-    <g
-       id="g10215"
-       style="fill-rule:evenodd">
-      <path
-         d="m 8.5,5 4,-6 4,6"
-         id="path10211"
-         inkscape:connector-curvature="0" />
-      <path
-         d="m 8.5,16 4,6 4,-6"
-         id="path10213"
-         inkscape:connector-curvature="0" />
-    </g>
-  </g>
-  <g
-     transform="rotate(-90,33,-9)"
-     id="g10227">
-    <path
-       d="M 12.5,18 V 3"
-       id="path10219"
-       inkscape:connector-curvature="0"
-       style="fill:none;stroke:#000000" />
-    <g
-       id="g10225"
-       style="fill-rule:evenodd">
-      <path
-         d="m 8.5,5 4,-6 4,6"
-         id="path10221"
-         inkscape:connector-curvature="0" />
-      <path
-         d="m 8.5,16 4,6 4,-6"
-         id="path10223"
-         inkscape:connector-curvature="0" />
-    </g>
-  </g>
   <path
      d="M 0,5.5 H 24"
      id="path10229"

@@ -91,6 +91,15 @@ void MainWindow::loadSettings()
     s.restoreDockState(this);
 }
 
+void setTooltip(QAction *a, QString tooltip)
+{
+    QString t = tooltip;
+    auto sc = a->shortcut();
+    if (!sc.isEmpty())
+        t += QStringLiteral("<br><b>%1</b>").arg(sc.toString(QKeySequence::NativeText));
+    a->setToolTip(t);
+}
+
 void MainWindow::createTools(QString title, std::initializer_list<QObject*> items)
 {
     auto t = new Ori::Widgets::FlatToolBar;
@@ -103,22 +112,27 @@ void MainWindow::createActions()
 #define A_ Ori::Gui::action
 #define T_ Ori::Gui::textToolButton
 
-    //---------------------------------------------------------
-
-    auto actNewPlot = A_(tr("New Plot"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
-
-    createTools(tr("Plot"), {T_(actNewPlot)});
+    Ori::Gui::setActionTooltipFormat("%1<br><b>%2</b>");
 
     //---------------------------------------------------------
 
-//    auto menuView = menuBar()->addMenu(tr("View"));
-//    connect(menuView, &QMenu::aboutToShow, this, &MainWindow::updateViewMenu);
-//    _actnViewTitle = menuView->addAction(tr("Title"), this, &MainWindow::toggleTitle);
-//    _actnViewTitle->setCheckable(true);
-//    _actnViewLegend = menuView->addAction(tr("Legend"), this, &MainWindow::toggleLegend);
-//    _actnViewLegend->setCheckable(true);
-//    menuView->addSeparator();
-//    Ori::Gui::makeToggleWidgetsMenu(menuView, tr("Panels"), {_dockDataGrid});
+    auto actNewPlot = A_(tr("New"), tr("Add new plot"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
+    auto actRenamePlot = A_(tr("Rename..."), tr("Rename current plot"), this, SLOT(renamePlot()), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
+
+    createTools(tr("Plot"), {
+                    T_(actNewPlot), T_(actRenamePlot),
+                });
+
+    //---------------------------------------------------------
+
+    auto actToggleDatagrid = A_(tr("Data Grid"), tr("Toggle data grid panel"), this, SLOT(toggleDataGrid()), ":/toolbar/panel_datagrid");
+    auto actViewTitle = A_(tr("Title"), tr("Toggle plot title visibility"), this, SLOT(toggleTitle()), ":/toolbar/plot_title");
+    auto actViewLegend = A_(tr("Legend"), tr("Toggle plot legend visibility"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
+
+    createTools(tr("View"), {
+                    T_(actToggleDatagrid), nullptr,
+                    T_(actViewTitle), T_(actViewLegend),
+                });
 
     //---------------------------------------------------------
 
@@ -272,6 +286,11 @@ void MainWindow::newPlot()
     mdiChild->show();
 }
 
+void MainWindow::renamePlot()
+{
+    // TODO
+}
+
 void MainWindow::graphCreated(Graph* graph) const
 {
     auto plot = activePlot();
@@ -422,13 +441,6 @@ void MainWindow::zoomOutY()
     if (plot) plot->zoomOutY();
 }
 
-void MainWindow::updateViewMenu()
-{
-    auto plot = activePlot();
-    _actnViewTitle->setChecked(plot && plot->isTitleVisible());
-    _actnViewLegend->setChecked(plot && plot->isLegendVisible());
-}
-
 void MainWindow::toggleTitle()
 {
     auto plot = activePlot();
@@ -439,6 +451,11 @@ void MainWindow::toggleLegend()
 {
     auto plot = activePlot();
     if (plot) plot->setLegendVisible(!plot->isLegendVisible());
+}
+
+void MainWindow::toggleDataGrid()
+{
+    _dockDataGrid->setVisible(!_dockDataGrid->isVisible());
 }
 
 void MainWindow::editCopy()

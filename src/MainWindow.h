@@ -35,7 +35,6 @@ private:
     Operations* _operations;
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
-    QAction *_actnViewTitle, *_actnViewLegend;
     Ori::Widgets::StatusBar *_statusBar;
     QTabWidget *_toolTabs;
 
@@ -46,9 +45,6 @@ private:
     void saveSettings();
     void loadSettings();
     void newProject();
-    void updateViewMenu();
-    void toggleLegend();
-    void toggleTitle();
 
     PlotWindow* activePlot() const;
     Graph* selectedGraph() const;
@@ -59,6 +55,7 @@ private:
 
 private slots:
     void newPlot();
+    void renamePlot();
     void editCopy();
     void editPaste();
     void limitsDlg();
@@ -76,6 +73,9 @@ private slots:
     void zoomOutX();
     void zoomInY();
     void zoomOutY();
+    void toggleLegend();
+    void toggleTitle();
+    void toggleDataGrid();
 };
 
 #endif // MAINWINDOW_H
