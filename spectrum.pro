@@ -36,6 +36,7 @@ SOURCES += src/main.cpp\
     src/CustomPrefs.cpp \
     src/HelpSystem.cpp \
         src/MainWindow.cpp \
+    src/OpenFileDlg.cpp \
     src/PlotWindow.cpp \
     src/Operations.cpp \
     src/core/DataExporters.cpp \
@@ -52,6 +53,7 @@ HEADERS  += \
     src/CustomPrefs.h \
     src/HelpSystem.h \
         src/MainWindow.h \
+    src/OpenFileDlg.h \
     src/PlotWindow.h \
     src/Operations.h \
     src/core/BaseTypes.h \

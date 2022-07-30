@@ -34,6 +34,7 @@
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
         <file alias="update">../img/toolbar/update.svg</file>
+        <file alias="update_params">../img/toolbar/update_params.svg</file>
         <file alias="wnd_cascade">../img/toolbar/windows_cascade.svg</file>
         <file alias="wnd_tile">../img/toolbar/windows_tile.svg</file>
 

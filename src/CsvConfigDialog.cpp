@@ -38,7 +38,7 @@ struct CsvOpenerState
 {
     CsvOpenerState()
     {
-        root = CustomDataHelpers::loadCustomData("datasources");
+        root = CustomDataHelpers::loadDataSourceStates();
         file = root["file"].toObject();
         csv = root["csv"].toObject();
     }
@@ -65,7 +65,7 @@ struct CsvOpenerState
     void store(CsvConfigDialog& paramsEditor)
     {
         QJsonArray jsonGraphs;
-        for (auto item : paramsEditor._graphsItems)
+        foreach (auto item, paramsEditor._graphsItems)
             jsonGraphs.append(QJsonObject({{"col_x", item.colX->value()},
                                            {"col_y", item.colY->value()}}));
         csv["graphs"] = jsonGraphs;
@@ -79,7 +79,7 @@ struct CsvOpenerState
     {
         root["file"] = file;
         root["csv"] = csv;
-        CustomDataHelpers::saveCustomData(root, "datasources");
+        CustomDataHelpers::saveDataSourceStates(root);
     }
 
     QJsonObject root, file, csv;
@@ -148,12 +148,11 @@ CsvOpenResult CsvConfigDialog::openFile()
     if (!res.isEmpty()) return CsvOpenResult::fail(res);
 
     QVector<DataSource*> dataSources;
-    for (const CsvMultiReader::GraphItem& item : csvReader.graphItems)
+    foreach (const CsvMultiReader::GraphItem& item, csvReader.graphItems)
     {
         Q_ASSERT(item.xs.size() == item.ys.size());
         if (item.xs.isEmpty()) continue;
-        auto dataSource = new CsvFileDataSource;
-        dataSource->_fileName = csvReader.fileName;
+        auto dataSource = new CsvFileDataSource(csvReader.fileName);
         dataSource->_params = csvReader.makeParams(item);
         dataSource->_initialData.xs = item.xs;
         dataSource->_initialData.ys = item.ys;
@@ -188,7 +187,7 @@ CsvOpenResult CsvConfigDialog::openClipboard()
         return CsvOpenResult::fail(res);
 
     QVector<DataSource*> dataSources;
-    for (const CsvMultiReader::GraphItem& item : csvReader.graphItems)
+    foreach (const CsvMultiReader::GraphItem& item, csvReader.graphItems)
     {
         Q_ASSERT(item.xs.size() == item.ys.size());
         if (item.xs.isEmpty()) continue;
@@ -387,7 +386,7 @@ void CsvConfigDialog::initReader(CsvMultiReader& reader)
     reader.skipFirstLines = _skipFirstLines->value();
     reader.valueSeparators = _valueSeparator->text().trimmed();
 
-    for (const CvsGraphItemView& item : _graphsItems)
+    foreach (const CvsGraphItemView& item, _graphsItems)
     {
         CsvMultiReader::GraphItem it;
         it.columnX = item.colX->value();
@@ -456,7 +455,7 @@ void CsvConfigDialog::updatePreviewData()
     LineSplitter lineSplitter(_valueSeparator->text().trimmed());
     ValueParser valueParser(_decSepPoint->isChecked());
     int maxColCount = 0;
-    for (auto line : _previewLines)
+    foreach (const QString& line, _previewLines)
     {
         lineSplitter.split(line);
         QStringList rowValues;

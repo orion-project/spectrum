@@ -24,40 +24,31 @@ DataSource::~DataSource()
 //                             TextFileDataSource
 //------------------------------------------------------------------------------
 
-TextFileDataSource::TextFileDataSource()
-{
-}
+TextFileDataSource::TextFileDataSource(QString fileName): _fileName(fileName) {}
 
+// Open another (or the same, if you wish) source file
 bool TextFileDataSource::configure()
 {
-    auto root = CustomDataHelpers::loadCustomData("datasources");
-    auto state = root["file"].toObject();
+    Q_ASSERT(!_fileName.isEmpty());
 
     QFileDialog dlg(qApp->activeWindow());
-    if (_fileName.isEmpty())
-    {
-        auto dir = state["dir"].toString();
-        if (!dir.isEmpty())
-            dlg.setDirectory(dir);
-    }
-    else
-        dlg.selectFile(_fileName);
+    dlg.selectFile(_fileName);
 
-    if (dlg.exec() == QDialog::Accepted)
-    {
-        auto files = dlg.selectedFiles();
-        if (files.isEmpty()) return false;
-        auto fileName = files.first();
-        if (fileName.isEmpty()) return false;
-        _fileName = fileName;
+    if (dlg.exec() != QDialog::Accepted)
+        return false;
 
-        state["dir"] = dlg.directory().path();
-        root["file"] = state;
-        CustomDataHelpers::saveCustomData(root, "datasources");
+    auto files = dlg.selectedFiles();
+    if (files.isEmpty()) return false;
 
-        return true;
-    }
-    return false;
+    _fileName = files.first();
+
+    auto root = CustomDataHelpers::loadDataSourceStates();
+    auto state = root["file"].toObject();
+    state["dir"] = dlg.directory().path();
+    root["file"] = state;
+    CustomDataHelpers::saveDataSourceStates(root);
+
+    return true;
 }
 
 GraphResult TextFileDataSource::getData()
@@ -80,6 +71,8 @@ QString TextFileDataSource::makeTitle() const
 //------------------------------------------------------------------------------
 //                             CsvFileMultiDataSource
 //------------------------------------------------------------------------------
+
+CsvFileDataSource::CsvFileDataSource(QString fileName): _fileName(fileName) {}
 
 GraphResult CsvFileDataSource::getData()
 {

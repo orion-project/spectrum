@@ -91,15 +91,6 @@ void MainWindow::loadSettings()
     s.restoreDockState(this);
 }
 
-void setTooltip(QAction *a, QString tooltip)
-{
-    QString t = tooltip;
-    auto sc = a->shortcut();
-    if (!sc.isEmpty())
-        t += QStringLiteral("<br><b>%1</b>").arg(sc.toString(QKeySequence::NativeText));
-    a->setToolTip(t);
-}
-
 void MainWindow::createTools(QString title, std::initializer_list<QObject*> items)
 {
     auto t = new Ori::Widgets::FlatToolBar;
@@ -112,7 +103,7 @@ void MainWindow::createActions()
 #define A_ Ori::Gui::action
 #define T_ Ori::Gui::textToolButton
 
-    Ori::Gui::setActionTooltipFormat("%1<br><b>%2</b>");
+    Ori::Gui::setActionTooltipFormat("<p style='white-space:pre'>%1</p><p><b>%2</b></p>");
 
     //---------------------------------------------------------
 
@@ -158,8 +149,8 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actnGraphRefresh = A_(tr("Refresh"), _operations, SLOT(graphRefresh()), ":/toolbar/todo", QKeySequence("Ctrl+R"));
-    auto actGraphReopen = A_(tr("Reopen..."), _operations, SLOT(graphReopen()), ":/toolbar/todo");
+    auto actnGraphRefresh = A_(tr("Refresh"), tr("Reread points from data source"), _operations, SLOT(graphRefresh()), ":/toolbar/update", QKeySequence("Ctrl+R"));
+    auto actGraphReopen = A_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
 
     createTools(tr("Graph"), {
                     T_(actnGraphRefresh), nullptr,

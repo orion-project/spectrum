@@ -33,7 +33,7 @@ signals:
     void graphUpdated(Graph* g) const;
 
 private:
-    void addGraph(DataSource* dataSource) const;
+    void addGraph(DataSource* dataSource, bool configured = false) const;
     void modifyGraph(Modifier *mod) const;
 };
 

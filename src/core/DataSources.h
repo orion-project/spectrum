@@ -20,10 +20,10 @@ protected:
 class TextFileDataSource : public DataSource
 {
 public:
-    TextFileDataSource();
+    TextFileDataSource(QString fileName);
+    bool configure() override;
     GraphResult getData() override;
     QString makeTitle() const override;
-    bool configure() override;
 private:
     QString _fileName;
 };
@@ -32,6 +32,7 @@ private:
 class CsvFileDataSource : public DataSource
 {
 public:
+    CsvFileDataSource(QString fileName);
     GraphResult getData() override;
     QString makeTitle() const override;
 private:

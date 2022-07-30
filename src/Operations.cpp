@@ -1,6 +1,8 @@
 #include "Operations.h"
 
 #include "CsvConfigDialog.h"
+#include "CustomPrefs.h"
+#include "OpenFileDlg.h"
 #include "core/Graph.h"
 #include "core/DataSources.h"
 #include "core/Modifiers.h"
@@ -15,8 +17,18 @@ Operations::Operations(QObject *parent) : QObject(parent)
 
 void Operations::addFromFile() const
 {
-    // TODO: open several files in the same time
-    addGraph(new TextFileDataSource());
+    auto states = CustomDataHelpers::loadDataSourceStates();
+    auto state = states["file"].toObject();
+
+    OpenFileDlg dlg;
+    if (dlg.open(&state))
+    {
+        states["file"] = state;
+        CustomDataHelpers::saveDataSourceStates(states);
+
+        foreach (const OpenFileItem& it, dlg.items)
+            addGraph(new TextFileDataSource(it.path), true);
+    }
 }
 
 void Operations::addFromCsvFile() const
@@ -27,9 +39,8 @@ void Operations::addFromCsvFile() const
         Ori::Dlg::error(dataSources.error());
         return;
     }
-    // TODO: optimize repainting
-    for (auto dataSource : dataSources.result())
-        emit graphCreated(new Graph(dataSource));
+    foreach (auto dataSource, dataSources.result())
+        addGraph(dataSource, true);
 }
 
 void Operations::addFromClipboardCsv() const
@@ -40,9 +51,8 @@ void Operations::addFromClipboardCsv() const
         Ori::Dlg::error(dataSources.error());
         return;
     }
-    // TODO: optimize repainting
-    for (auto dataSource : dataSources.result())
-        emit graphCreated(new Graph(dataSource));
+    foreach (auto dataSource, dataSources.result())
+        addGraph(dataSource, true);
 }
 
 void Operations::addFromClipboard() const
@@ -65,9 +75,9 @@ void Operations::modifyScale() const
     modifyGraph(new ScaleModifier);
 }
 
-void Operations::addGraph(DataSource* dataSource) const
+void Operations::addGraph(DataSource* dataSource, bool configured) const
 {
-    if (!dataSource->configure())
+    if (!configured && !dataSource->configure())
     {
         delete dataSource;
         return;
