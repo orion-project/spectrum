@@ -13,7 +13,7 @@ DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
     _dataGrid = new QCPL::GraphDataGrid;
     _iconPlot = new QLabel;
     _iconGraph = new QLabel;
-    _titlePlot = new QLabel("<span style='color:gray'>no plot selected</span>");
+    _titlePlot = new QLabel("<span style='color:gray'>no diagram selected</span>");
     _titleGraph = new QLabel("<span style='color:gray'>no graph selected</span>");
 
     LayoutV({

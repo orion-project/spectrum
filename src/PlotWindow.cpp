@@ -58,7 +58,7 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
 
     _plotObj = new PlotObj;
     _plotObj->_icon = nextPlotIcon();
-    _plotObj->_title = tr("Plot %1").arg(++plotIndex);
+    _plotObj->_title = tr("Diagram %1").arg(++plotIndex);
 
     setWindowIcon(_plotObj->icon());
     setWindowTitle(_plotObj->title());
