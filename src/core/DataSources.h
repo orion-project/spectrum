@@ -6,14 +6,22 @@
 class DataSource
 {
 public:
+    struct ConfigResult
+    {
+        bool ok = false;
+        QString error;
+
+        ConfigResult(bool ok): ok(ok) {}
+    };
+
     virtual ~DataSource();
-    virtual GraphResult getData() = 0;
+    virtual GraphResult read() = 0;
     virtual QString makeTitle() const = 0;
     virtual QString canRefresh() const { return QString(); }
-    virtual bool configure() { return true; }
-    const GraphPoints& initialData() { return _initialData; }
+    virtual ConfigResult configure() { return ConfigResult(false); }
+    const GraphPoints& data() { return _data; }
 protected:
-    GraphPoints _initialData;
+    GraphPoints _data;
 };
 
 
@@ -21,8 +29,8 @@ class TextFileDataSource : public DataSource
 {
 public:
     TextFileDataSource(QString fileName);
-    bool configure() override;
-    GraphResult getData() override;
+    ConfigResult configure() override;
+    GraphResult read() override;
     QString makeTitle() const override;
 private:
     QString _fileName;
@@ -32,8 +40,8 @@ private:
 class CsvFileDataSource : public DataSource
 {
 public:
-    CsvFileDataSource(QString fileName);
-    GraphResult getData() override;
+    ConfigResult configure() override;
+    GraphResult read() override;
     QString makeTitle() const override;
 private:
     QString _fileName;
@@ -45,7 +53,7 @@ class RandomSampleDataSource : public DataSource
 {
 public:
     RandomSampleDataSource();
-    GraphResult getData() override;
+    GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
 private:
@@ -57,7 +65,7 @@ class ClipboardDataSource : public DataSource
 {
 public:
     ClipboardDataSource();
-    GraphResult getData() override;
+    GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
 private:
@@ -68,7 +76,7 @@ private:
 class ClipboardCsvDataSource : public DataSource
 {
 public:
-    GraphResult getData() override;
+    GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
 private:

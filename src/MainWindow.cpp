@@ -138,13 +138,15 @@ void MainWindow::createActions()
     //---------------------------------------------------------
 
     auto actAddFile = A_(tr("From File..."), _operations, SLOT(addFromFile()), ":/toolbar/add_file", Qt::Key_Insert);
-    auto actAddClipboard = A_(tr("From Clipboard"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste", QKeySequence("Shift+Ctrl+V"));
     auto actAddCsv = A_(tr("From CSV File..."), _operations, SLOT(addFromCsvFile()), ":/toolbar/add_table", QKeySequence("Shift+Ctrl+Ins"));
+    auto actAddClipboard = A_(tr("From Clipboard"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste", QKeySequence("Shift+Ctrl+V"));
     auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table", QKeySequence("Ctrl+Alt+V"));
     auto actAddRandom = A_(tr("Random Sample"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
 
     createTools(tr("Add"), {
-                    T_(actAddFile), T_(actAddClipboard), T_(actAddCsv), T_(actAddCsvClipboard), T_(actAddRandom),
+                    T_(actAddFile), T_(actAddCsv), nullptr,
+                    T_(actAddClipboard), T_(actAddCsvClipboard), nullptr,
+                    T_(actAddRandom),
                 });
 
     //---------------------------------------------------------

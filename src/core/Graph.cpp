@@ -5,7 +5,7 @@
 
 Graph::Graph(DataSource* dataSource): _dataSource(dataSource)
 {
-    _data = _dataSource->initialData();
+    _data = _dataSource->data();
     _title = _dataSource->makeTitle();
 }
 
@@ -20,16 +20,21 @@ QString Graph::canRefreshData() const
     return _dataSource->canRefresh();
 }
 
-QString Graph::refreshData()
+QString Graph::refreshData(bool reread)
 {
-    auto res = _dataSource->getData();
-    if (!res.ok())
-        return res.error();
+    if (reread)
+    {
+        auto res = _dataSource->read();
+        if (!res.ok())
+            return res.error();
+
+        _data = res.result();
+    }
+    else
+        _data = _dataSource->data();
 
     if (_autoTitle)
         _title = _dataSource->makeTitle();
-
-    _data = res.result();
 
     foreach (auto mod, _modifiers)
     {

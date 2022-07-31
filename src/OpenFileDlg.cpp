@@ -9,7 +9,7 @@ bool OpenFileDlg::open(QJsonObject *state)
     QFileDialog dlg(qApp->activeWindow());
     dlg.setFileMode(QFileDialog::ExistingFiles);
 
-    if (items.isEmpty())
+    if (files.isEmpty())
     {
         if (state)
         {
@@ -18,25 +18,17 @@ bool OpenFileDlg::open(QJsonObject *state)
                 dlg.setDirectory(dir);
         }
     }
-    else dlg.selectFile(items.first().path);
+    else dlg.selectFile(files.first());
 
     if (dlg.exec() != QDialog::Accepted)
         return false;
 
-    auto files = dlg.selectedFiles();
+    files = dlg.selectedFiles();
     if (files.isEmpty())
         return false;
 
-    items.clear();
-    foreach (const QString& path, files)
-    {
-        OpenFileItem it;
-        it.path = path;
-        it.name = QFileInfo(path).fileName();
-        items << it;
-    }
-
     if (state)
         (*state)["dir"] = dlg.directory().path();
+
     return true;
 }

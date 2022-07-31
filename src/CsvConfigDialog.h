@@ -7,7 +7,7 @@
 
 class DataSource;
 class CsvFileDataSource;
-struct CsvOpenerState;
+struct CsvDlgState;
 struct CsvMultiReader;
 
 QT_BEGIN_NAMESPACE
@@ -23,7 +23,11 @@ class QTableView;
 class QTextStream;
 QT_END_NAMESPACE
 
-using CsvOpenResult = Ori::Result<QVector<DataSource*>>;
+struct CsvOpenResult
+{
+    QStringList report;
+    QVector<DataSource*> dataSources;
+};
 
 class CsvConfigDialog : public QWidget
 {
@@ -32,7 +36,6 @@ class CsvConfigDialog : public QWidget
 public:
     static CsvOpenResult openFile();
     static CsvOpenResult openClipboard();
-    static bool openExisted(CsvFileDataSource* dataSource);
 
 private:
     struct CvsGraphItemView
@@ -43,8 +46,8 @@ private:
         QPushButton *buttonDel;
     };
 
-    QString _fileName, _text, _graphBaseName;
-    QStringList _previewLines;
+    QString _dlgTitle, _text;
+    QStringList _files, _previewLines;
     QStackedWidget *_tabs;
     QPlainTextEdit *_fileTextPreview;
     QTableView *_dataTablePreview;
@@ -58,16 +61,17 @@ private:
 
     explicit CsvConfigDialog(bool editMode = false);
 
+    bool exec();
+
     void updateFullPreview();
     void updatePreviewText();
     void updatePreviewText(QTextStream& stream);
     void updatePreviewData();
     void addNewGraph();
-    void addGraphItem(int colX, int colY, const QString &title = QString());
-    bool showDialog(const QString& title, CsvOpenerState& state);
-    void initReader(CsvMultiReader& reader);
+    void addGraphItem(int colX, int colY);
+    void initReader(CsvMultiReader& reader, QString fileName = QString());
 
-    friend struct CsvOpenerState;
+    friend struct CsvDlgState;
 };
 
 #endif // CSV_CONFIG_DIALOG_H

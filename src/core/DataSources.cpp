@@ -3,6 +3,8 @@
 #include "DataReaders.h"
 #include "../CustomPrefs.h"
 
+#include "helpers/OriTools.h"
+
 #include <QApplication>
 #include <QClipboard>
 #include <QFileDialog>
@@ -21,26 +23,22 @@ DataSource::~DataSource()
 }
 
 //------------------------------------------------------------------------------
-//                             TextFileDataSource
+//                                 Helpers
 //------------------------------------------------------------------------------
 
-TextFileDataSource::TextFileDataSource(QString fileName): _fileName(fileName) {}
-
-// Open another (or the same, if you wish) source file
-bool TextFileDataSource::configure()
+static QString reselectFile(QString oldFile)
 {
-    Q_ASSERT(!_fileName.isEmpty());
+    Q_ASSERT(!oldFile.isEmpty());
 
     QFileDialog dlg(qApp->activeWindow());
-    dlg.selectFile(_fileName);
+    dlg.selectFile(oldFile);
 
     if (dlg.exec() != QDialog::Accepted)
-        return false;
+        return QString();
 
     auto files = dlg.selectedFiles();
-    if (files.isEmpty()) return false;
-
-    _fileName = files.first();
+    if (files.isEmpty())
+        return QString();
 
     auto root = CustomDataHelpers::loadDataSourceStates();
     auto state = root["file"].toObject();
@@ -48,10 +46,27 @@ bool TextFileDataSource::configure()
     root["file"] = state;
     CustomDataHelpers::saveDataSourceStates(root);
 
-    return true;
+    return files.first();
 }
 
-GraphResult TextFileDataSource::getData()
+//------------------------------------------------------------------------------
+//                             TextFileDataSource
+//------------------------------------------------------------------------------
+
+TextFileDataSource::TextFileDataSource(QString fileName): _fileName(fileName) {}
+
+// Open another (or the same, if you wish) source file
+DataSource::ConfigResult TextFileDataSource::configure()
+{
+    QString fileName = reselectFile(_fileName);
+    if (fileName.isEmpty())
+        return ConfigResult(false);
+
+    _fileName = fileName;
+    return ConfigResult(true);
+}
+
+GraphResult TextFileDataSource::read()
 {
     TextReader reader;
     reader.fileName = _fileName;
@@ -59,8 +74,8 @@ GraphResult TextFileDataSource::getData()
     if (!res.isEmpty())
         return GraphResult::fail(res);
 
-    _initialData = {reader.xs, reader.ys};
-    return GraphResult::ok(_initialData);
+    _data = {reader.xs, reader.ys};
+    return GraphResult::ok(_data);
 }
 
 QString TextFileDataSource::makeTitle() const
@@ -69,12 +84,21 @@ QString TextFileDataSource::makeTitle() const
 }
 
 //------------------------------------------------------------------------------
-//                             CsvFileMultiDataSource
+//                             CsvFileDataSource
 //------------------------------------------------------------------------------
 
-CsvFileDataSource::CsvFileDataSource(QString fileName): _fileName(fileName) {}
+// Open another (or the same, if you wish) source file
+DataSource::ConfigResult CsvFileDataSource::configure()
+{
+    QString fileName = reselectFile(_fileName);
+    if (fileName.isEmpty())
+        return ConfigResult(false);
 
-GraphResult CsvFileDataSource::getData()
+    _fileName = fileName;
+    return ConfigResult(true);
+}
+
+GraphResult CsvFileDataSource::read()
 {
     CsvSingleReader reader;
     reader.fileName = _fileName;
@@ -83,8 +107,8 @@ GraphResult CsvFileDataSource::getData()
     if (!res.isEmpty())
         return GraphResult::fail(res);
 
-    _initialData = {reader.xs, reader.ys};
-    return GraphResult::ok(_initialData);
+    _data = {reader.xs, reader.ys};
+    return GraphResult::ok(_data);
 }
 
 QString CsvFileDataSource::makeTitle() const
@@ -101,7 +125,7 @@ RandomSampleDataSource::RandomSampleDataSource()
     _index = ++__randomSampleIndex;
 }
 
-GraphResult RandomSampleDataSource::getData()
+GraphResult RandomSampleDataSource::read()
 {
     const double H = 25;
     const int count = 100;
@@ -109,17 +133,17 @@ GraphResult RandomSampleDataSource::getData()
     QVector<double> xs(count);
     QVector<double> ys(count);
 
-    double y = (qrand()%100)*H*0.01;
+    double y = (Ori::Tools::rand()%100)*H*0.01;
     for (int i = 0; i < count; i++)
     {
-        y = qAbs(y + (qrand()%100)*H*0.01 - H*0.5);
+        y = qAbs(y + (Ori::Tools::rand()%100)*H*0.01 - H*0.5);
 
         xs[i] = i;
         ys[i] = y;
     }
 
-    _initialData = {xs, ys};
-    return GraphResult::ok(_initialData);
+    _data = {xs, ys};
+    return GraphResult::ok(_data);
 }
 
 QString RandomSampleDataSource::canRefresh() const
@@ -142,11 +166,11 @@ ClipboardDataSource::ClipboardDataSource()
         _index = ++__clipboardCallCount;
 }
 
-GraphResult ClipboardDataSource::getData()
+GraphResult ClipboardDataSource::read()
 {
     QString text = qApp->clipboard()->text();
     if (text.isEmpty())
-        return GraphResult::fail(qApp->tr("Clipboard does not contain suitable data"));
+        return GraphResult::fail(qApp->tr("Clipboard does not contain appropriate data"));
 
     TextReader reader;
     reader.text = text;
@@ -154,13 +178,13 @@ GraphResult ClipboardDataSource::getData()
     if (!res.isEmpty())
         return GraphResult::fail(res);
 
-    _initialData = {reader.xs, reader.ys};
-    return GraphResult::ok(_initialData);
+    _data = {reader.xs, reader.ys};
+    return GraphResult::ok(_data);
 }
 
 QString ClipboardDataSource::canRefresh() const
 {
-    return qApp->tr("Refreshing of graph data from clipboard is not supported");
+    return qApp->tr("Rereading of clipboard not available");
 }
 
 QString ClipboardDataSource::makeTitle() const
@@ -172,14 +196,14 @@ QString ClipboardDataSource::makeTitle() const
 //                             ClipboardCsvDataSource
 //------------------------------------------------------------------------------
 
-GraphResult ClipboardCsvDataSource::getData()
+GraphResult ClipboardCsvDataSource::read()
 {
     return GraphResult::fail("Getting data from Clipboard as CSV must be done via CsvConfigDialog::openClipboard()");
 }
 
 QString ClipboardCsvDataSource::canRefresh() const
 {
-    return qApp->tr("Refreshing of graph data from clipboard is not supported");
+    return qApp->tr("Rereading of clipboard not available");
 }
 
 QString ClipboardCsvDataSource::makeTitle() const

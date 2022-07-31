@@ -8,15 +8,9 @@ QT_BEGIN_NAMESPACE
 class QJsonObject;
 QT_END_NAMESPACE
 
-struct OpenFileItem
-{
-    QString path;
-    QString name;
-};
-
 struct OpenFileDlg
 {
-    QList<OpenFileItem> items;
+    QStringList files;
 
     bool open(QJsonObject* state = nullptr);
 };

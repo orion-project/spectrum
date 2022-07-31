@@ -6,6 +6,7 @@
 #include "core/Graph.h"
 #include "core/DataSources.h"
 #include "core/Modifiers.h"
+
 #include "helpers/OriDialogs.h"
 
 #include <QApplication>
@@ -26,33 +27,43 @@ void Operations::addFromFile() const
         states["file"] = state;
         CustomDataHelpers::saveDataSourceStates(states);
 
-        foreach (const OpenFileItem& it, dlg.items)
-            addGraph(new TextFileDataSource(it.path), true);
+        foreach (const QString& file, dlg.files)
+            addGraph(new TextFileDataSource(file), DoConfig(false));
     }
 }
 
 void Operations::addFromCsvFile() const
 {
-    auto dataSources = CsvConfigDialog::openFile();
-    if (!dataSources.ok())
+    auto res = CsvConfigDialog::openFile();
+    if (res.dataSources.isEmpty())
     {
-        Ori::Dlg::error(dataSources.error());
+        if (!res.report.isEmpty())
+            Ori::Dlg::error(res.report.join("\n"));
         return;
     }
-    foreach (auto dataSource, dataSources.result())
-        addGraph(dataSource, true);
+    if (!res.report.isEmpty())
+        Ori::Dlg::warning(res.report.join("\n"));
+    // CsvConfigDialog loads all graphs in optimized way
+    // no need to load each graph separately
+    foreach (auto dataSource, res.dataSources)
+        addGraph(dataSource, DoConfig(false), DoLoad(false));
 }
 
 void Operations::addFromClipboardCsv() const
 {
-    auto dataSources = CsvConfigDialog::openClipboard();
-    if (!dataSources.ok())
+    auto res = CsvConfigDialog::openClipboard();
+    if (res.dataSources.isEmpty())
     {
-        Ori::Dlg::error(dataSources.error());
+        if (!res.report.isEmpty())
+            Ori::Dlg::error(res.report.join("\n"));
         return;
     }
-    foreach (auto dataSource, dataSources.result())
-        addGraph(dataSource, true);
+    if (!res.report.isEmpty())
+        Ori::Dlg::warning(res.report.join("\n"));
+    // CsvConfigDialog loads all graphs in optimized way
+    // no need to load each graph separately
+    foreach (auto dataSource, res.dataSources)
+        addGraph(dataSource, DoConfig(false), DoLoad(false));
 }
 
 void Operations::addFromClipboard() const
@@ -75,26 +86,36 @@ void Operations::modifyScale() const
     modifyGraph(new ScaleModifier);
 }
 
-void Operations::addGraph(DataSource* dataSource, bool configured) const
+void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad) const
 {
-    if (!configured && !dataSource->configure())
+    if (doConfig.value)
     {
-        delete dataSource;
-        return;
+        auto cr = dataSource->configure();
+        if (cr.ok)
+        {
+            if (!cr.error.isEmpty())
+                Ori::Dlg::error(cr.error);
+            delete dataSource;
+            return;
+        }
     }
+
     auto graph = new Graph(dataSource);
-    auto res = graph->refreshData();
+
+    auto res = graph->refreshData(doLoad.value);
     if (!res.isEmpty())
     {
         Ori::Dlg::error(res);
         delete graph;
         return;
     }
+
     emit graphCreated(graph);
 }
 
 void Operations::modifyGraph(Modifier* mod) const
 {
+    // TODO: modify several selected graphs
     auto graph = getSelectedGraph();
     if (!graph)
     {
@@ -118,18 +139,24 @@ void Operations::modifyGraph(Modifier* mod) const
 
 void Operations::graphRefresh() const
 {
+    // TODO: refresh several selected graphs
     auto graph = getSelectedGraph();
     if (!graph)
     {
         Ori::Dlg::info(qApp->tr("Please select a graph"));
         return;
     }
+
     auto res = graph->canRefreshData();
     if (!res.isEmpty())
     {
         Ori::Dlg::info(res);
         return;
     }
+
+    // TODO: check if graph has no data anymore
+    // (e.g. file was deleted or its content changed unexpectedly)
+    // and add an ability to cancel and keep old data
     res = graph->refreshData();
     if (!res.isEmpty())
     {
@@ -149,22 +176,26 @@ void Operations::graphReopen() const
     }
 
     auto dataSource = graph->dataSource();
-    if (dynamic_cast<TextFileDataSource*>(dataSource))
+
+    auto res = dataSource->canRefresh();
+    if (!res.isEmpty())
     {
-        if (!dataSource->configure())
-            return;
-    }
-    else if (dynamic_cast<CsvFileDataSource*>(dataSource))
-    {
-        if (!CsvConfigDialog::openExisted(dynamic_cast<CsvFileDataSource*>(dataSource)))
-            return;
-    }
-    else
-    {
-        Ori::Dlg::info(qApp->tr("Graph's data source is not a file"));
+        Ori::Dlg::info(res);
         return;
     }
-    auto res = graph->refreshData();
+
+    auto cr = dataSource->configure();
+    if (!cr.ok)
+    {
+        if (!cr.error.isEmpty())
+            Ori::Dlg::error(cr.error);
+        return;
+    }
+
+    // TODO: check if new config issues no data (e.g. wrong file selected)
+    // and add an ability to rollback the config
+
+    res = graph->refreshData();
     if (!res.isEmpty())
     {
         Ori::Dlg::error(res);

@@ -29,7 +29,7 @@ public:
     int pointsCount() const { return _data.xs.size(); }
 
     QString canRefreshData() const;
-    QString refreshData();
+    QString refreshData(bool reread = true);
 
     /// The graph takes ownership on the modificator.
     QString modify(Modifier* mod);
