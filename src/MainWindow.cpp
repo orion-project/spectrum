@@ -15,6 +15,7 @@
 #include "widgets/OriFlatToolBar.h"
 #include "widgets/OriMdiToolBar.h"
 #include "widgets/OriStatusBar.h"
+#include "widgets/OriLabels.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -95,7 +96,7 @@ void MainWindow::createTools(QString title, std::initializer_list<QObject*> item
 {
     auto t = new Ori::Widgets::FlatToolBar;
     Ori::Gui::populate(t, items);
-    _toolTabs->addTab(t, title);
+    _toolTabs->addTab(t, QStringLiteral(" %1 ").arg(title));
 }
 
 void MainWindow::createActions()
@@ -110,7 +111,7 @@ void MainWindow::createActions()
     auto actNewPlot = A_(tr("New"), tr("Add new diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
     auto actRenamePlot = A_(tr("Rename..."), tr("Rename current diagram"), this, SLOT(renamePlot()), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
 
-    createTools(tr(" Diagram "), {
+    createTools(tr("Diagram"), {
                     T_(actNewPlot), T_(actRenamePlot),
                 });
 
@@ -120,7 +121,7 @@ void MainWindow::createActions()
     auto actViewTitle = A_(tr("Title"), tr("Toggle diagram title"), this, SLOT(toggleTitle()), ":/toolbar/plot_title");
     auto actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
 
-    createTools(tr(" View "), {
+    createTools(tr("View"), {
                     T_(actToggleDatagrid), nullptr,
                     T_(actViewTitle), T_(actViewLegend),
                 });
@@ -131,7 +132,7 @@ void MainWindow::createActions()
     auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
     auto actPasteCsv = A_(tr("Paste as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
 
-    createTools(tr(" Edit "), {
+    createTools(tr("Edit"), {
                     actCopy, actPaste, T_(actPasteCsv),
                 });
 
@@ -143,7 +144,7 @@ void MainWindow::createActions()
     auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table", QKeySequence("Ctrl+Alt+V"));
     auto actAddRandom = A_(tr("Random Sample"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
 
-    createTools(tr(" Add "), {
+    createTools(tr("Add"), {
                     T_(actAddFile), T_(actAddCsv), nullptr,
                     T_(actAddClipboard), T_(actAddCsvClipboard), nullptr,
                     T_(actAddRandom),
@@ -154,7 +155,7 @@ void MainWindow::createActions()
     auto actnGraphRefresh = A_(tr("Refresh"), tr("Reread points from data source"), _operations, SLOT(graphRefresh()), ":/toolbar/update", QKeySequence("Ctrl+R"));
     auto actGraphReopen = A_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
 
-    createTools(tr(" Graph "), {
+    createTools(tr("Graph"), {
                     T_(actnGraphRefresh), nullptr,
                     T_(actGraphReopen), nullptr
                 });
@@ -164,9 +165,17 @@ void MainWindow::createActions()
     auto actOffset = A_(tr("Offset"), _operations, SLOT(modifyOffset()), ":/toolbar/graph_offset", Qt::Key_Plus);
     auto actScale = A_(tr("Scale"), _operations, SLOT(modifyScale()), ":/toolbar/graph_scale", Qt::Key_Asterisk);
 
-    createTools(tr(" Modify "), {
+    createTools(tr("Modify"), {
                     T_(actOffset), nullptr,
                     T_(actScale), nullptr
+                });
+
+    //---------------------------------------------------------
+
+    auto actFormatTitle = A_(tr("Title..."), tr("Format current diagram title"), this, SLOT(formatTitle()), ":/toolbar/plot_title");
+
+    createTools(tr("Format"), {
+                    T_(actFormatTitle),
                 });
 
     //---------------------------------------------------------
@@ -187,7 +196,7 @@ void MainWindow::createActions()
     auto actZoomOutX = A_(tr("Zoom-out X"), this, SLOT(zoomOutX()), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
     auto actZoomOutY = A_(tr("Zoom-out Y"), this, SLOT(zoomOutY()), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
-    createTools(tr(" Limits "), {
+    createTools(tr("Limits"), {
                     actLimitsBoth, T_(actAutolimits), T_(actFitSelection), actZoomIn, actZoomOut, nullptr,
                     T_(actLimitsX), actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, nullptr,
                     T_(actLimitsY), actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
@@ -198,7 +207,7 @@ void MainWindow::createActions()
     auto actWndCascade = A_(tr("Cascade"), _mdiArea, SLOT(cascadeSubWindows()), ":/toolbar/wnd_cascade");
     auto actWndTile = A_(tr("Tile"), _mdiArea, SLOT(tileSubWindows()), ":/toolbar/wnd_tile");
 
-    createTools(tr(" Windows "), {
+    createTools(tr("Windows"), {
                     T_(actWndCascade), T_(actWndTile),
                 });
 
@@ -211,7 +220,7 @@ void MainWindow::createActions()
     auto actHelpHomepage = A_(tr("Visit Homepage"), help, SLOT(visitHomePage()), ":/toolbar/home");
     auto actHelpAbout = A_(tr("About..."), help, SLOT(showAbout()), ":/window_icons/main");
 
-    createTools(tr("  Help  "), {
+    createTools(tr("Help"), {
                     T_(actHelpIndex), nullptr,
                     T_(actHelpBugReport), T_(actHelpUpdates), T_(actHelpHomepage), nullptr,
                     T_(actHelpAbout),
@@ -242,9 +251,10 @@ void MainWindow::createStatusBar()
 {
     _statusBar = new Ori::Widgets::StatusBar(STATUS_PANELS_COUNT);
 
-    auto versionLabel = new QLabel(Z::HelpSystem::appVersion());
+    auto versionLabel = new Ori::Widgets::Label(Z::HelpSystem::appVersion());
     versionLabel->setContentsMargins(3, 0, 3, 0);
     versionLabel->setForegroundRole(QPalette::Mid);
+    connect(versionLabel, &Ori::Widgets::Label::doubleClicked, [](){ Z::HelpSystem::instance()->showAbout(); });
     _statusBar->addPermanentWidget(versionLabel);
 
     setStatusBar(_statusBar);
@@ -308,7 +318,7 @@ void MainWindow::graphCreated(Graph* graph) const
 
 void MainWindow::graphUpdated(Graph* graph) const
 {
-    for (auto wnd : _mdiArea->subWindowList())
+    foreach (auto wnd, _mdiArea->subWindowList())
     {
         auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
         if (plotWnd && plotWnd->updateGraph(graph))
@@ -340,7 +350,6 @@ void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window) const
     auto graph = plot->selectedGraph();
     if (!graph) return;
 
-    // TODO: it resets selection in the data table when the whole application is activated
     _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
@@ -460,23 +469,22 @@ void MainWindow::editCopy()
     }
 
     auto plot = activePlot();
-    if (plot)
-    {
-        auto graph = plot->selectedGraph();
-        if (graph)
-        {
-            DataExporters::copyToClipboard(graph->data());
-            return;
-        }
-    }
+    if (!plot) return;
+
+    auto graph = plot->selectedGraph();
+    if (!graph) return;
+
+    DataExporters::copyToClipboard(graph->data());
 }
 
 void MainWindow::editPaste()
 {
     auto plot = activePlot();
-    if (plot)
-    {
-        _operations->addFromClipboard();
-        return;
-    }
+    if (plot) _operations->addFromClipboard();
+}
+
+void MainWindow::formatTitle()
+{
+    auto plot = activePlot();
+    if (plot) plot->editTitle();
 }

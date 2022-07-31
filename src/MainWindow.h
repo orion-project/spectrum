@@ -76,6 +76,7 @@ private slots:
     void toggleLegend();
     void toggleTitle();
     void toggleDataGrid();
+    void formatTitle();
 };
 
 #endif // MAINWINDOW_H

@@ -11,13 +11,6 @@ class Graph;
 class DataSource;
 class Modifier;
 
-//namespace Arg {
-
-//using DoConfig = Ori::Argument<bool, struct DoConfigTag>;
-//using DoLoad = Ori::Argument<bool, struct DoLoadTag>;
-
-//} // namespace Arg
-
 class Operations : public QObject
 {
     Q_OBJECT

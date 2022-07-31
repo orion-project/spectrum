@@ -61,6 +61,7 @@ public:
 
     bool isTitleVisible() const;
     void setTitleVisible(bool on);
+    void editTitle();
 
 signals:
     void graphSelected(Graph* g);
@@ -77,8 +78,6 @@ private:
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;
-
-    void editTitle();
 };
 
 #endif // PLOTWINDOW_H

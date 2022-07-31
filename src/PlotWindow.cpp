@@ -264,17 +264,12 @@ bool PlotWindow::isTitleVisible() const
 void PlotWindow::setTitleVisible(bool on)
 {
     _plot->setTitleVisible(on);
-    if (on)
+    if (on && _plot->title()->text().isEmpty())
         _plot->title()->setText(_plotObj->title());
     _plot->replot();
 }
 
 void PlotWindow::editTitle()
 {
-    bool ok;
-    QString newTitle = Ori::Dlg::inputText(tr("Plot title"), _plot->title()->text(), &ok);
-    if (!ok) return;
-    _plot->title()->setText(newTitle);
-    _plot->replot();
-    // TODO should we update _plotObj::title and plot window title as well? or should they be different titles?
+    _plot->formatDlg0();
 }
