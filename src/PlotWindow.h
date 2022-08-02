@@ -49,6 +49,8 @@ public:
     void zoomOutX();
     void zoomInY();
     void zoomOutY();
+    void formatX();
+    void formatY();
 
     Graph* selectedGraph() const;
     void selectGraph(Graph* graph);
@@ -62,6 +64,9 @@ public:
     bool isTitleVisible() const;
     void setTitleVisible(bool on);
     void editTitle();
+
+protected:
+    void closeEvent(class QCloseEvent*) override;
 
 signals:
     void graphSelected(Graph* g);

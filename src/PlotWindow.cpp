@@ -87,6 +87,16 @@ PlotWindow::~PlotWindow()
     delete _plotObj;
 }
 
+void PlotWindow::closeEvent(class QCloseEvent* ce)
+{
+    QWidget::closeEvent(ce);
+
+    if (Ori::Dlg::yes(tr("Delete diagram <b>%1</b> and all its graphs?").arg(windowTitle())))
+        ce->accept();
+    else
+        ce->ignore();
+}
+
 void PlotWindow::addGraph(Graph* g)
 {
     auto item = new PlotItem;
@@ -272,4 +282,14 @@ void PlotWindow::setTitleVisible(bool on)
 void PlotWindow::editTitle()
 {
     _plot->formatDlg0();
+}
+
+void PlotWindow::formatX()
+{
+    _plot->formatDlgX();
+}
+
+void PlotWindow::formatY()
+{
+    _plot->formatDlgY();
 }

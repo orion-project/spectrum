@@ -56,6 +56,7 @@ private:
 private slots:
     void newPlot();
     void renamePlot();
+    void deletePlot();
     void editCopy();
     void editPaste();
     void limitsDlg();
@@ -77,6 +78,8 @@ private slots:
     void toggleTitle();
     void toggleDataGrid();
     void formatTitle();
+    void formatX();
+    void formatY();
 };
 
 #endif // MAINWINDOW_H

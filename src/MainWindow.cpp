@@ -8,14 +8,15 @@
 #include "core/DataExporters.h"
 #include "widgets/DataGridPanel.h"
 
-#include "helpers/OriWindows.h"
-#include "helpers/OriWidgets.h"
+#include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
+#include "helpers/OriWidgets.h"
+#include "helpers/OriWindows.h"
 #include "tools/OriSettings.h"
 #include "widgets/OriFlatToolBar.h"
+#include "widgets/OriLabels.h"
 #include "widgets/OriMdiToolBar.h"
 #include "widgets/OriStatusBar.h"
-#include "widgets/OriLabels.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -110,9 +111,10 @@ void MainWindow::createActions()
 
     auto actNewPlot = A_(tr("New"), tr("Add new diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
     auto actRenamePlot = A_(tr("Rename..."), tr("Rename current diagram"), this, SLOT(renamePlot()), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
+    auto actDeletePlot = A_(tr("Delete"), tr("Delete current diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
 
     createTools(tr("Diagram"), {
-                    T_(actNewPlot), T_(actRenamePlot),
+                    T_(actNewPlot), T_(actRenamePlot), T_(actDeletePlot),
                 });
 
     //---------------------------------------------------------
@@ -173,9 +175,11 @@ void MainWindow::createActions()
     //---------------------------------------------------------
 
     auto actFormatTitle = A_(tr("Title..."), tr("Format current diagram title"), this, SLOT(formatTitle()), ":/toolbar/plot_title");
+    auto actFormatX = A_(tr("Axis X"), tr("Format X axis"), this, SLOT(formatX()), ":/toolbar/format_x");
+    auto actFormatY = A_(tr("Axis Y"), tr("Format Y axis"), this, SLOT(formatY()), ":/toolbar/format_y");
 
     createTools(tr("Format"), {
-                    T_(actFormatTitle),
+                    T_(actFormatTitle), nullptr, T_(actFormatX), T_(actFormatY), nullptr,
                 });
 
     //---------------------------------------------------------
@@ -291,7 +295,19 @@ void MainWindow::newPlot()
 
 void MainWindow::renamePlot()
 {
-    // TODO
+    auto plot = activePlot();
+    if (!plot) return;
+
+    QString newTitle = Ori::Dlg::inputText(tr("Diagram title:"), plot->windowTitle());
+    if (!newTitle.isEmpty())
+        plot->setWindowTitle(newTitle);
+}
+
+void MainWindow::deletePlot()
+{
+    auto plot = activePlot();
+    if (plot)
+        _mdiArea->currentSubWindow()->close();
 }
 
 void MainWindow::graphCreated(Graph* graph) const
@@ -487,4 +503,16 @@ void MainWindow::formatTitle()
 {
     auto plot = activePlot();
     if (plot) plot->editTitle();
+}
+
+void MainWindow::formatX()
+{
+    auto plot = activePlot();
+    if (plot) plot->formatX();
+}
+
+void MainWindow::formatY()
+{
+    auto plot = activePlot();
+    if (plot) plot->formatY();
 }
