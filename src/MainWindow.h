@@ -80,6 +80,7 @@ private slots:
     void formatTitle();
     void formatX();
     void formatY();
+    void formatLegend();
 };
 
 #endif // MAINWINDOW_H

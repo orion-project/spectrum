@@ -177,9 +177,10 @@ void MainWindow::createActions()
     auto actFormatTitle = A_(tr("Title..."), tr("Format current diagram title"), this, SLOT(formatTitle()), ":/toolbar/plot_title");
     auto actFormatX = A_(tr("Axis X"), tr("Format X axis"), this, SLOT(formatX()), ":/toolbar/format_x");
     auto actFormatY = A_(tr("Axis Y"), tr("Format Y axis"), this, SLOT(formatY()), ":/toolbar/format_y");
+    auto actFormatLegend = A_(tr("Legend"), tr("Format legend"), this, SLOT(formatLegend()), ":/toolbar/plot_legend");
 
     createTools(tr("Format"), {
-                    T_(actFormatTitle), nullptr, T_(actFormatX), T_(actFormatY), nullptr,
+                    T_(actFormatTitle), nullptr, T_(actFormatX), T_(actFormatY), nullptr, T_(actFormatLegend),
                 });
 
     //---------------------------------------------------------
@@ -515,4 +516,10 @@ void MainWindow::formatY()
 {
     auto plot = activePlot();
     if (plot) plot->formatY();
+}
+
+void MainWindow::formatLegend()
+{
+    auto plot = activePlot();
+    if (plot) plot->formatLegend();
 }

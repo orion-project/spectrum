@@ -293,3 +293,8 @@ void PlotWindow::formatY()
 {
     _plot->formatDlgY();
 }
+
+void PlotWindow::formatLegend()
+{
+    _plot->formatDlgLegend();
+}

@@ -51,6 +51,7 @@ public:
     void zoomOutY();
     void formatX();
     void formatY();
+    void formatLegend();
 
     Graph* selectedGraph() const;
     void selectGraph(Graph* graph);
