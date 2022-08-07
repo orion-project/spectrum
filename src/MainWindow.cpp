@@ -156,10 +156,12 @@ void MainWindow::createActions()
 
     auto actnGraphRefresh = A_(tr("Refresh"), tr("Reread points from data source"), _operations, SLOT(graphRefresh()), ":/toolbar/update", QKeySequence("Ctrl+R"));
     auto actGraphReopen = A_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
+    auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), _operations, SLOT(graphTitle()), ":/toolbar/graph_title", QKeySequence("F2"));
+    auto actGraphProps = A_(tr("Properties..."), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
 
     createTools(tr("Graph"), {
-                    T_(actnGraphRefresh), nullptr,
-                    T_(actGraphReopen), nullptr
+                    T_(actnGraphRefresh), T_(actGraphReopen), nullptr,
+                    T_(actGraphTitle), T_(actGraphProps), nullptr,
                 });
 
     //---------------------------------------------------------
@@ -522,4 +524,10 @@ void MainWindow::formatLegend()
 {
     auto plot = activePlot();
     if (plot) plot->formatLegend();
+}
+
+void MainWindow::formatGraph()
+{
+    auto plot = activePlot();
+    if (plot) plot->formatGraph();
 }

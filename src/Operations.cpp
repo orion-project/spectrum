@@ -12,6 +12,13 @@
 #include <QApplication>
 #include <QDebug>
 
+#define SELECTED_GRAPH \
+    auto graph = getSelectedGraph(); \
+    if (!graph) { \
+        Ori::Dlg::info(qApp->tr("Please select a graph")); \
+        return; \
+    }
+
 Operations::Operations(QObject *parent) : QObject(parent)
 {
 }
@@ -116,12 +123,8 @@ void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLo
 void Operations::modifyGraph(Modifier* mod) const
 {
     // TODO: modify several selected graphs
-    auto graph = getSelectedGraph();
-    if (!graph)
-    {
-        Ori::Dlg::info(qApp->tr("Please select a graph"));
-        return;
-    }
+    SELECTED_GRAPH
+
     if (!mod->configure())
     {
         delete mod;
@@ -140,12 +143,7 @@ void Operations::modifyGraph(Modifier* mod) const
 void Operations::graphRefresh() const
 {
     // TODO: refresh several selected graphs
-    auto graph = getSelectedGraph();
-    if (!graph)
-    {
-        Ori::Dlg::info(qApp->tr("Please select a graph"));
-        return;
-    }
+    SELECTED_GRAPH
 
     auto res = graph->canRefreshData();
     if (!res.isEmpty())
@@ -168,12 +166,7 @@ void Operations::graphRefresh() const
 
 void Operations::graphReopen() const
 {
-    auto graph = getSelectedGraph();
-    if (!graph)
-    {
-        Ori::Dlg::info(qApp->tr("Please select a graph"));
-        return;
-    }
+    SELECTED_GRAPH
 
     auto dataSource = graph->dataSource();
 
@@ -202,4 +195,9 @@ void Operations::graphReopen() const
         return;
     }
     emit graphUpdated(graph);
+}
+
+void Operations::graphTitle() const
+{
+    SELECTED_GRAPH
 }

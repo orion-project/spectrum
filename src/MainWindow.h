@@ -81,6 +81,7 @@ private slots:
     void formatX();
     void formatY();
     void formatLegend();
+    void formatGraph();
 };
 
 #endif // MAINWINDOW_H

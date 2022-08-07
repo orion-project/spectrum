@@ -33,6 +33,7 @@ public slots:
     void modifyScale() const;
     void graphRefresh() const;
     void graphReopen() const;
+    void graphTitle() const;
 
 signals:
     void graphCreated(Graph* g) const;

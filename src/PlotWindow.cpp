@@ -7,6 +7,7 @@
 #include "qcpl_colors.h"
 #include "qcpl_cursor.h"
 #include "qcpl_cursor_panel.h"
+#include "qcpl_format.h"
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
@@ -297,4 +298,18 @@ void PlotWindow::formatY()
 void PlotWindow::formatLegend()
 {
     _plot->formatDlgLegend();
+}
+
+void PlotWindow::formatGraph()
+{
+    auto lines = _plot->selectedGraphs();
+    if (lines.isEmpty()) return;
+
+    QCPGraph *line = lines.first();
+
+    QCPL::GraphFormatDlgProps props;
+    props.title = tr("Format %1").arg(line->name());
+    props.plot = _plot;
+    if (QCPL::graphFormatDlg(line, props))
+        _plot->replot();
 }
