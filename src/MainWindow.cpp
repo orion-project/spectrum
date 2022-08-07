@@ -180,9 +180,10 @@ void MainWindow::createActions()
     auto actFormatX = A_(tr("Axis X"), tr("Format X axis"), this, SLOT(formatX()), ":/toolbar/format_x");
     auto actFormatY = A_(tr("Axis Y"), tr("Format Y axis"), this, SLOT(formatY()), ":/toolbar/format_y");
     auto actFormatLegend = A_(tr("Legend"), tr("Format legend"), this, SLOT(formatLegend()), ":/toolbar/plot_legend");
+    auto actFormatGraph = A_(tr("Graph"), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
 
     createTools(tr("Format"), {
-                    T_(actFormatTitle), nullptr, T_(actFormatX), T_(actFormatY), nullptr, T_(actFormatLegend),
+                    T_(actFormatTitle), nullptr, T_(actFormatX), T_(actFormatY), nullptr, T_(actFormatLegend), nullptr, T_(actFormatGraph)
                 });
 
     //---------------------------------------------------------
