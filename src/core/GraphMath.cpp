@@ -1,5 +1,7 @@
 #include "GraphMath.h"
 
+#include <limits>
+
 namespace GraphMath {
 
 MinMax minMax(const GraphPoints& data)

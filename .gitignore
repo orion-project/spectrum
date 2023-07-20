@@ -28,6 +28,7 @@ Makefile*
 *.qmlproject.user
 *.qmlproject.user.*
 CMakeLists.txt.user*
+.qtc_clangd
 
 # Output
 bin/spectrum
