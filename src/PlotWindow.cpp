@@ -68,7 +68,7 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
     _plot->setPlottingHint(QCP::phFastPolylines, true);
     if (_plot->title())
         _plot->title()->setText(_plotObj->title());
-    connect(_plot, &QCPL::Plot::editTitleRequest, this, &PlotWindow::editTitle);
+    //connect(_plot, &QCPL::Plot::editTitleRequest, this, &PlotWindow::editTitle);
 
     _cursor = new QCPL::Cursor(_plot);
     _plot->serviceGraphs().append(_cursor);
@@ -274,7 +274,7 @@ bool PlotWindow::isTitleVisible() const
 
 void PlotWindow::setTitleVisible(bool on)
 {
-    _plot->setTitleVisible(on);
+    _plot->title()->setVisible(on);
     if (on && _plot->title()->text().isEmpty())
         _plot->title()->setText(_plotObj->title());
     _plot->replot();
@@ -282,22 +282,22 @@ void PlotWindow::setTitleVisible(bool on)
 
 void PlotWindow::editTitle()
 {
-    _plot->formatDlg0();
+    _plot->titleFormatDlg();
 }
 
 void PlotWindow::formatX()
 {
-    _plot->formatDlgX();
+    _plot->axisFormatDlgX();
 }
 
 void PlotWindow::formatY()
 {
-    _plot->formatDlgY();
+    _plot->axisFormatDlgY();
 }
 
 void PlotWindow::formatLegend()
 {
-    _plot->formatDlgLegend();
+    _plot->legendFormatDlg();
 }
 
 void PlotWindow::formatGraph()

@@ -4,38 +4,57 @@
 #
 #-------------------------------------------------
 
-QT       += core gui network
+QT += core gui widgets network
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+CONFIG += c++17
+QMAKE_CXXFLAGS_WARN_ON += -Wno-unknown-pragmas
+
+#------------------------------------------------------------
+# Definition of output
 
 TARGET = spectrum
 TEMPLATE = app
 DESTDIR = $$_PRO_FILE_PWD_/bin
 
-win32: RC_FILE = src/app.rc
+#------------------------------------------------------------
+# Submodules
 
-include(orion/orion.pri)
-include(custom-plot-lab/custom-plot-lab.pri)
+#--------
+# orion (https://github.com/orion-project/orion-qt)
+ORION = $$_PRO_FILE_PWD_/libs/orion
+include($$ORION/orion.pri)
+
+#--------
+# custom-plot-lab (https://github.com/orion-project/custom-plot-lab)
+
+# qcustomplot.cpp is so large that it even fails to build in debug mode
+# If debug mode is required, you have to use QCustomPlot as shared library:
+# cd libs\custom-plot-lab\qcustomplot; qmake; mingw32-make release
+# Then enable "qcustomplotlab_shared" options and rebuild rezonator
+#win32: CONFIG += qcustomplotlab_shared
+
+include($$_PRO_FILE_PWD_/libs/custom-plot-lab/custom-plot-lab.pri)
+
+#------------------------------------------------------------
+# Version information
+
 include(release/version.pri)
 
-# The following define makes your compiler emit warnings if you use
-# any feature of Qt which as been marked as deprecated (the exact warnings
-# depend on your compiler). Please consult the documentation of the
-# deprecated API in order to know how to port your code away from it.
-DEFINES += QT_DEPRECATED_WARNINGS
+#------------------------------------------------------------
 
-# You can also make your code fail to compile if you use deprecated APIs.
-# In order to do so, uncomment the following line.
-# You can also select to disable deprecated APIs only up to a certain version of Qt.
-#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+win32: RC_FILE = src/app.rc
 
-RESOURCES += src/images.qrc
+#------------------------------------------------------------
+# Sources
+
+RESOURCES += \
+    src/images.qrc
 
 SOURCES += src/main.cpp\
     src/CsvConfigDialog.cpp \
     src/CustomPrefs.cpp \
     src/HelpSystem.cpp \
-        src/MainWindow.cpp \
+    src/MainWindow.cpp \
     src/OpenFileDlg.cpp \
     src/PlotWindow.cpp \
     src/Operations.cpp \
@@ -52,7 +71,7 @@ HEADERS  += \
     src/CsvConfigDialog.h \
     src/CustomPrefs.h \
     src/HelpSystem.h \
-        src/MainWindow.h \
+    src/MainWindow.h \
     src/OpenFileDlg.h \
     src/PlotWindow.h \
     src/Operations.h \
