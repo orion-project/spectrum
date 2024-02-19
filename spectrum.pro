@@ -48,7 +48,7 @@ win32: RC_FILE = src/app.rc
 # Sources
 
 RESOURCES += \
-    src/images.qrc
+    src/app.qrc
 
 SOURCES += src/main.cpp\
     src/CsvConfigDialog.cpp \

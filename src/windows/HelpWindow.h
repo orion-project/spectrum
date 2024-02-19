@@ -24,7 +24,7 @@ private:
     QTextBrowser *_browser;
 
     void setSource(const QString& name);
-    void editStylesheet();
+    void editStyleSheet();
 };
 
 #endif // HELP_WINDOW_H

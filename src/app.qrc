@@ -46,7 +46,6 @@
         <file alias="update_params">../img/toolbar/update_params.svg</file>
         <file alias="wnd_cascade">../img/toolbar/windows_cascade.svg</file>
         <file alias="wnd_tile">../img/toolbar/windows_tile.svg</file>
-
     </qresource>
     <qresource prefix="/window_icons">
         <file alias="main">../img/icons/spectrum.svg</file>
@@ -58,5 +57,8 @@
     <qresource prefix="/syntax">
         <file alias="css">../libs/orion/syntax/css.ohl</file>
         <file alias="qss">../libs/orion/syntax/qss.ohl</file>
+    </qresource>
+    <qresource prefix="/style">
+        <file alias="help">help.css</file>
     </qresource>
 </RCC>
