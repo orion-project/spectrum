@@ -16,8 +16,6 @@ int main(int argc, char *argv[])
     QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
 #endif
 
-    //Ori::Debug::installMessageHandler();
-
     QApplication app(argc, argv);
     app.setApplicationName("Spectrum");
     app.setOrganizationName("orion-project.org");

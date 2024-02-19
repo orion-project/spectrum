@@ -4,6 +4,10 @@ html {
   color: #333;
 }
 
+body {
+  margin-left: 10px;
+}
+
 a {
   color: #0366d6;
   text-decoration: none;

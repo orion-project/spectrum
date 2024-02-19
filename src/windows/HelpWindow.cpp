@@ -81,6 +81,12 @@ public:
         updateHtml();
     }
 
+    void reload() override
+    {
+        QTextBrowser::reload();
+        updateHtml();
+    }
+
 private:
     void updateHtml()
     {
@@ -154,12 +160,16 @@ HelpWindow::HelpWindow() : QWidget()
     connect(actnBack, &QAction::triggered, _browser, &QTextBrowser::backward);
     connect(actnForward, &QAction::triggered, _browser, &QTextBrowser::forward);
 
+    QAction *actnRefresh = new QAction(QIcon(":/toolbar/update"), tr("Refresh"), this);
+    connect(actnRefresh, &QAction::triggered, this, [this]{ _browser->reload(); });
+    actnRefresh->setVisible(AppSettings::instance().isDevMode);
+
     QAction *actnEditStyle = new QAction(QIcon(":/toolbar/protocol"), tr("Edit Stylesheet"), this);
     connect(actnEditStyle, &QAction::triggered, this, &HelpWindow::editStyleSheet);
     actnEditStyle->setVisible(AppSettings::instance().isDevMode);
 
     auto toolbar = new QToolBar;
-    Ori::Gui::populate(toolbar, { T_(actnContent), nullptr, T_(actnBack), T_(actnForward), nullptr, actnEditStyle });
+    Ori::Gui::populate(toolbar, { T_(actnContent), nullptr, T_(actnBack), T_(actnForward), nullptr, actnRefresh, actnEditStyle });
 
     LayoutV({toolbar, _browser, statusBar}).setSpacing(0).setMargins(3, 0, 3, 0).useFor(this);
 

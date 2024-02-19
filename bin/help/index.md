@@ -1,6 +1,11 @@
 # Spectrum
 
+## Graph
+
+- [Refresh](refresh.md)
+- [Reopen](reopen.md)
+
 ## Modify
 
-- [Offset](./modify_offset.md)
-- [Scale](./modify_scale.md)
+- [Offset](offset.md)
+- [Scale](scale.md)
