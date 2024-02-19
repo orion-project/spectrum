@@ -1,5 +1,7 @@
 #include "HelpSystem.h"
 
+#include "../windows/HelpWindow.h"
+
 #include "core/OriVersion.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
@@ -51,109 +53,14 @@ QString HelpSystem::appVersion()
     return QString("%1.%2.%3-%4").arg(APP_VER_MAJOR).arg(APP_VER_MINOR).arg(APP_VER_PATCH).arg(APP_VER_CODENAME);
 }
 
-void HelpSystem::showContents()
+void HelpSystem::showContent()
 {
-    if (!startAssistant()) return;
-
-    QByteArray commands;
-    commands.append("show contents;");
-    commands.append("expandToc 3;");
-    commands.append("setSource qthelp://org.orion-project.spectrum/doc/index.html\n");
-    _assistant->write(commands);
-}
-
-void HelpSystem::showIndex()
-{
-    if (!startAssistant()) return;
-
-    QByteArray commands;
-    commands.append("show index\n");
-    _assistant->write(commands);
+    HelpWindow::showContent();
 }
 
 void HelpSystem::showTopic(const QString& topic)
 {
-    if (!startAssistant()) return;
-
-    QByteArray commands;
-    commands.append("setSource qthelp://org.orion-project.spectrum/doc/" % topic % '\n');
-    _assistant->write(commands);
-}
-
-bool HelpSystem::startAssistant()
-{
-    if (_assistant)
-    {
-        if (_assistant->state() == QProcess::Running) return true;
-
-        delete _assistant;
-        _assistant = nullptr;
-    }
-
-    QString appDir = qApp->applicationDirPath();
-    QString helpFile = appDir + "/spectrum.qhc";
-#ifdef Q_OS_WIN
-    QString assistantFile = appDir + "/assistant.exe";
-#else
-    QString assistantFile = appDir + "/assistant";
-#endif
-
-    if (!QFile::exists(assistantFile))
-    {
-        Ori::Dlg::error("Help viewer not found");
-        return false;
-    }
-
-    if (!QFile::exists(helpFile))
-    {
-        Ori::Dlg::error("Help file not found");
-        return false;
-    }
-
-    QProcess *process = new QProcess(this);
-    process->start(assistantFile, {
-                       "-collectionFile", helpFile,
-                       "-style", qApp->style()->objectName(),
-                       "-enableRemoteControl"
-                   });
-    if (!process->waitForStarted(5000))
-    {
-        Ori::Dlg::error("Failed to start help viewer: " + process->errorString());
-        delete process;
-        return false;
-    }
-    connect(process, SIGNAL(finished(int)), this, SLOT(assistantFinished(int)));
-    connect(process, &QProcess::readyReadStandardOutput, [this](){
-        qDebug() << QString::fromLocal8Bit(_assistant->readAllStandardOutput());
-    });
-    connect(process, &QProcess::readyReadStandardError, [this](){
-        qDebug() << QString::fromLocal8Bit(_assistant->readAllStandardError());
-    });
-    connect(qApp, &QApplication::aboutToQuit, this, &HelpSystem::closeAssistant);
-    _assistant = process;
-    return true;
-}
-
-void HelpSystem::assistantFinished(int exitCode)
-{
-    qDebug() << "Help viewer finished, exit code" << exitCode;
-    if (_assistant)
-    {
-        _assistant->deleteLater();
-        _assistant = nullptr;
-    }
-}
-
-void HelpSystem::closeAssistant()
-{
-    if (!_assistant) return;
-    if (_assistant->state() == QProcess::Running)
-    {
-        _assistant->terminate();
-        _assistant->waitForFinished(5000);
-    }
-    delete _assistant;
-    _assistant = nullptr;
+    HelpWindow::showTopic(topic);
 }
 
 void HelpSystem::visitHomePage()
@@ -170,7 +77,7 @@ void HelpSystem::checkUpdates()
     }
     _updateChecker = new QNetworkAccessManager(this);
     _updateReply = _updateChecker->get(QNetworkRequest(QUrl(versionFileUrl())));
-    connect(_updateReply, &QNetworkReply::finished, [this](){
+    connect(_updateReply, &QNetworkReply::finished, this, [this](){
         if (!_updateReply) return;
         auto versionData = _updateReply->readAll();
         _updateReply->deleteLater();
@@ -179,7 +86,7 @@ void HelpSystem::checkUpdates()
         _updateChecker = nullptr;
         versionReceived(versionData);
     });
-    connect(_updateReply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error), [this](QNetworkReply::NetworkError){
+    connect(_updateReply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::errorOccurred), this, [this](QNetworkReply::NetworkError){
         auto errorMsg =_updateReply->errorString();
         qCritical() << "Network error" << errorMsg;
         _updateReply->deleteLater();
@@ -224,7 +131,7 @@ void HelpSystem::showAbout()
     w->resize(bckgnd.size());
 
     auto p = w->palette();
-    p.setBrush(QPalette::Background, QBrush(bckgnd));
+    p.setBrush(QPalette::Window, QBrush(bckgnd));
     w->setPalette(p);
 
     auto f = w->font();
