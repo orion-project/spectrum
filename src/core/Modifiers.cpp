@@ -2,6 +2,7 @@
 
 #include "GraphMath.h"
 #include "../CustomPrefs.h"
+#include "../app/HelpSystem.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
@@ -129,7 +130,10 @@ bool OffsetModifier::configure()
     mode.editor()->setValue(state["value"].toDouble(0));
 
     if (Ori::Dlg::Dialog(&paramEditor, false)
+            .windowModal()
             .withTitle(qApp->tr("Offset"))
+            .withOnHelp([]{ Z::HelpSystem::topic("offset"); })
+            .withHelpIcon(":/toolbar/help")
             .withContentToButtonsSpacingFactor(2)
             .exec())
     {
@@ -187,8 +191,11 @@ bool ScaleModifier::configure()
     editorScaleFactor->setValue(state["scaleFactor"].toDouble(1));
 
     if (Ori::Dlg::Dialog(&paramEditor, false)
+            .windowModal()
             .withTitle(qApp->tr("Scale"))
             .withContentToButtonsSpacingFactor(2)
+            .withOnHelp([]{ Z::HelpSystem::topic("scale"); })
+            .withHelpIcon(":/toolbar/help")
             .exec())
     {
         _params.dir = direction.selection<Scale::Direction>();

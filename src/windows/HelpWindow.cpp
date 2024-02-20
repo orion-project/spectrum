@@ -185,7 +185,11 @@ HelpWindow::~HelpWindow()
 
 void HelpWindow::setSource(const QString& name)
 {
-    _browser->setSource(QUrl(name));
+    static QRegularExpression hasExt("^.+\\.{1}.+$");
+    if (hasExt.match(name).hasMatch())
+        _browser->setSource(QUrl(name));
+    else
+        _browser->setSource(QUrl(name + ".md"));
 }
 
 void HelpWindow::editStyleSheet()
