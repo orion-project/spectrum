@@ -55,7 +55,6 @@ SOURCES += src/main.cpp\
     src/CustomPrefs.cpp \
     src/app/AppSettings.cpp \
     src/app/HelpSystem.cpp \
-    src/MainWindow.cpp \
     src/OpenFileDlg.cpp \
     src/PlotWindow.cpp \
     src/Operations.cpp \
@@ -67,14 +66,14 @@ SOURCES += src/main.cpp\
     src/core/GraphMath.cpp \
     src/core/Modifiers.cpp \
     src/widgets/DataGridPanel.cpp \
-    src/windows/HelpWindow.cpp
+    src/windows/HelpWindow.cpp \
+    src/windows/MainWindow.cpp
 
 HEADERS  += \
     src/CsvConfigDialog.h \
     src/CustomPrefs.h \
     src/app/AppSettings.h \
     src/app/HelpSystem.h \
-    src/MainWindow.h \
     src/OpenFileDlg.h \
     src/PlotWindow.h \
     src/Operations.h \
@@ -87,4 +86,5 @@ HEADERS  += \
     src/core/GraphMath.h \
     src/core/Modifiers.h \
     src/widgets/DataGridPanel.h \
-    src/windows/HelpWindow.h
+    src/windows/HelpWindow.h \
+    src/windows/MainWindow.h

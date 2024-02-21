@@ -1,7 +1,6 @@
-#include "MainWindow.h"
-
 #include "app/AppSettings.h"
 #include "app/HelpSystem.h"
+#include "windows/MainWindow.h"
 
 #include "tools/OriDebug.h"
 

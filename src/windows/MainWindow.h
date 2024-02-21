@@ -8,8 +8,6 @@ class QAction;
 class QDockWidget;
 class QMdiArea;
 class QMdiSubWindow;
-class QToolBar;
-class QTabWidget;
 QT_END_NAMESPACE
 
 class Graph;
@@ -36,12 +34,10 @@ private:
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
     Ori::Widgets::StatusBar *_statusBar;
-    QTabWidget *_toolTabs;
 
     void createActions();
     void createDocks();
     void createStatusBar();
-    void createTools(QString title, std::initializer_list<QObject *> items);
     void saveSettings();
     void loadSettings();
     void newProject();
