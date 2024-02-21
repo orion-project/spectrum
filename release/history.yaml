@@ -5,6 +5,7 @@ history:
       - text: (NEW) Added categorized toolbar
       - text: Can open several data files (plain and csv)
       - text: Diagram format dialolgs (title, axes, legend)
+      - text: (NEW) Internal help viever
 
   - version: 7.0.1-alpha1
     date: 2020-02-16

@@ -1,9 +1,9 @@
 #include "MainWindow.h"
 
-#include "HelpSystem.h"
+#include "app/AppSettings.h"
+#include "app/HelpSystem.h"
 #include "Operations.h"
 #include "PlotWindow.h"
-#include "Settings.h"
 #include "core/Graph.h"
 #include "core/DataExporters.h"
 #include "widgets/DataGridPanel.h"
@@ -222,14 +222,14 @@ void MainWindow::createActions()
     //---------------------------------------------------------
 
     auto help = Z::HelpSystem::instance();
-    auto actHelpIndex = A_(tr("Index"), help, SLOT(showIndex()), ":/toolbar/help", QKeySequence::HelpContents);
+    auto actHelpContent = A_(tr("Help"), help, SLOT(showContent()), ":/toolbar/help", QKeySequence::HelpContents);
     auto actHelpBugReport = A_(tr("Send Bug Report"), help, SLOT(sendBugReport()), ":/toolbar/bug");
     auto actHelpUpdates = A_(tr("Check for Updates"), help, SLOT(checkUpdates()), ":/toolbar/update");
     auto actHelpHomepage = A_(tr("Visit Homepage"), help, SLOT(visitHomePage()), ":/toolbar/home");
     auto actHelpAbout = A_(tr("About..."), help, SLOT(showAbout()), ":/window_icons/main");
 
     createTools(tr("Help"), {
-                    T_(actHelpIndex), nullptr,
+                    T_(actHelpContent), nullptr,
                     T_(actHelpBugReport), T_(actHelpUpdates), T_(actHelpHomepage), nullptr,
                     T_(actHelpAbout),
                 });
@@ -330,9 +330,9 @@ void MainWindow::graphCreated(Graph* graph) const
 
     plot->addGraph(graph);
 
-    if (Settings::autolimitAfterGraphGreated())
+    if (AppSettings::autolimitAfterGraphGreated())
         plot->autolimits();
-    if (Settings::selectNewGraph())
+    if (AppSettings::selectNewGraph())
         plot->selectGraph(graph);
 }
 

@@ -4,6 +4,7 @@
         <file alias="add_random">../img/toolbar/dice.svg</file>
         <file alias="add_table">../img/toolbar/folder_table.svg</file>
         <file alias="bug">../img/toolbar/bug.svg</file>
+        <file alias="book">../img/toolbar/book.svg</file>
         <file alias="copy">../img/toolbar/copy.svg</file>
         <file alias="delete">../img/toolbar/delete.svg</file>
         <file alias="help">../img/toolbar/help.svg</file>
@@ -29,6 +30,8 @@
         <file alias="limits_zoom_out_x">../img/toolbar/limits_zoom_out_x.svg</file>
         <file alias="limits_zoom_out_y">../img/toolbar/limits_zoom_out_y.svg</file>
         <file alias="limits_zoom_out">../img/toolbar/limits_zoom_out.svg</file>
+        <file alias="navigate_back">../img/toolbar/navigate_back.svg</file>
+        <file alias="navigate_fwd">../img/toolbar/navigate_fwd.svg</file>
         <file alias="panel_datagrid">../img/toolbar/panel_datagrid.svg</file>
         <file alias="paste">../img/toolbar/paste.svg</file>
         <file alias="paste_table">../img/toolbar/paste_table.svg</file>
@@ -37,12 +40,12 @@
         <file alias="plot_new">../img/toolbar/plot_page.svg</file>
         <file alias="plot_rename">../img/toolbar/plot_rename.svg</file>
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
+        <file alias="protocol">../img/toolbar/protocol.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
         <file alias="update">../img/toolbar/update.svg</file>
         <file alias="update_params">../img/toolbar/update_params.svg</file>
         <file alias="wnd_cascade">../img/toolbar/windows_cascade.svg</file>
         <file alias="wnd_tile">../img/toolbar/windows_tile.svg</file>
-
     </qresource>
     <qresource prefix="/window_icons">
         <file alias="main">../img/icons/spectrum.svg</file>
@@ -50,5 +53,12 @@
     <qresource prefix="/misc">
         <file alias="mdi_background">../img/background.bmp</file>
         <file alias="about">../img/about/about.png</file>
+    </qresource>
+    <qresource prefix="/syntax">
+        <file alias="css">../libs/orion/syntax/css.ohl</file>
+        <file alias="qss">../libs/orion/syntax/qss.ohl</file>
+    </qresource>
+    <qresource prefix="/style">
+        <file alias="help">help.css</file>
     </qresource>
 </RCC>

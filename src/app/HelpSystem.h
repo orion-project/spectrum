@@ -6,7 +6,6 @@
 QT_BEGIN_NAMESPACE
 class QNetworkAccessManager;
 class QNetworkReply;
-class QProcess;
 QT_END_NAMESPACE
 
 namespace Z {
@@ -18,33 +17,24 @@ class HelpSystem : public QObject
 public:
     static HelpSystem* instance();
 
-    void setParent(QWidget* parent) { _parent = parent; }
-
-    void showTopic(const QString& topic);
-
     static QString appVersion();
 
+    static void topic(const QString& topic) { instance()->showTopic(topic); }
+
 public slots:
-    void showContents();
-    void showIndex();
+    void showContent();
+    void showTopic(const QString& topic);
     void visitHomePage();
     void sendBugReport();
     void checkUpdates();
     void showAbout();
 
-private slots:
-    void assistantFinished(int exitCode);
-
 private:
     HelpSystem();
 
-    QWidget* _parent = nullptr;
-    QProcess* _assistant = nullptr;
     QNetworkAccessManager* _updateChecker = nullptr;
     QNetworkReply* _updateReply = nullptr;
 
-    bool startAssistant();
-    void closeAssistant();
     void versionReceived(QByteArray versionData) const;
 };
 

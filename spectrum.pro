@@ -48,16 +48,18 @@ win32: RC_FILE = src/app.rc
 # Sources
 
 RESOURCES += \
-    src/images.qrc
+    src/app.qrc
 
 SOURCES += src/main.cpp\
     src/CsvConfigDialog.cpp \
     src/CustomPrefs.cpp \
-    src/HelpSystem.cpp \
+    src/app/AppSettings.cpp \
+    src/app/HelpSystem.cpp \
     src/MainWindow.cpp \
     src/OpenFileDlg.cpp \
     src/PlotWindow.cpp \
     src/Operations.cpp \
+    src/app/PersistentState.cpp \
     src/core/DataExporters.cpp \
     src/core/DataReaders.cpp \
     src/core/DataSources.cpp \
@@ -65,16 +67,18 @@ SOURCES += src/main.cpp\
     src/core/GraphMath.cpp \
     src/core/Modifiers.cpp \
     src/widgets/DataGridPanel.cpp \
-    src/Settings.cpp
+    src/windows/HelpWindow.cpp
 
 HEADERS  += \
     src/CsvConfigDialog.h \
     src/CustomPrefs.h \
-    src/HelpSystem.h \
+    src/app/AppSettings.h \
+    src/app/HelpSystem.h \
     src/MainWindow.h \
     src/OpenFileDlg.h \
     src/PlotWindow.h \
     src/Operations.h \
+    src/app/PersistentState.h \
     src/core/BaseTypes.h \
     src/core/DataExporters.h \
     src/core/DataReaders.h \
@@ -83,4 +87,4 @@ HEADERS  += \
     src/core/GraphMath.h \
     src/core/Modifiers.h \
     src/widgets/DataGridPanel.h \
-    src/Settings.h
+    src/windows/HelpWindow.h
