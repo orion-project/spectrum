@@ -1,12 +1,12 @@
 #include "MainWindow.h"
 
-#include "app/AppSettings.h"
-#include "app/HelpSystem.h"
-#include "Operations.h"
-#include "PlotWindow.h"
-#include "core/Graph.h"
-#include "core/DataExporters.h"
-#include "widgets/DataGridPanel.h"
+#include "../app/AppSettings.h"
+#include "../app/HelpSystem.h"
+#include "../Operations.h"
+#include "../PlotWindow.h"
+#include "../core/Graph.h"
+#include "../core/DataExporters.h"
+#include "../widgets/DataGridPanel.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
@@ -29,6 +29,7 @@
 #include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
+#include <QToolBar>
 
 enum StatusPanels
 {
@@ -58,9 +59,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     _mdiArea->setBackground(QBrush(QPixmap(":/misc/mdi_background")));
     connect(_mdiArea, &QMdiArea::subWindowActivated, this, &MainWindow::mdiSubWindowActivated);
 
-    _toolTabs = new QTabWidget;
-    auto toolWidget = Ori::Layouts::LayoutV({_toolTabs}).setMargin(3).makeWidget();
-
     setCentralWidget(_mdiArea);
 
     createDocks();
@@ -69,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     loadSettings();
 
-    setMenuWidget(toolWidget);
+    //setMenuWidget(toolWidget);
 
     QTimer::singleShot(200, this, [this](){ this->newProject(); });
 }
@@ -93,40 +91,27 @@ void MainWindow::loadSettings()
     s.restoreDockState(this);
 }
 
-void MainWindow::createTools(QString title, std::initializer_list<QObject*> items)
-{
-    auto t = new Ori::Widgets::FlatToolBar;
-    Ori::Gui::populate(t, items);
-    _toolTabs->addTab(t, QStringLiteral(" %1 ").arg(title));
-}
-
 void MainWindow::createActions()
 {
 #define A_ Ori::Gui::action
-#define T_ Ori::Gui::textToolButton
 
     Ori::Gui::setActionTooltipFormat("<p style='white-space:pre'>%1</p><p><b>%2</b></p>");
 
-    //---------------------------------------------------------
-
-    auto actNewPlot = A_(tr("New"), tr("Add new diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
-    auto actRenamePlot = A_(tr("Rename..."), tr("Rename current diagram"), this, SLOT(renamePlot()), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
-    auto actDeletePlot = A_(tr("Delete"), tr("Delete current diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
-
-    createTools(tr("Diagram"), {
-                    T_(actNewPlot), T_(actRenamePlot), T_(actDeletePlot),
-                });
+    auto menuBar = this->menuBar();
 
     //---------------------------------------------------------
 
-    auto actToggleDatagrid = A_(tr("Data Grid"), tr("Toggle data grid panel"), this, SLOT(toggleDataGrid()), ":/toolbar/panel_datagrid");
-    auto actViewTitle = A_(tr("Title"), tr("Toggle diagram title"), this, SLOT(toggleTitle()), ":/toolbar/plot_title");
-    auto actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
+    auto actPrjNewPlot = A_(tr("New Diagram"), tr("Add new diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
+    auto actPrjRenamePlot = A_(tr("Rename Diagram..."), tr("Rename current diagram"), this, SLOT(renamePlot()), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
+    auto actPrjDeletePLot = A_(tr("Delete Diagram"), tr("Delete current diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
 
-    createTools(tr("View"), {
-                    T_(actToggleDatagrid), nullptr,
-                    T_(actViewTitle), T_(actViewLegend),
-                });
+    addToolBar(Ori::Gui::toolbar(tr("Project"), "project", {
+        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePLot,
+    }));
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Project"), this, {
+        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePLot,
+    }));
 
     //---------------------------------------------------------
 
@@ -134,9 +119,23 @@ void MainWindow::createActions()
     auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
     auto actPasteCsv = A_(tr("Paste as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
 
-    createTools(tr("Edit"), {
-                    actCopy, actPaste, T_(actPasteCsv),
-                });
+    addToolBar(Ori::Gui::toolbar(tr("Edit"), "edit", {
+        actCopy, actPaste, actPasteCsv,
+    }));
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Edit"), this, {
+        actCopy, actPaste, actPasteCsv,
+    }));
+
+    //---------------------------------------------------------
+
+    auto actToggleDatagrid = A_(tr("Data Grid"), tr("Toggle data grid panel"), this, SLOT(toggleDataGrid()), ":/toolbar/panel_datagrid");
+    auto actViewTitle = A_(tr("Title"), tr("Toggle diagram title"), this, SLOT(toggleTitle()), ":/toolbar/plot_title");
+    auto actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
+
+    menuBar->addMenu(Ori::Gui::menu(tr("View"), this, {
+        actToggleDatagrid, actViewTitle, actViewLegend,
+    }));
 
     //---------------------------------------------------------
 
@@ -146,11 +145,13 @@ void MainWindow::createActions()
     auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table", QKeySequence("Ctrl+Alt+V"));
     auto actAddRandom = A_(tr("Random Sample"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
 
-    createTools(tr("Add"), {
-                    T_(actAddFile), T_(actAddCsv), nullptr,
-                    T_(actAddClipboard), T_(actAddCsvClipboard), nullptr,
-                    T_(actAddRandom),
-                });
+    addToolBar(Ori::Gui::toolbar(tr("Add"), "add", {
+        actAddFile, actAddCsv, 0, actAddClipboard, actAddCsvClipboard, 0, actAddRandom,
+    }));
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Add"), this, {
+        actAddFile, actAddCsv, 0, actAddClipboard, actAddCsvClipboard, 0, actAddRandom,
+    }));
 
     //---------------------------------------------------------
 
@@ -159,20 +160,26 @@ void MainWindow::createActions()
     auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), _operations, SLOT(graphTitle()), ":/toolbar/graph_title", QKeySequence("F2"));
     auto actGraphProps = A_(tr("Properties..."), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
 
-    createTools(tr("Graph"), {
-                    T_(actnGraphRefresh), T_(actGraphReopen), nullptr,
-                    T_(actGraphTitle), T_(actGraphProps), nullptr,
-                });
+    addToolBar(Ori::Gui::toolbar(tr("Graph"), "graph", {
+        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps,
+    }));
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {
+        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps,
+    }));
 
     //---------------------------------------------------------
 
     auto actOffset = A_(tr("Offset"), _operations, SLOT(modifyOffset()), ":/toolbar/graph_offset", Qt::Key_Plus);
     auto actScale = A_(tr("Scale"), _operations, SLOT(modifyScale()), ":/toolbar/graph_scale", Qt::Key_Asterisk);
 
-    createTools(tr("Modify"), {
-                    T_(actOffset), nullptr,
-                    T_(actScale), nullptr
-                });
+    addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
+        actOffset, actScale,
+    }));
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
+        actOffset, actScale,
+    }));
 
     //---------------------------------------------------------
 
@@ -182,9 +189,15 @@ void MainWindow::createActions()
     auto actFormatLegend = A_(tr("Legend"), tr("Format legend"), this, SLOT(formatLegend()), ":/toolbar/plot_legend");
     auto actFormatGraph = A_(tr("Graph"), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
 
-    createTools(tr("Format"), {
-                    T_(actFormatTitle), nullptr, T_(actFormatX), T_(actFormatY), nullptr, T_(actFormatLegend), nullptr, T_(actFormatGraph)
-                });
+    auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
+        actFormatTitle, actFormatX, actFormatY, actFormatLegend, actFormatGraph,
+    });
+    tbFormat->setVisible(false); // hidden by default
+    addToolBar(tbFormat);
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
+        actFormatTitle, actFormatX, actFormatY, actFormatLegend, actFormatGraph,
+    }));
 
     //---------------------------------------------------------
 
@@ -204,20 +217,26 @@ void MainWindow::createActions()
     auto actZoomOutX = A_(tr("Zoom-out X"), this, SLOT(zoomOutX()), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
     auto actZoomOutY = A_(tr("Zoom-out Y"), this, SLOT(zoomOutY()), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
-    createTools(tr("Limits"), {
-                    actLimitsBoth, T_(actAutolimits), T_(actFitSelection), actZoomIn, actZoomOut, nullptr,
-                    T_(actLimitsX), actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, nullptr,
-                    T_(actLimitsY), actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
-                });
+    addToolBar(Qt::RightToolBarArea, Ori::Gui::toolbar(tr("Limits"), "limits", {
+        actLimitsBoth, actLimitsX, actLimitsY, 0, actAutolimits, actAutolimitsX, actAutolimitsY, 0,
+        actFitSelection, actFitSelectionX, actFitSelectionY, 0,
+        actZoomIn, actZoomOut, actZoomInX, actZoomInY, actZoomOutX, actZoomOutY,
+    }));
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Limits"), this, {
+        actLimitsBoth, actLimitsX, actLimitsY, 0, actAutolimits, actAutolimitsX, actAutolimitsY, 0,
+        actFitSelection, actFitSelectionX, actFitSelectionY, 0,
+        actZoomIn, actZoomOut, actZoomInX, actZoomInY, actZoomOutX, actZoomOutY,
+    }));
 
     //---------------------------------------------------------
 
     auto actWndCascade = A_(tr("Cascade"), _mdiArea, SLOT(cascadeSubWindows()), ":/toolbar/wnd_cascade");
     auto actWndTile = A_(tr("Tile"), _mdiArea, SLOT(tileSubWindows()), ":/toolbar/wnd_tile");
 
-    createTools(tr("Windows"), {
-                    T_(actWndCascade), T_(actWndTile),
-                });
+    menuBar->addMenu(Ori::Gui::menu(tr("Windows"), this, {
+        actWndCascade, actWndTile,
+    }));
 
     //---------------------------------------------------------
 
@@ -228,11 +247,9 @@ void MainWindow::createActions()
     auto actHelpHomepage = A_(tr("Visit Homepage"), help, SLOT(visitHomePage()), ":/toolbar/home");
     auto actHelpAbout = A_(tr("About..."), help, SLOT(showAbout()), ":/window_icons/main");
 
-    createTools(tr("Help"), {
-                    T_(actHelpContent), nullptr,
-                    T_(actHelpBugReport), T_(actHelpUpdates), T_(actHelpHomepage), nullptr,
-                    T_(actHelpAbout),
-                });
+    menuBar->addMenu(Ori::Gui::menu(tr("Help"), this, {
+        actHelpContent, 0, actHelpBugReport, actHelpUpdates, actHelpHomepage, 0, actHelpAbout,
+    }));
 
     //---------------------------------------------------------
 

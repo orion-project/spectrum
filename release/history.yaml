@@ -2,7 +2,6 @@ history:
   - version: 7.0.2-alpha2
     date: ?
     changes:
-      - text: (NEW) Added categorized toolbar
       - text: Can open several data files (plain and csv)
       - text: Diagram format dialolgs (title, axes, legend)
       - text: (NEW) Internal help viever
