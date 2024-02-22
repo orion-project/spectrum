@@ -9,11 +9,9 @@
 #include "../widgets/DataGridPanel.h"
 
 #include "helpers/OriDialogs.h"
-#include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
 #include "tools/OriSettings.h"
-#include "widgets/OriFlatToolBar.h"
 #include "widgets/OriLabels.h"
 #include "widgets/OriMdiToolBar.h"
 #include "widgets/OriStatusBar.h"
@@ -118,24 +116,31 @@ void MainWindow::createActions()
     auto actCopy = A_(tr("Copy"), this, SLOT(editCopy()), ":/toolbar/copy", QKeySequence::Copy);
     auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
     auto actPasteCsv = A_(tr("Paste as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
+    auto actCopyFormat = A_(tr("Copy Format"), this, SLOT(editCopyFormat()), ":/toolbar/copy_format", QKeySequence("Ctrl+Shift+C"));
+    auto actPasteFormat = A_(tr("Paste Format"), this, SLOT(editPasteFormat()), ":/toolbar/paste_format", QKeySequence("Ctrl+Shift+V"));
 
     addToolBar(Ori::Gui::toolbar(tr("Edit"), "edit", {
-        actCopy, actPaste, actPasteCsv,
+        actCopy, actPaste, actPasteCsv
     }));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Edit"), this, {
-        actCopy, actPaste, actPasteCsv,
+        actCopy, actPaste, actPasteCsv, 0, actCopyFormat, actPasteFormat,
     }));
 
     //---------------------------------------------------------
 
-    auto actToggleDatagrid = A_(tr("Data Grid"), tr("Toggle data grid panel"), this, SLOT(toggleDataGrid()), ":/toolbar/panel_datagrid");
-    auto actViewTitle = A_(tr("Title"), tr("Toggle diagram title"), this, SLOT(toggleTitle()), ":/toolbar/plot_title");
-    auto actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
+    _actToggleDatagrid = A_(tr("Data Grid"), tr("Toggle data grid panel"), this, SLOT(toggleDataGrid()), ":/toolbar/panel_datagrid");
+    _actViewTitle = A_(tr("Title"), tr("Toggle diagram title"), this, SLOT(toggleTitle()), ":/toolbar/plot_title");
+    _actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
+    _actToggleDatagrid->setCheckable(true);
+    _actViewTitle->setCheckable(true);
+    _actViewLegend->setCheckable(true);
 
-    menuBar->addMenu(Ori::Gui::menu(tr("View"), this, {
-        actToggleDatagrid, 0, actViewTitle, actViewLegend,
-    }));
+    auto menuView = Ori::Gui::menu(tr("View"), this, {
+        _actToggleDatagrid, 0, _actViewTitle, _actViewLegend,
+    });
+    connect(menuView, &QMenu::aboutToShow, this, &MainWindow::viewMenuShown);
+    menuBar->addMenu(menuView);
 
     //---------------------------------------------------------
 
@@ -397,6 +402,14 @@ void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window) const
     _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
+void MainWindow::viewMenuShown()
+{
+    auto plot = activePlot();
+    _actToggleDatagrid->setChecked(_dockDataGrid->isVisible());
+    _actViewLegend->setChecked(plot && plot->isLegendVisible());
+    _actViewTitle->setChecked(plot && plot->isTitleVisible());
+}
+
 void MainWindow::limitsDlg()
 {
     auto plot = activePlot();
@@ -527,6 +540,18 @@ void MainWindow::editPaste()
     if (plot) _operations->addFromClipboard();
 }
 
+void MainWindow::editCopyFormat()
+{
+    auto plot = activePlot();
+    if (plot) plot->copyPlotFormat();
+}
+
+void MainWindow::editPasteFormat()
+{
+    auto plot = activePlot();
+    if (plot) plot->pastePlotFormat();
+}
+
 void MainWindow::formatTitle()
 {
     auto plot = activePlot();
@@ -556,3 +581,4 @@ void MainWindow::formatGraph()
     auto plot = activePlot();
     if (plot) plot->formatGraph();
 }
+

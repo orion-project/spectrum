@@ -6,6 +6,7 @@
         <file alias="bug">../img/toolbar/bug.svg</file>
         <file alias="book">../img/toolbar/book.svg</file>
         <file alias="copy">../img/toolbar/copy.svg</file>
+        <file alias="copy_format">../img/toolbar/copy_format.svg</file>
         <file alias="delete">../img/toolbar/delete.svg</file>
         <file alias="help">../img/toolbar/help.svg</file>
         <file alias="home">../img/toolbar/home.svg</file>
@@ -34,6 +35,7 @@
         <file alias="navigate_fwd">../img/toolbar/navigate_fwd.svg</file>
         <file alias="panel_datagrid">../img/toolbar/panel_datagrid.svg</file>
         <file alias="paste">../img/toolbar/paste.svg</file>
+        <file alias="paste_format">../img/toolbar/paste_format.svg</file>
         <file alias="paste_table">../img/toolbar/paste_table.svg</file>
         <file alias="plot_legend">../img/toolbar/plot_legend.svg</file>
         <file alias="plot_delete">../img/toolbar/plot_delete.svg</file>

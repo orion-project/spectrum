@@ -8,6 +8,7 @@
 #include "qcpl_cursor.h"
 #include "qcpl_cursor_panel.h"
 #include "qcpl_format.h"
+#include "qcpl_io_json.h"
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
@@ -96,6 +97,12 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
         ce->accept();
     else
         ce->ignore();
+}
+
+void PlotWindow::markModified(const char *reason)
+{
+    // TODO
+    qDebug() << "Modified" << reason;
 }
 
 void PlotWindow::addGraph(Graph* g)
@@ -313,3 +320,21 @@ void PlotWindow::formatGraph()
     if (QCPL::graphFormatDlg(line, props))
         _plot->replot();
 }
+
+void PlotWindow::copyPlotFormat()
+{
+    QCPL::copyPlotFormat(_plot);
+}
+
+void PlotWindow::pastePlotFormat()
+{
+    auto err = QCPL::pastePlotFormat(_plot);
+    if (err.isEmpty())
+    {
+        _plot->updateTitleVisibility();
+        _plot->replot();
+        markModified("PlotWindow::pastePlotFormat");
+    }
+    else Ori::Dlg::info(err);
+}
+

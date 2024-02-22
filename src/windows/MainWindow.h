@@ -34,6 +34,7 @@ private:
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
     Ori::Widgets::StatusBar *_statusBar;
+    QAction *_actToggleDatagrid, *_actViewTitle, *_actViewLegend;
 
     void createActions();
     void createDocks();
@@ -48,6 +49,7 @@ private:
     void graphCreated(Graph* graph) const;
     void graphUpdated(Graph* graph) const;
     void mdiSubWindowActivated(QMdiSubWindow *window) const;
+    void viewMenuShown();
 
 private slots:
     void newPlot();
@@ -55,6 +57,8 @@ private slots:
     void deletePlot();
     void editCopy();
     void editPaste();
+    void editCopyFormat();
+    void editPasteFormat();
     void limitsDlg();
     void limitsDlgX();
     void limitsDlgY();

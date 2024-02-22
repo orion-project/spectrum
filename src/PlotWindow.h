@@ -54,6 +54,9 @@ public:
     void formatLegend();
     void formatGraph();
 
+    void copyPlotFormat();
+    void pastePlotFormat();
+
     Graph* selectedGraph() const;
     void selectGraph(Graph* graph);
     bool updateGraph(Graph* graph);
@@ -85,6 +88,8 @@ private:
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;
+
+    void markModified(const char *reason);
 };
 
 #endif // PLOTWINDOW_H
