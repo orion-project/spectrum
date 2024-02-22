@@ -134,7 +134,7 @@ void MainWindow::createActions()
     auto actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
 
     menuBar->addMenu(Ori::Gui::menu(tr("View"), this, {
-        actToggleDatagrid, actViewTitle, actViewLegend,
+        actToggleDatagrid, 0, actViewTitle, actViewLegend,
     }));
 
     //---------------------------------------------------------
@@ -146,7 +146,7 @@ void MainWindow::createActions()
     auto actAddRandom = A_(tr("Random Sample"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
 
     addToolBar(Ori::Gui::toolbar(tr("Add"), "add", {
-        actAddFile, actAddCsv, 0, actAddClipboard, actAddCsvClipboard, 0, actAddRandom,
+        actAddFile, actAddCsv, 0, actAddRandom,
     }));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Add"), this, {
@@ -160,9 +160,10 @@ void MainWindow::createActions()
     auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), _operations, SLOT(graphTitle()), ":/toolbar/graph_title", QKeySequence("F2"));
     auto actGraphProps = A_(tr("Properties..."), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
 
-    addToolBar(Ori::Gui::toolbar(tr("Graph"), "graph", {
+    // By default the Graph toolbar is in the second row, should be added after all others
+    auto tbGraph = Ori::Gui::toolbar(tr("Graph"), "graph", {
         actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps,
-    }));
+    });
 
     menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {
         actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps,
@@ -183,20 +184,20 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actFormatTitle = A_(tr("Title..."), tr("Format current diagram title"), this, SLOT(formatTitle()), ":/toolbar/plot_title");
-    auto actFormatX = A_(tr("Axis X"), tr("Format X axis"), this, SLOT(formatX()), ":/toolbar/format_x");
-    auto actFormatY = A_(tr("Axis Y"), tr("Format Y axis"), this, SLOT(formatY()), ":/toolbar/format_y");
-    auto actFormatLegend = A_(tr("Legend"), tr("Format legend"), this, SLOT(formatLegend()), ":/toolbar/plot_legend");
-    auto actFormatGraph = A_(tr("Graph"), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
+    auto actFormatTitle = A_(tr("Title Format..."), tr("Format current diagram title"), this, SLOT(formatTitle()), ":/toolbar/plot_title");
+    auto actFormatX = A_(tr("X-axis Format..."), tr("Format X axis"), this, SLOT(formatX()), ":/toolbar/format_x");
+    auto actFormatY = A_(tr("Y-axis  Format..."), tr("Format Y axis"), this, SLOT(formatY()), ":/toolbar/format_y");
+    auto actFormatLegend = A_(tr("Legend Format..."), tr("Format legend"), this, SLOT(formatLegend()), ":/toolbar/plot_legend");
+    auto actFormatGraph = A_(tr("Graph Format..."), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
 
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
-        actFormatTitle, actFormatX, actFormatY, actFormatLegend, actFormatGraph,
+        actFormatTitle, actFormatLegend, actFormatX, actFormatY, actFormatGraph,
     });
     tbFormat->setVisible(false); // hidden by default
     addToolBar(tbFormat);
 
     menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
-        actFormatTitle, actFormatX, actFormatY, actFormatLegend, actFormatGraph,
+        actFormatTitle, actFormatLegend, actFormatX, actFormatY, actFormatGraph,
     }));
 
     //---------------------------------------------------------
@@ -218,15 +219,15 @@ void MainWindow::createActions()
     auto actZoomOutY = A_(tr("Zoom-out Y"), this, SLOT(zoomOutY()), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
     addToolBar(Qt::RightToolBarArea, Ori::Gui::toolbar(tr("Limits"), "limits", {
-        actLimitsBoth, actLimitsX, actLimitsY, 0, actAutolimits, actAutolimitsX, actAutolimitsY, 0,
-        actFitSelection, actFitSelectionX, actFitSelectionY, 0,
-        actZoomIn, actZoomOut, actZoomInX, actZoomInY, actZoomOutX, actZoomOutY,
+        actLimitsBoth, actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
+        actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
+        actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
     }));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Limits"), this, {
-        actLimitsBoth, actLimitsX, actLimitsY, 0, actAutolimits, actAutolimitsX, actAutolimitsY, 0,
-        actFitSelection, actFitSelectionX, actFitSelectionY, 0,
-        actZoomIn, actZoomOut, actZoomInX, actZoomInY, actZoomOutX, actZoomOutY,
+        actLimitsBoth, actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
+        actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
+        actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
     }));
 
     //---------------------------------------------------------
@@ -250,6 +251,12 @@ void MainWindow::createActions()
     menuBar->addMenu(Ori::Gui::menu(tr("Help"), this, {
         actHelpContent, 0, actHelpBugReport, actHelpUpdates, actHelpHomepage, 0, actHelpAbout,
     }));
+
+    //---------------------------------------------------------
+
+    // By default the Graph toolbar is in the second row
+    addToolBarBreak();
+    addToolBar(tbGraph);
 
     //---------------------------------------------------------
 

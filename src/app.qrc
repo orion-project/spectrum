@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/toolbar">
-        <file alias="add_file">../img/toolbar/folder_page.svg</file>
-        <file alias="add_random">../img/toolbar/dice.svg</file>
-        <file alias="add_table">../img/toolbar/folder_table.svg</file>
+        <file alias="add_file">../img/toolbar/add_file.svg</file>
+        <file alias="add_random">../img/toolbar/add_dice.svg</file>
+        <file alias="add_table">../img/toolbar/add_table.svg</file>
         <file alias="bug">../img/toolbar/bug.svg</file>
         <file alias="book">../img/toolbar/book.svg</file>
         <file alias="copy">../img/toolbar/copy.svg</file>
@@ -37,7 +37,7 @@
         <file alias="paste_table">../img/toolbar/paste_table.svg</file>
         <file alias="plot_legend">../img/toolbar/plot_legend.svg</file>
         <file alias="plot_delete">../img/toolbar/plot_delete.svg</file>
-        <file alias="plot_new">../img/toolbar/plot_page.svg</file>
+        <file alias="plot_new">../img/toolbar/plot_new.svg</file>
         <file alias="plot_rename">../img/toolbar/plot_rename.svg</file>
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
         <file alias="protocol">../img/toolbar/protocol.svg</file>
