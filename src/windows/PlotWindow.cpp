@@ -174,7 +174,8 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
 {
     QWidget::closeEvent(ce);
 
-    if (Ori::Dlg::yes(tr("Delete diagram <b>%1</b> and all its graphs?").arg(windowTitle())))
+    if (graphCount() == 0 or
+        Ori::Dlg::yes(tr("Delete diagram <b>%1</b> and all its graphs?").arg(windowTitle())))
         ce->accept();
     else
         ce->ignore();
@@ -184,6 +185,11 @@ void PlotWindow::markModified(const QString &reason)
 {
     // TODO
     qDebug() << "Modified" << reason;
+}
+
+int PlotWindow::graphCount() const
+{
+    return _plot->graphsCount();
 }
 
 void PlotWindow::addGraph(Graph* g)
@@ -415,7 +421,10 @@ void PlotWindow::formatLegend()
 void PlotWindow::formatGraph()
 {
     auto lines = _plot->selectedGraphs();
-    if (lines.isEmpty()) return;
+    if (lines.isEmpty()) {
+        PopupMessage::warning(tr("Graphs not selected"));
+        return;
+    }
 
     QCPGraph *line = lines.first();
 

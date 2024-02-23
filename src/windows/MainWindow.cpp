@@ -245,9 +245,11 @@ void MainWindow::createActions()
     auto actWndCascade = A_(tr("Cascade"), _mdiArea, SLOT(cascadeSubWindows()), ":/toolbar/wnd_cascade");
     auto actWndTile = A_(tr("Tile"), _mdiArea, SLOT(tileSubWindows()), ":/toolbar/wnd_tile");
 
-    menuBar->addMenu(Ori::Gui::menu(tr("Windows"), this, {
+    auto menuWindow = Ori::Gui::menu(tr("Windows"), this, {
         actWndCascade, actWndTile,
-    }));
+    });
+    menuBar->addMenu(menuWindow);
+    // TODO: connect(menuWindow, QMenu::aboutToShow, _mdiArea, QMdiArea::populateWindowMenu);
 
     //---------------------------------------------------------
 

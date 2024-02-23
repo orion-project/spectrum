@@ -34,6 +34,7 @@ public:
 
     PlotObj* plotObj() const { return _plotObj; }
 
+    int graphCount() const;
     void addGraph(Graph* g);
 
     void limitsDlg();
