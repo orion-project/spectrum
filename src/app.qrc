@@ -6,7 +6,8 @@
         <file alias="bug">../img/toolbar/bug.svg</file>
         <file alias="book">../img/toolbar/book.svg</file>
         <file alias="copy">../img/toolbar/copy.svg</file>
-        <file alias="copy_format">../img/toolbar/copy_format.svg</file>
+        <file alias="copy_fmt">../img/toolbar/copy_format.svg</file>
+        <file alias="copy_img">../img/toolbar/copy_img.svg</file>
         <file alias="delete">../img/toolbar/delete.svg</file>
         <file alias="help">../img/toolbar/help.svg</file>
         <file alias="home">../img/toolbar/home.svg</file>
@@ -36,7 +37,7 @@
         <file alias="open_format">../img/toolbar/open_format.svg</file>
         <file alias="panel_datagrid">../img/toolbar/panel_datagrid.svg</file>
         <file alias="paste">../img/toolbar/paste.svg</file>
-        <file alias="paste_format">../img/toolbar/paste_format.svg</file>
+        <file alias="paste_fmt">../img/toolbar/paste_format.svg</file>
         <file alias="paste_table">../img/toolbar/paste_table.svg</file>
         <file alias="plot_legend">../img/toolbar/plot_legend.svg</file>
         <file alias="plot_delete">../img/toolbar/plot_delete.svg</file>
@@ -45,6 +46,8 @@
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
         <file alias="protocol">../img/toolbar/protocol.svg</file>
         <file alias="save_format">../img/toolbar/save_format.svg</file>
+        <file alias="title_x">../img/toolbar/title_x.svg</file>
+        <file alias="title_y">../img/toolbar/title_y.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
         <file alias="update">../img/toolbar/update.svg</file>
         <file alias="update_params">../img/toolbar/update_params.svg</file>

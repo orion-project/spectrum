@@ -4,6 +4,7 @@
 #include "../core/GraphMath.h"
 #include "../app/PersistentState.h"
 #include "../app/AppSettings.h"
+#include "../Operations.h"
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
@@ -17,7 +18,6 @@
 #include "qcpl_format.h"
 #include "qcpl_io_json.h"
 
-//using PopupMessage = Ori::Gui::PopupMessage;
 using Ori::Gui::PopupMessage;
 
 PlotItem::~PlotItem()
@@ -60,7 +60,7 @@ static QIcon nextPlotIcon()
     return makeGraphIcon(c);
 }
 
-PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
+PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent), _operations(operations)
 {
     static int plotIndex = 0;
 
@@ -75,7 +75,7 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
     _plot->setPlottingHint(QCP::phFastPolylines, true);
     if (_plot->title())
         _plot->title()->setText(_plotObj->title());
-    //connect(_plot, &QCPL::Plot::editTitleRequest, this, &PlotWindow::editTitle);
+    connect(_plot, &QCPL::Plot::modified, this, &PlotWindow::markModified);
 
     _cursor = new QCPL::Cursor(_plot);
     _plot->serviceGraphs().append(_cursor);
@@ -86,6 +86,8 @@ PlotWindow::PlotWindow(QWidget *parent) : QWidget(parent)
     _cursorPanel = new QCPL::CursorPanel(_cursor);
     _cursorPanel->placeIn(toolbar);
 
+    createContextMenus();
+
     Ori::Layouts::LayoutV({toolbar, _plot}).setMargin(0).setSpacing(0).useFor(this);
 }
 
@@ -93,6 +95,79 @@ PlotWindow::~PlotWindow()
 {
     qDeleteAll(_items);
     delete _plotObj;
+}
+
+void PlotWindow::createContextMenus()
+{
+    auto menuX = new QMenu(this);
+    auto titleX = new QWidgetAction(this);
+    auto labelX = new QLabel(tr("<b>Axis X</b>"));
+    labelX->setMargin(6);
+    titleX->setDefaultWidget(labelX);
+    menuX->addAction(titleX);
+    menuX->addAction(QIcon(":/toolbar/title_x"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgX);
+    menuX->addAction(QIcon(":/toolbar/format_x"), tr("Format..."), this, [this]{ formatX(); });
+    menuX->addSeparator();
+    menuX->addAction(QIcon(":/toolbar/limits_x"), tr("Limits..."), this, [this]{ limitsDlgX(); });
+    menuX->addAction(QIcon(":/toolbar/limits_auto_x"), tr("Fit to Graphs"), this, [this]{ autolimitsX(); });
+    menuX->addAction(QIcon(":/toolbar/limits_fit_x"), tr("Fit to Selection"), this, [this]{ limitsToSelectionX(); });
+    menuX->addSeparator();
+    menuX->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->xAxis); });
+    menuX->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->xAxis); });
+    connect(menuX, &QMenu::aboutToShow, this, []{
+        // TODO: update factors menu
+    });
+
+    auto menuY = new QMenu(this);
+    auto titleY = new QWidgetAction(this);
+    auto labelY = new QLabel(tr("<b>Axis Y</b>"));
+    labelY->setMargin(6);
+    titleY->setDefaultWidget(labelY);
+    menuY->addAction(titleY);
+    menuY->addAction(QIcon(":/toolbar/title_y"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgY);
+    menuY->addAction(QIcon(":/toolbar/format_y"), tr("Format..."), this, [this]{ formatY(); });
+    menuY->addSeparator();
+    menuY->addAction(QIcon(":/toolbar/limits_y"), tr("Limits..."), this, [this]{ limitsDlgY(); });
+    menuY->addAction(QIcon(":/toolbar/limits_auto_y"), tr("Fit to Graphs"), this, [this]{ limitsToSelectionY(); });
+    menuY->addAction(QIcon(":/toolbar/limits_fit_y"), tr("Fit to Selection"), this, [this]{ limitsToSelectionY(); });
+    menuY->addSeparator();
+    menuY->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->yAxis); });
+    menuY->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->yAxis); });
+    connect(menuY, &QMenu::aboutToShow, this, []{
+        // TODO: update factors menu
+    });
+
+    auto menuLegend = new QMenu(this);
+    menuLegend->addAction(QIcon(":/toolbar/plot_legend"), tr("Format..."), this, [this]{ formatLegend(); });
+    menuLegend->addSeparator();
+    menuLegend->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyLegendFormat(_plot->legend); });
+    menuLegend->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteLegendFormat(); });
+
+    auto menuTitle = new QMenu(this);
+    menuTitle->addAction(QIcon(":/toolbar/plot_title"), tr("Text..."), _plot, &QCPL::Plot::titleTextDlg);
+    menuTitle->addAction(QIcon(":/toolbar/plot_title"), tr("Format..."), this, [this]{ editTitle(); });
+    menuTitle->addSeparator();
+    menuTitle->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyTitleFormat(_plot->title()); });
+    menuTitle->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteTitleFormat(); });
+
+    auto menuGraph = new QMenu(this);
+    menuGraph->addAction(QIcon(":/toolbar/graph_title"), tr("Title..."), _operations, &Operations::graphTitle);
+    menuGraph->addAction(QIcon(":/toolbar/graph_props"), tr("Format..."), this, [this]{ formatGraph(); });
+    menuGraph->addSeparator();
+    menuGraph->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, [this]{ copyPlotImage(); });
+
+    auto menuPlot = new QMenu(this);
+    menuPlot->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, [this]{ copyPlotImage(); });
+    menuPlot->addSeparator();
+    menuPlot->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ copyPlotFormat(); });
+    menuPlot->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pastePlotFormat(); });
+
+    _plot->menuAxisX = menuX;
+    _plot->menuAxisY = menuY;
+    _plot->menuGraph = menuGraph;
+    _plot->menuPlot = menuPlot;
+    _plot->menuLegend = menuLegend;
+    _plot->menuTitle = menuTitle;
 }
 
 void PlotWindow::closeEvent(class QCloseEvent* ce)
@@ -105,7 +180,7 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
         ce->ignore();
 }
 
-void PlotWindow::markModified(const char *reason)
+void PlotWindow::markModified(const QString &reason)
 {
     // TODO
     qDebug() << "Modified" << reason;
@@ -128,7 +203,6 @@ void PlotWindow::addGraph(Graph* g)
 void PlotWindow::limitsDlg()
 {
     if (_plot->limitsDlgXY())
-
         // TODO if limits changed
         markModified("PlotWindow::limitsDlg");
 }
@@ -320,26 +394,22 @@ void PlotWindow::setTitleVisible(bool on)
 
 void PlotWindow::editTitle()
 {
-    if (_plot->titleFormatDlg())
-        markModified("PlotWindow::editTitle");
+    _plot->titleFormatDlg();
 }
 
 void PlotWindow::formatX()
 {
-    if (_plot->axisFormatDlgX())
-        markModified("PlotWindow::formatX");
+    _plot->axisFormatDlgX();
 }
 
 void PlotWindow::formatY()
 {
-    if (_plot->axisFormatDlgY())
-        markModified("PlotWindow::formatY");
+    _plot->axisFormatDlgY();
 }
 
 void PlotWindow::formatLegend()
 {
-    if (_plot->legendFormatDlg())
-        markModified("PlotWindow::formatLegend");
+    _plot->legendFormatDlg();
 }
 
 void PlotWindow::formatGraph()
@@ -372,6 +442,39 @@ void PlotWindow::pastePlotFormat()
         _plot->updateTitleVisibility();
         _plot->replot();
         markModified("PlotWindow::pastePlotFormat");
+    }
+    else Ori::Dlg::info(err);
+}
+
+void PlotWindow::pasteTitleFormat()
+{
+    auto err = QCPL::pasteTitleFormat(_plot->title());
+    if (err.isEmpty())
+    {
+        _plot->replot();
+        markModified("PlotWindow::pasteTitleFormat");
+    }
+    else Ori::Dlg::info(err);
+}
+
+void PlotWindow::pasteLegendFormat()
+{
+    auto err = QCPL::pasteLegendFormat(_plot->legend);
+    if (err.isEmpty())
+    {
+        _plot->replot();
+        markModified("PlotWindow::pasteLegendFormat");
+    }
+    else Ori::Dlg::info(err);
+}
+
+void PlotWindow::pasteAxisFormat(QCPAxis *axis)
+{
+    auto err = QCPL::pasteAxisFormat(axis);
+    if (err.isEmpty())
+    {
+        _plot->replot();
+        markModified("PlotWindow::pasteAxisFormat");
     }
     else Ori::Dlg::info(err);
 }
@@ -425,3 +528,4 @@ void PlotWindow::copyPlotImage()
     (new PopupMessage(PopupMessage::AFFIRM,
         tr("Image has been copied to Clipboard"), -1, Qt::AlignRight|Qt::AlignBottom, this))->show();
 }
+

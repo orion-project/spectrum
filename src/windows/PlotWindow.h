@@ -9,7 +9,9 @@ class CursorPanel;
 class Plot;
 }
 class Graph;
+class Operations;
 class PlotObj;
+class QCPAxis;
 class QCPGraph;
 
 class PlotItem
@@ -27,7 +29,7 @@ class PlotWindow : public QWidget
     Q_OBJECT
 
 public:
-    explicit PlotWindow(QWidget *parent = nullptr);
+    explicit PlotWindow(Operations *operations, QWidget *parent = nullptr);
     ~PlotWindow() override;
 
     PlotObj* plotObj() const { return _plotObj; }
@@ -56,6 +58,9 @@ public:
     void copyPlotImage();
     void copyPlotFormat();
     void pastePlotFormat();
+    void pasteTitleFormat();
+    void pasteLegendFormat();
+    void pasteAxisFormat(QCPAxis *axis);
     void savePlotFormat();
     void loadPlotFormat();
 
@@ -87,11 +92,13 @@ private:
     QCPL::Cursor* _cursor;
     QCPL::CursorPanel* _cursorPanel;
     QList<PlotItem*> _items;
+    Operations* _operations;
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;
 
-    void markModified(const char *reason);
+    void createContextMenus();
+    void markModified(const QString& reason);
 };
 
 #endif // PLOTWINDOW_H

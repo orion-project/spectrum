@@ -117,8 +117,8 @@ void MainWindow::createActions()
     auto actCopy = A_(tr("Copy"), this, SLOT(editCopy()), ":/toolbar/copy", QKeySequence::Copy);
     auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
     auto actPasteCsv = A_(tr("Paste as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
-    auto actCopyFormat = A_(tr("Copy Format"), this, SLOT(editCopyFormat()), ":/toolbar/copy_format", QKeySequence("Ctrl+Shift+C"));
-    auto actPasteFormat = A_(tr("Paste Format"), this, SLOT(editPasteFormat()), ":/toolbar/paste_format", QKeySequence("Ctrl+Shift+V"));
+    auto actCopyFormat = A_(tr("Copy Format"), this, SLOT(editCopyFormat()), ":/toolbar/copy_fmt", QKeySequence("Ctrl+Shift+C"));
+    auto actPasteFormat = A_(tr("Paste Format"), this, SLOT(editPasteFormat()), ":/toolbar/paste_fmt", QKeySequence("Ctrl+Shift+V"));
 
     addToolBar(Ori::Gui::toolbar(tr("Edit"), "edit", {
         actCopy, actPaste, actPasteCsv
@@ -324,7 +324,7 @@ void MainWindow::newProject()
 
 void MainWindow::newPlot()
 {
-    auto plotWindow = new PlotWindow();
+    auto plotWindow = new PlotWindow(_operations);
     connect(plotWindow, &PlotWindow::graphSelected, this, &MainWindow::graphSelected);
 
     auto mdiChild = _mdiArea->addSubWindow(plotWindow);
