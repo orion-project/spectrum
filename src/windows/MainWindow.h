@@ -43,7 +43,7 @@ private:
     void loadSettings();
     void newProject();
 
-    PlotWindow* activePlot() const;
+    PlotWindow* activePlot(bool warn = true) const;
     Graph* selectedGraph() const;
     void graphSelected(Graph* graph) const;
     void graphCreated(Graph* graph) const;
@@ -82,6 +82,8 @@ private slots:
     void formatY();
     void formatLegend();
     void formatGraph();
+    void savePlotFormat();
+    void loadPlotFormat();
 };
 
 #endif // MAINWINDOW_H

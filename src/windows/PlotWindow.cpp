@@ -1,7 +1,14 @@
 #include "PlotWindow.h"
 
-#include "core/Graph.h"
-#include "core/GraphMath.h"
+#include "../core/Graph.h"
+#include "../core/GraphMath.h"
+#include "../app/PersistentState.h"
+#include "../app/AppSettings.h"
+
+#include "helpers/OriLayouts.h"
+#include "helpers/OriDialogs.h"
+#include "widgets/OriFlatToolBar.h"
+#include "widgets/OriPopupMessage.h"
 
 #include "qcpl_plot.h"
 #include "qcpl_colors.h"
@@ -10,9 +17,8 @@
 #include "qcpl_format.h"
 #include "qcpl_io_json.h"
 
-#include "helpers/OriLayouts.h"
-#include "helpers/OriDialogs.h"
-#include "widgets/OriFlatToolBar.h"
+//using PopupMessage = Ori::Gui::PopupMessage;
+using Ori::Gui::PopupMessage;
 
 PlotItem::~PlotItem()
 {
@@ -121,32 +127,45 @@ void PlotWindow::addGraph(Graph* g)
 
 void PlotWindow::limitsDlg()
 {
-    _plot->limitsDlgXY();
+    if (_plot->limitsDlgXY())
+
+        // TODO if limits changed
+        markModified("PlotWindow::limitsDlg");
 }
 
 void PlotWindow::limitsDlgX()
 {
-    _plot->limitsDlgX();
+    if (_plot->limitsDlgX())
+        // TODO if limits changed
+        markModified("PlotWindow::limitsDlgX");
 }
 
 void PlotWindow::limitsDlgY()
 {
-    _plot->limitsDlgY();
+    if (_plot->limitsDlgY())
+        // TODO if limits changed
+        markModified("PlotWindow::limitsDlgY");
 }
 
 void PlotWindow::autolimits()
 {
     _plot->autolimits();
+    // TODO if limits changed
+    markModified("PlotWindow::autolimits");
 }
 
 void PlotWindow::autolimitsX()
 {
     _plot->autolimitsX();
+    // TODO if limits changed
+    markModified("PlotWindow::autolimitsX");
 }
 
 void PlotWindow::autolimitsY()
 {
     _plot->autolimitsY();
+    // TODO if limits changed
+    markModified("PlotWindow::autolimitsY");
 }
 
 void PlotWindow::limitsToSelection()
@@ -157,6 +176,8 @@ void PlotWindow::limitsToSelection()
     auto minMax = GraphMath::minMax(g->data());
     _plot->setLimitsX(minMax.minX, minMax.maxX, false);
     _plot->setLimitsY(minMax.minY.y, minMax.maxY.y);
+    // TODO if limits changed
+    markModified("PlotWindow::limitsToSelection");
 }
 
 void PlotWindow::limitsToSelectionX()
@@ -167,6 +188,8 @@ void PlotWindow::limitsToSelectionX()
     // TODO: process only visible part
     auto minMax = GraphMath::minMax(g->data());
     _plot->setLimitsX(minMax.minX, minMax.maxX);
+    // TODO if limits changed
+    markModified("PlotWindow::limitsToSelectionX");
 }
 
 void PlotWindow::limitsToSelectionY()
@@ -177,6 +200,8 @@ void PlotWindow::limitsToSelectionY()
     // TODO: process only visible part
     auto minMax = GraphMath::minMax(g->data());
     _plot->setLimitsY(minMax.minY.y, minMax.maxY.y);
+    // TODO if limits changed
+    markModified("PlotWindow::limitsToSelectionY");
 }
 
 void PlotWindow::zoomIn()
@@ -270,8 +295,11 @@ bool PlotWindow::isLegendVisible() const
 
 void PlotWindow::setLegendVisible(bool on)
 {
+    if (_plot->legend->visible() == on)
+        return;
     _plot->legend->setVisible(on);
     _plot->replot();
+    markModified("PlotWindow::setLegendVisible");
 }
 
 bool PlotWindow::isTitleVisible() const
@@ -281,30 +309,37 @@ bool PlotWindow::isTitleVisible() const
 
 void PlotWindow::setTitleVisible(bool on)
 {
+    if (_plot->title()->visible() == on)
+        return;
     _plot->title()->setVisible(on);
     if (on && _plot->title()->text().isEmpty())
         _plot->title()->setText(_plotObj->title());
     _plot->replot();
+    markModified("PlotWindow::setTitleVisible");
 }
 
 void PlotWindow::editTitle()
 {
-    _plot->titleFormatDlg();
+    if (_plot->titleFormatDlg())
+        markModified("PlotWindow::editTitle");
 }
 
 void PlotWindow::formatX()
 {
-    _plot->axisFormatDlgX();
+    if (_plot->axisFormatDlgX())
+        markModified("PlotWindow::formatX");
 }
 
 void PlotWindow::formatY()
 {
-    _plot->axisFormatDlgY();
+    if (_plot->axisFormatDlgY())
+        markModified("PlotWindow::formatY");
 }
 
 void PlotWindow::formatLegend()
 {
-    _plot->legendFormatDlg();
+    if (_plot->legendFormatDlg())
+        markModified("PlotWindow::formatLegend");
 }
 
 void PlotWindow::formatGraph()
@@ -318,7 +353,10 @@ void PlotWindow::formatGraph()
     props.title = tr("Format %1").arg(line->name());
     props.plot = _plot;
     if (QCPL::graphFormatDlg(line, props))
+    {
         _plot->replot();
+        markModified("PlotWindow::formatGraph");
+    }
 }
 
 void PlotWindow::copyPlotFormat()
@@ -338,3 +376,52 @@ void PlotWindow::pastePlotFormat()
     else Ori::Dlg::info(err);
 }
 
+void PlotWindow::savePlotFormat()
+{
+    QString recentPath = RecentData::getDir("plot_format_path");
+    auto fileName = QFileDialog::getSaveFileName(
+        this, tr("Save Plot Format"), recentPath, tr("JSON files (*.json)\nAll files (*.*)"));
+    if (fileName.isEmpty())
+        return;
+    RecentData::setDir("plot_format_path", fileName);
+    QString err = QCPL::saveFormatToFile(fileName, _plot);
+    if (!err.isEmpty())
+        Ori::Dlg::error(err);
+}
+
+void PlotWindow::loadPlotFormat()
+{
+    QString recentPath = RecentData::getDir("plot_format_path");
+    auto fileName = QFileDialog::getOpenFileName(
+        this, tr("Load Plot Format"), recentPath, tr("JSON files (*.json)\nAll files (*.*)"));
+    if (fileName.isEmpty())
+        return;
+    RecentData::setDir("plot_format_path", fileName);
+    QCPL::JsonReport report;
+    auto err = QCPL::loadFormatFromFile(fileName, _plot, &report);
+    markModified("PlotWindow::loadPlotFormat");
+    if (!err.isEmpty())
+    {
+        Ori::Dlg::error(err);
+        return;
+    }
+    _plot->replot();
+}
+
+void PlotWindow::copyPlotImage()
+{
+    bool oldVisible = _cursor->visible();
+    if (AppSettings::instance().exportHideCursor)
+        _cursor->setVisible(false);
+
+    QImage image(_plot->width(), _plot->height(), QImage::Format_RGB32);
+    QCPPainter painter(&image);
+    _plot->toPainter(&painter);
+    qApp->clipboard()->setImage(image);
+
+    if (oldVisible != _cursor->visible())
+        _cursor->setVisible(oldVisible);
+
+    (new PopupMessage(PopupMessage::AFFIRM,
+        tr("Image has been copied to Clipboard"), -1, Qt::AlignRight|Qt::AlignBottom, this))->show();
+}

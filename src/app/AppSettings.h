@@ -8,12 +8,13 @@ class AppSettings : public QObject
 public:
     static AppSettings& instance();
 
-     AppSettings();
+    AppSettings();
 
     static bool autolimitAfterGraphGreated();
     static bool selectNewGraph();
 
     bool isDevMode = false;
+    bool exportHideCursor = false;
 
     void load();
     void save();

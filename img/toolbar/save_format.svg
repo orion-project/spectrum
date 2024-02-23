@@ -1,0 +1,31 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<linearGradient id="a" gradientUnits="userSpaceOnUse" x1="29.74" x2="39.02" y1="17.12" y2="22.52">
+<stop offset="0" stop-color="#c69c59"/>
+<stop offset="1" stop-color="#705526"/>
+</linearGradient>
+<linearGradient id="b" gradientUnits="userSpaceOnUse" x1="31.09" x2="39.93" y1="17.07" y2="20.22">
+<stop offset="0" stop-color="#f9f398"/>
+<stop offset="1" stop-color="#f3c668"/>
+</linearGradient>
+<linearGradient id="c" gradientUnits="userSpaceOnUse" x1="38.77" x2="41.84" xlink:href="#e" y1="10.75" y2="11.41"/>
+<linearGradient id="d" gradientUnits="userSpaceOnUse" x1="36.64" x2="40.98" xlink:href="#e" y1="14.53" y2="16.21"/>
+<linearGradient id="e">
+<stop offset="0" stop-color="#d2d2dd"/>
+<stop offset="1" stop-color="#a3aab7"/>
+</linearGradient>
+<g transform="translate(-27.98 -6.89)">
+<path d="m34.73 15.11c-2.09 1.7-4.04 1.9-6.09 2.15 1.6 3.12 5.67 5.56 10.03 6.09 1.25-1.79 1.93-3.33 2.69-5.81" fill="url(#b)" fill-rule="evenodd" stroke="url(#a)" stroke-linejoin="round" stroke-width=".75"/>
+<path d="m37.33 13.22c1.11-2.25 1.38-3.59 1.99-5.17.45-1.18 4.01-.51 3.92.6-.1 1.32-1.03 4.33-1.89 5.92" fill="url(#c)" fill-rule="evenodd" stroke="#545f88" stroke-width=".6"/>
+<path d="m38.64 12.7c.53-1.09 1.15-2.94 1.53-4.09" fill="none" stroke="#fff" stroke-linecap="round" stroke-opacity=".52"/>
+<path d="m35.96 16.16c-.61.67-2.34 1.82-4.04 2.25m5.46-1.55c-.78 1.15-2.19 2.33-3.57 3.02m5.39-2.44c-.54 1.02-1.17 2.18-2.94 3.52" fill="none" stroke="#c69c59" stroke-linecap="round" stroke-width=".4"/>
+<path d="m34.16 15.04c1.68 1.31 4.65 2.27 7.28 2.74.36-1.26.39-2.05-.07-3.26l-4.14-1.27c-1.29.29-1.73.86-3.07 1.8z" fill="url(#d)" fill-rule="evenodd" stroke="#545f88" stroke-linejoin="round" stroke-width=".6"/>
+</g>
+<rect height="8.78" rx="1.5" style="stroke-dashoffset:21.44;stroke-linecap:square;fill:none;stroke:#fff;stroke-linejoin:round;stroke-opacity:.65" transform="scale(1 -1)" width="6.74" x="7.5" y="-16.5"/>
+<rect height="15" rx=".63" ry=".55" style="fill-rule:evenodd;stroke-dashoffset:21.44;stroke-linecap:square;fill:#6565d0;stroke:#3f4397;stroke-linejoin:round" transform="scale(1 -1)" width="15" x="8.5" y="-23.5"/>
+<path d="m21 9v7h-10v-7z" fill="#fff" fill-opacity=".93"/>
+<path d="m11.5-23.5h9v6h-9z" fill="#e5e5f1" stroke="#a7aada" stroke-linecap="square" transform="scale(1 -1)"/>
+<path d="m13-22h2v3h-2z" fill="#373a6c" fill-opacity=".72" transform="scale(1 -1)"/>
+<path d="m12 10.5h7m-7 2h5m-5 2h8" fill="#fafafa" stroke="#b6b7cb"/>
+<path d="m26 10 4-4h5.6c-.1.5-.5 1.36-.78 2 .54 2.69-1.39 6.96-2.82 9-.81 1.16-1.69.97-2.44.85-.56-.09-2.77-.85-3.55-1.18z" fill="#fff" fill-opacity=".79"/>
+<path d="m11 8.5h10" fill="#fafafa" stroke="#b6b7cb"/>
+</svg>

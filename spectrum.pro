@@ -56,7 +56,6 @@ SOURCES += src/main.cpp\
     src/app/AppSettings.cpp \
     src/app/HelpSystem.cpp \
     src/OpenFileDlg.cpp \
-    src/PlotWindow.cpp \
     src/Operations.cpp \
     src/app/PersistentState.cpp \
     src/core/DataExporters.cpp \
@@ -67,7 +66,8 @@ SOURCES += src/main.cpp\
     src/core/Modifiers.cpp \
     src/widgets/DataGridPanel.cpp \
     src/windows/HelpWindow.cpp \
-    src/windows/MainWindow.cpp
+    src/windows/MainWindow.cpp \
+    src/windows/PlotWindow.cpp
 
 HEADERS  += \
     src/CsvConfigDialog.h \
@@ -75,7 +75,6 @@ HEADERS  += \
     src/app/AppSettings.h \
     src/app/HelpSystem.h \
     src/OpenFileDlg.h \
-    src/PlotWindow.h \
     src/Operations.h \
     src/app/PersistentState.h \
     src/core/BaseTypes.h \
@@ -87,4 +86,9 @@ HEADERS  += \
     src/core/Modifiers.h \
     src/widgets/DataGridPanel.h \
     src/windows/HelpWindow.h \
-    src/windows/MainWindow.h
+    src/windows/MainWindow.h \
+    src/windows/PlotWindow.h
+
+DISTFILES += \
+    src/app.qss \
+    src/help.css

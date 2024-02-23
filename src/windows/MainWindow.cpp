@@ -3,10 +3,10 @@
 #include "../app/AppSettings.h"
 #include "../app/HelpSystem.h"
 #include "../Operations.h"
-#include "../PlotWindow.h"
 #include "../core/Graph.h"
 #include "../core/DataExporters.h"
 #include "../widgets/DataGridPanel.h"
+#include "../windows/PlotWindow.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
@@ -14,6 +14,7 @@
 #include "tools/OriSettings.h"
 #include "widgets/OriLabels.h"
 #include "widgets/OriMdiToolBar.h"
+#include "widgets/OriPopupMessage.h"
 #include "widgets/OriStatusBar.h"
 
 #include <QApplication>
@@ -194,15 +195,19 @@ void MainWindow::createActions()
     auto actFormatY = A_(tr("Y-axis  Format..."), tr("Format Y axis"), this, SLOT(formatY()), ":/toolbar/format_y");
     auto actFormatLegend = A_(tr("Legend Format..."), tr("Format legend"), this, SLOT(formatLegend()), ":/toolbar/plot_legend");
     auto actFormatGraph = A_(tr("Graph Format..."), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
+    auto actSavePlotFormat = A_(tr("Save Plot Format..."), tr("Save Plot Format"), this, SLOT(savePlotFormat()), ":/toolbar/save_format");
+    auto actLoadPlotFormat = A_(tr("Load Plot Format..."), tr("Load Plot Format"), this, SLOT(loadPlotFormat()), ":/toolbar/open_format");
 
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
         actFormatTitle, actFormatLegend, actFormatX, actFormatY, actFormatGraph,
+        0, actSavePlotFormat, actLoadPlotFormat,
     });
     tbFormat->setVisible(false); // hidden by default
-    addToolBar(tbFormat);
+    addToolBar(Qt::LeftToolBarArea, tbFormat);
 
     menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
         actFormatTitle, actFormatLegend, actFormatX, actFormatY, actFormatGraph,
+        0, actSavePlotFormat, actLoadPlotFormat,
     }));
 
     //---------------------------------------------------------
@@ -297,11 +302,13 @@ void MainWindow::createStatusBar()
     setStatusBar(_statusBar);
 }
 
-PlotWindow* MainWindow::activePlot() const
+PlotWindow* MainWindow::activePlot(bool warn) const
 {
     auto mdiChild = _mdiArea->currentSubWindow();
-    if (!mdiChild) return nullptr;
-    return dynamic_cast<PlotWindow*>(mdiChild->widget());
+    auto plotWnd = mdiChild ? dynamic_cast<PlotWindow*>(mdiChild->widget()) : nullptr;
+    if (!plotWnd and warn)
+        Ori::Gui::PopupMessage::warning(tr("There is no active diagram"));
+    return plotWnd;
 }
 
 Graph* MainWindow::selectedGraph() const
@@ -529,7 +536,11 @@ void MainWindow::editCopy()
     if (!plot) return;
 
     auto graph = plot->selectedGraph();
-    if (!graph) return;
+    if (!graph)
+    {
+        plot->copyPlotImage();
+        return;
+    }
 
     DataExporters::copyToClipboard(graph->data());
 }
@@ -582,3 +593,14 @@ void MainWindow::formatGraph()
     if (plot) plot->formatGraph();
 }
 
+void MainWindow::savePlotFormat()
+{
+    auto plot = activePlot();
+    if (plot) plot->savePlotFormat();
+}
+
+void MainWindow::loadPlotFormat()
+{
+    auto plot = activePlot();
+    if (plot) plot->loadPlotFormat();
+}

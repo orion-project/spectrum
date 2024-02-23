@@ -33,6 +33,7 @@
         <file alias="limits_zoom_out">../img/toolbar/limits_zoom_out.svg</file>
         <file alias="navigate_back">../img/toolbar/navigate_back.svg</file>
         <file alias="navigate_fwd">../img/toolbar/navigate_fwd.svg</file>
+        <file alias="open_format">../img/toolbar/open_format.svg</file>
         <file alias="panel_datagrid">../img/toolbar/panel_datagrid.svg</file>
         <file alias="paste">../img/toolbar/paste.svg</file>
         <file alias="paste_format">../img/toolbar/paste_format.svg</file>
@@ -43,6 +44,7 @@
         <file alias="plot_rename">../img/toolbar/plot_rename.svg</file>
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
         <file alias="protocol">../img/toolbar/protocol.svg</file>
+        <file alias="save_format">../img/toolbar/save_format.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
         <file alias="update">../img/toolbar/update.svg</file>
         <file alias="update_params">../img/toolbar/update_params.svg</file>
@@ -61,6 +63,7 @@
         <file alias="qss">../libs/orion/syntax/qss.ohl</file>
     </qresource>
     <qresource prefix="/style">
+        <file alias="app">app.qss</file>
         <file alias="help">help.css</file>
     </qresource>
 </RCC>

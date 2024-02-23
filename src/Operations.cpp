@@ -8,6 +8,7 @@
 #include "core/Modifiers.h"
 
 #include "helpers/OriDialogs.h"
+#include "widgets/OriPopupMessage.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -15,7 +16,7 @@
 #define SELECTED_GRAPH \
     auto graph = getSelectedGraph(); \
     if (!graph) { \
-        Ori::Dlg::info(qApp->tr("Please select a graph")); \
+        Ori::Gui::PopupMessage::warning(qApp->tr("Please select a graph")); \
         return; \
     }
 

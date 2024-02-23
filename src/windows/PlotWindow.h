@@ -53,9 +53,11 @@ public:
     void formatY();
     void formatLegend();
     void formatGraph();
-
+    void copyPlotImage();
     void copyPlotFormat();
     void pastePlotFormat();
+    void savePlotFormat();
+    void loadPlotFormat();
 
     Graph* selectedGraph() const;
     void selectGraph(Graph* graph);
