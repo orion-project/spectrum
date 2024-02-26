@@ -4,6 +4,8 @@ history:
     changes:
       - text: Can open several data files (plain and csv)
       - text: Diagram format dialolgs (title, axes, legend)
+      - text: Decimal axis factors
+      - text: (NEW) Custom axis factor
       - text: (NEW) Internal help viever
 
   - version: 7.0.1-alpha1

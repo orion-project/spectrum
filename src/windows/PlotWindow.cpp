@@ -72,6 +72,13 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
     setWindowTitle(_plotObj->title());
 
     _plot = new QCPL::Plot;
+    _plot->formatAxisTitleAfterFactorSet = true;
+    _plot->addTextVarX("{factor}", tr("Axis factor"), [this]{ return QCPL::axisFactorStr(_plot->axisFactorX()); });
+    _plot->addTextVarY("{factor}", tr("Axis factor"), [this]{ return QCPL::axisFactorStr(_plot->axisFactorY()); });
+    _plot->addTextVarX("{(factor)}", tr("Axis factor (in brackets)"), [this]{
+        auto s = QCPL::axisFactorStr(_plot->axisFactorX()); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
+    _plot->addTextVarY("{(factor)}", tr("Axis factor (in brackets)"), [this]{
+        auto s = QCPL::axisFactorStr(_plot->axisFactorY()); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
     _plot->setPlottingHint(QCP::phFastPolylines, true);
     if (_plot->title())
         _plot->title()->setText(_plotObj->title());
@@ -108,15 +115,14 @@ void PlotWindow::createContextMenus()
     menuX->addAction(QIcon(":/toolbar/title_x"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgX);
     menuX->addAction(QIcon(":/toolbar/format_x"), tr("Format..."), this, [this]{ formatX(); });
     menuX->addSeparator();
+    menuX->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->xAxis); });
+    menuX->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->xAxis); });
+    menuX->addSeparator();
     menuX->addAction(QIcon(":/toolbar/limits_x"), tr("Limits..."), this, [this]{ limitsDlgX(); });
     menuX->addAction(QIcon(":/toolbar/limits_auto_x"), tr("Fit to Graphs"), this, [this]{ autolimitsX(); });
     menuX->addAction(QIcon(":/toolbar/limits_fit_x"), tr("Fit to Selection"), this, [this]{ limitsToSelectionX(); });
     menuX->addSeparator();
-    menuX->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->xAxis); });
-    menuX->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->xAxis); });
-    connect(menuX, &QMenu::aboutToShow, this, []{
-        // TODO: update factors menu
-    });
+    menuX->addAction(tr("Factor..."), _plot, &QCPL::Plot::axisFactorDlgX);
 
     auto menuY = new QMenu(this);
     auto titleY = new QWidgetAction(this);
@@ -127,15 +133,14 @@ void PlotWindow::createContextMenus()
     menuY->addAction(QIcon(":/toolbar/title_y"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgY);
     menuY->addAction(QIcon(":/toolbar/format_y"), tr("Format..."), this, [this]{ formatY(); });
     menuY->addSeparator();
+    menuY->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->yAxis); });
+    menuY->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->yAxis); });
+    menuY->addSeparator();
     menuY->addAction(QIcon(":/toolbar/limits_y"), tr("Limits..."), this, [this]{ limitsDlgY(); });
     menuY->addAction(QIcon(":/toolbar/limits_auto_y"), tr("Fit to Graphs"), this, [this]{ limitsToSelectionY(); });
     menuY->addAction(QIcon(":/toolbar/limits_fit_y"), tr("Fit to Selection"), this, [this]{ limitsToSelectionY(); });
     menuY->addSeparator();
-    menuY->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->yAxis); });
-    menuY->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->yAxis); });
-    connect(menuY, &QMenu::aboutToShow, this, []{
-        // TODO: update factors menu
-    });
+    menuY->addAction(tr("Factor..."), _plot, &QCPL::Plot::axisFactorDlgY);
 
     auto menuLegend = new QMenu(this);
     menuLegend->addAction(QIcon(":/toolbar/plot_legend"), tr("Format..."), this, [this]{ formatLegend(); });

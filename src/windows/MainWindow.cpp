@@ -30,6 +30,8 @@
 #include <QToolButton>
 #include <QToolBar>
 
+using Ori::Gui::PopupMessage;
+
 enum StatusPanels
 {
     STATUS_GRAPHS,
@@ -309,7 +311,7 @@ PlotWindow* MainWindow::activePlot(bool warn) const
     auto mdiChild = _mdiArea->currentSubWindow();
     auto plotWnd = mdiChild ? dynamic_cast<PlotWindow*>(mdiChild->widget()) : nullptr;
     if (!plotWnd and warn)
-        Ori::Gui::PopupMessage::warning(tr("There is no active diagram"));
+        PopupMessage::warning(tr("There is no active diagram"));
     return plotWnd;
 }
 
@@ -531,6 +533,7 @@ void MainWindow::editCopy()
     if (_panelDataGrid->isVisible() && _panelDataGrid->hasFocus())
     {
         _panelDataGrid->copyData();
+        PopupMessage::affirm(tr("Data grid values has been copied to Clipboard"));
         return;
     }
 
@@ -540,10 +543,12 @@ void MainWindow::editCopy()
     auto graph = plot->selectedGraph();
     if (!graph)
     {
+        // There will be popup message after copying image
         plot->copyPlotImage();
         return;
     }
 
+    // TODO: show popup message if there is no dialog here, otherwise leave a comment
     DataExporters::copyToClipboard(graph->data());
 }
 
