@@ -43,6 +43,9 @@ enum StatusPanels
     STATUS_PANELS_COUNT,
 };
 
+#define IN_ACTIVE_PLOT(do_func) \
+    [this]{ auto plot = activePlot(); if (plot) plot->do_func(); }
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setObjectName("mainWindow");
@@ -120,8 +123,8 @@ void MainWindow::createActions()
     auto actCopy = A_(tr("Copy"), this, SLOT(editCopy()), ":/toolbar/copy", QKeySequence::Copy);
     auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
     auto actPasteCsv = A_(tr("Paste as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
-    auto actCopyFormat = A_(tr("Copy Format"), this, SLOT(editCopyFormat()), ":/toolbar/copy_fmt", QKeySequence("Ctrl+Shift+C"));
-    auto actPasteFormat = A_(tr("Paste Format"), this, SLOT(editPasteFormat()), ":/toolbar/paste_fmt", QKeySequence("Ctrl+Shift+V"));
+    auto actCopyFormat = A_(tr("Copy Format"), this, IN_ACTIVE_PLOT(copyPlotFormat), ":/toolbar/copy_fmt", QKeySequence("Ctrl+Shift+C"));
+    auto actPasteFormat = A_(tr("Paste Format"), this, IN_ACTIVE_PLOT(pastePlotFormat), ":/toolbar/paste_fmt", QKeySequence("Ctrl+Shift+V"));
 
     addToolBar(Ori::Gui::toolbar(tr("Edit"), "edit", {
         actCopy, actPaste, actPasteCsv
@@ -134,8 +137,8 @@ void MainWindow::createActions()
     //---------------------------------------------------------
 
     _actToggleDatagrid = A_(tr("Data Grid"), tr("Toggle data grid panel"), this, SLOT(toggleDataGrid()), ":/toolbar/panel_datagrid");
-    _actViewTitle = A_(tr("Title"), tr("Toggle diagram title"), this, SLOT(toggleTitle()), ":/toolbar/plot_title");
-    _actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, SLOT(toggleLegend()), ":/toolbar/plot_legend");
+    _actViewTitle = A_(tr("Title"), tr("Toggle diagram title"), this, IN_ACTIVE_PLOT(toggleTitle), ":/toolbar/plot_title");
+    _actViewLegend = A_(tr("Legend"), tr("Toggle diagram legend"), this, IN_ACTIVE_PLOT(toggleLegend), ":/toolbar/plot_legend");
     _actToggleDatagrid->setCheckable(true);
     _actViewTitle->setCheckable(true);
     _actViewLegend->setCheckable(true);
@@ -167,15 +170,16 @@ void MainWindow::createActions()
     auto actnGraphRefresh = A_(tr("Refresh"), tr("Reread points from data source"), _operations, SLOT(graphRefresh()), ":/toolbar/update", QKeySequence("Ctrl+R"));
     auto actGraphReopen = A_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
     auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), _operations, SLOT(graphTitle()), ":/toolbar/graph_title", QKeySequence("F2"));
-    auto actGraphProps = A_(tr("Properties..."), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
+    auto actGraphProps = A_(tr("Properties..."), tr("Set line properties of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
+    auto actGraphDelete = A_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete");
 
     // By default the Graph toolbar is in the second row, should be added after all others
     auto tbGraph = Ori::Gui::toolbar(tr("Graph"), "graph", {
-        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps,
+        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps, 0, actGraphDelete,
     });
 
     menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {
-        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps,
+        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps, 0, actGraphDelete,
     }));
 
     //---------------------------------------------------------
@@ -193,13 +197,13 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actFormatTitle = A_(tr("Title Format..."), tr("Format current diagram title"), this, SLOT(formatTitle()), ":/toolbar/plot_title");
-    auto actFormatX = A_(tr("X-axis Format..."), tr("Format X axis"), this, SLOT(formatX()), ":/toolbar/format_x");
-    auto actFormatY = A_(tr("Y-axis  Format..."), tr("Format Y axis"), this, SLOT(formatY()), ":/toolbar/format_y");
-    auto actFormatLegend = A_(tr("Legend Format..."), tr("Format legend"), this, SLOT(formatLegend()), ":/toolbar/plot_legend");
-    auto actFormatGraph = A_(tr("Graph Format..."), tr("Set line properties of selected graph"), this, SLOT(formatGraph()), ":/toolbar/graph_props");
-    auto actSavePlotFormat = A_(tr("Save Plot Format..."), tr("Save Plot Format"), this, SLOT(savePlotFormat()), ":/toolbar/save_format");
-    auto actLoadPlotFormat = A_(tr("Load Plot Format..."), tr("Load Plot Format"), this, SLOT(loadPlotFormat()), ":/toolbar/open_format");
+    auto actFormatTitle = A_(tr("Title Format..."), this, IN_ACTIVE_PLOT(formatTitle), ":/toolbar/plot_title");
+    auto actFormatX = A_(tr("X-axis Format..."), this, IN_ACTIVE_PLOT(formatX), ":/toolbar/format_x");
+    auto actFormatY = A_(tr("Y-axis  Format..."), this, IN_ACTIVE_PLOT(formatY), ":/toolbar/format_y");
+    auto actFormatLegend = A_(tr("Legend Format..."), this, IN_ACTIVE_PLOT(formatLegend), ":/toolbar/plot_legend");
+    auto actFormatGraph = A_(tr("Graph Format..."), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
+    auto actSavePlotFormat = A_(tr("Save Plot Format..."), this, IN_ACTIVE_PLOT(savePlotFormat), ":/toolbar/save_format");
+    auto actLoadPlotFormat = A_(tr("Load Plot Format..."), this, IN_ACTIVE_PLOT(loadPlotFormat), ":/toolbar/open_format");
 
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
         actFormatTitle, actFormatLegend, actFormatX, actFormatY, actFormatGraph,
@@ -215,21 +219,21 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actLimitsBoth = A_(tr("Limits for Both Axes..."), this, SLOT(limitsDlg()), ":/toolbar/limits", QKeySequence("Shift+Ctrl+="));
-    auto actLimitsX = A_(tr("Limits X..."), this, SLOT(limitsDlgX()), ":/toolbar/limits_x", QKeySequence("Shift+Ctrl+X"));
-    auto actLimitsY = A_(tr("Limits Y..."), this, SLOT(limitsDlgY()), ":/toolbar/limits_y", QKeySequence("Shift+Ctrl+Y"));
-    auto actAutolimits = A_(tr("Autolimits"), this, SLOT(autolimits()), ":/toolbar/limits_auto", QKeySequence("Alt+0"));
-    auto actAutolimitsX = A_(tr("Autolimits X"), this, SLOT(autolimitsX()), ":/toolbar/limits_auto_x", QKeySequence("Alt+X"));
-    auto actAutolimitsY = A_(tr("Autolimits Y"), this, SLOT(autolimitsY()), ":/toolbar/limits_auto_y", QKeySequence("Alt+Y"));
-    auto actFitSelection = A_(tr("Fit Selection"), this, SLOT(limitsToSelection()), ":/toolbar/limits_fit", QKeySequence("Ctrl+/"));
-    auto actFitSelectionX = A_(tr("Fit Selection X"), this, SLOT(limitsToSelectionX()), ":/toolbar/limits_fit_x", QKeySequence("Shift+Ctrl+/,x"));
-    auto actFitSelectionY = A_(tr("Fit Selection Y"), this, SLOT(limitsToSelectionY()), ":/toolbar/limits_fit_y", QKeySequence("Shift+Ctrl+/,y"));
-    auto actZoomIn = A_(tr("Zoom-in"), this, SLOT(zoomIn()), ":/toolbar/limits_zoom_in", QKeySequence("Ctrl+Alt+="));
-    auto actZoomOut = A_(tr("Zoom-out"), this, SLOT(zoomOut()), ":/toolbar/limits_zoom_out", QKeySequence("Ctrl+Alt+-"));
-    auto actZoomInX = A_(tr("Zoom-in X"), this, SLOT(zoomInX()), ":/toolbar/limits_zoom_in_x", QKeySequence("Alt+="));
-    auto actZoomInY = A_(tr("Zoom-in Y"), this, SLOT(zoomInY()), ":/toolbar/limits_zoom_in_y", QKeySequence("Ctrl+="));
-    auto actZoomOutX = A_(tr("Zoom-out X"), this, SLOT(zoomOutX()), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
-    auto actZoomOutY = A_(tr("Zoom-out Y"), this, SLOT(zoomOutY()), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
+    auto actLimitsBoth = A_(tr("Limits for Both Axes..."), this, IN_ACTIVE_PLOT(limitsDlg), ":/toolbar/limits", QKeySequence("Shift+Ctrl+="));
+    auto actLimitsX = A_(tr("Limits X..."), this, IN_ACTIVE_PLOT(limitsDlgX), ":/toolbar/limits_x", QKeySequence("Shift+Ctrl+X"));
+    auto actLimitsY = A_(tr("Limits Y..."), this, IN_ACTIVE_PLOT(limitsDlgY), ":/toolbar/limits_y", QKeySequence("Shift+Ctrl+Y"));
+    auto actAutolimits = A_(tr("Autolimits"), this, IN_ACTIVE_PLOT(autolimits), ":/toolbar/limits_auto", QKeySequence("Alt+0"));
+    auto actAutolimitsX = A_(tr("Autolimits X"), this, IN_ACTIVE_PLOT(autolimitsX), ":/toolbar/limits_auto_x", QKeySequence("Alt+X"));
+    auto actAutolimitsY = A_(tr("Autolimits Y"), this, IN_ACTIVE_PLOT(autolimitsY), ":/toolbar/limits_auto_y", QKeySequence("Alt+Y"));
+    auto actFitSelection = A_(tr("Fit Selection"), this, IN_ACTIVE_PLOT(limitsToSelection), ":/toolbar/limits_fit", QKeySequence("Ctrl+/"));
+    auto actFitSelectionX = A_(tr("Fit Selection X"), this, IN_ACTIVE_PLOT(limitsToSelectionX), ":/toolbar/limits_fit_x", QKeySequence("Shift+Ctrl+/,x"));
+    auto actFitSelectionY = A_(tr("Fit Selection Y"), this, IN_ACTIVE_PLOT(limitsToSelectionY), ":/toolbar/limits_fit_y", QKeySequence("Shift+Ctrl+/,y"));
+    auto actZoomIn = A_(tr("Zoom-in"), this, IN_ACTIVE_PLOT(zoomIn), ":/toolbar/limits_zoom_in", QKeySequence("Ctrl+Alt+="));
+    auto actZoomOut = A_(tr("Zoom-out"), this, IN_ACTIVE_PLOT(zoomOut), ":/toolbar/limits_zoom_out", QKeySequence("Ctrl+Alt+-"));
+    auto actZoomInX = A_(tr("Zoom-in X"), this, IN_ACTIVE_PLOT(zoomInX), ":/toolbar/limits_zoom_in_x", QKeySequence("Alt+="));
+    auto actZoomInY = A_(tr("Zoom-in Y"), this, IN_ACTIVE_PLOT(zoomInY), ":/toolbar/limits_zoom_in_y", QKeySequence("Ctrl+="));
+    auto actZoomOutX = A_(tr("Zoom-out X"), this, IN_ACTIVE_PLOT(zoomOutX), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
+    auto actZoomOutY = A_(tr("Zoom-out Y"), this, IN_ACTIVE_PLOT(zoomOutY), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
     addToolBar(Qt::RightToolBarArea, Ori::Gui::toolbar(tr("Limits"), "limits", {
         actLimitsBoth, actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
@@ -319,6 +323,11 @@ void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
     }
 }
 
+void MainWindow::updateStatusBar()
+{
+
+}
+
 PlotWindow* MainWindow::activePlot(bool warn) const
 {
     auto mdiChild = _mdiArea->currentSubWindow();
@@ -343,6 +352,12 @@ Graph* MainWindow::selectedGraph() const
 {
     auto plot = activePlot();
     return plot ? plot->selectedGraph() : nullptr;
+}
+
+QVector<Graph*> MainWindow::selectedGraphs() const
+{
+    auto plot = activePlot();
+    return plot ? plot->selectedGraphs() : QVector<Graph*>();
 }
 
 void MainWindow::newProject()
@@ -441,108 +456,6 @@ void MainWindow::viewMenuShown()
     _actViewTitle->setChecked(plot && plot->isTitleVisible());
 }
 
-void MainWindow::limitsDlg()
-{
-    auto plot = activePlot();
-    if (plot) plot->limitsDlg();
-}
-
-void MainWindow::limitsDlgX()
-{
-    auto plot = activePlot();
-    if (plot) plot->limitsDlgX();
-}
-
-void MainWindow::limitsDlgY()
-{
-    auto plot = activePlot();
-    if (plot) plot->limitsDlgY();
-}
-
-void MainWindow::autolimits()
-{
-    auto plot = activePlot();
-    if (plot) plot->autolimits();
-}
-
-void MainWindow::autolimitsX()
-{
-    auto plot = activePlot();
-    if (plot) plot->autolimitsX();
-}
-
-void MainWindow::autolimitsY()
-{
-    auto plot = activePlot();
-    if (plot) plot->autolimitsY();
-}
-
-void MainWindow::limitsToSelection()
-{
-    auto plot = activePlot();
-    if (plot) plot->limitsToSelection();
-}
-
-void MainWindow::limitsToSelectionX()
-{
-    auto plot = activePlot();
-    if (plot) plot->limitsToSelectionX();
-}
-
-void MainWindow::limitsToSelectionY()
-{
-    auto plot = activePlot();
-    if (plot) plot->limitsToSelectionY();
-}
-
-void MainWindow::zoomIn()
-{
-    auto plot = activePlot();
-    if (plot) plot->zoomIn();
-}
-
-void MainWindow::zoomOut()
-{
-    auto plot = activePlot();
-    if (plot) plot->zoomOut();
-}
-
-void MainWindow::zoomInX()
-{
-    auto plot = activePlot();
-    if (plot) plot->zoomInX();
-}
-
-void MainWindow::zoomOutX()
-{
-    auto plot = activePlot();
-    if (plot) plot->zoomOutX();
-}
-
-void MainWindow::zoomInY()
-{
-    auto plot = activePlot();
-    if (plot) plot->zoomInY();
-}
-
-void MainWindow::zoomOutY()
-{
-    auto plot = activePlot();
-    if (plot) plot->zoomOutY();
-}
-
-void MainWindow::toggleTitle()
-{
-    auto plot = activePlot();
-    if (plot) plot->setTitleVisible(!plot->isTitleVisible());
-}
-
-void MainWindow::toggleLegend()
-{
-    auto plot = activePlot();
-    if (plot) plot->setLegendVisible(!plot->isLegendVisible());
-}
-
 void MainWindow::toggleDataGrid()
 {
     _dockDataGrid->setVisible(!_dockDataGrid->isVisible());
@@ -576,58 +489,4 @@ void MainWindow::editPaste()
 {
     auto plot = activePlot();
     if (plot) _operations->addFromClipboard();
-}
-
-void MainWindow::editCopyFormat()
-{
-    auto plot = activePlot();
-    if (plot) plot->copyPlotFormat();
-}
-
-void MainWindow::editPasteFormat()
-{
-    auto plot = activePlot();
-    if (plot) plot->pastePlotFormat();
-}
-
-void MainWindow::formatTitle()
-{
-    auto plot = activePlot();
-    if (plot) plot->editTitle();
-}
-
-void MainWindow::formatX()
-{
-    auto plot = activePlot();
-    if (plot) plot->formatX();
-}
-
-void MainWindow::formatY()
-{
-    auto plot = activePlot();
-    if (plot) plot->formatY();
-}
-
-void MainWindow::formatLegend()
-{
-    auto plot = activePlot();
-    if (plot) plot->formatLegend();
-}
-
-void MainWindow::formatGraph()
-{
-    auto plot = activePlot();
-    if (plot) plot->formatGraph();
-}
-
-void MainWindow::savePlotFormat()
-{
-    auto plot = activePlot();
-    if (plot) plot->savePlotFormat();
-}
-
-void MainWindow::loadPlotFormat()
-{
-    auto plot = activePlot();
-    if (plot) plot->loadPlotFormat();
 }

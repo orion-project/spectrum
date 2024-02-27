@@ -24,24 +24,24 @@ public:
     using DoLoad = Ori::Argument<bool, struct DoLoadTag>;
 
 public slots:
-    void addFromFile() const;
-    void addFromCsvFile() const;
-    void addFromClipboard() const;
-    void addFromClipboardCsv() const;
-    void addRandomSample() const;
-    void modifyOffset() const;
-    void modifyScale() const;
-    void graphRefresh() const;
-    void graphReopen() const;
-    void graphTitle() const;
+    void addFromFile();
+    void addFromCsvFile();
+    void addFromClipboard();
+    void addFromClipboardCsv();
+    void addRandomSample();
+    void modifyOffset();
+    void modifyScale();
+    void graphRefresh();
+    void graphReopen();
+    void graphTitle();
 
 signals:
-    void graphCreated(Graph* g) const;
-    void graphUpdated(Graph* g) const;
+    void graphCreated(Graph* g);
+    void graphUpdated(Graph* g);
 
 private:
-    void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true)) const;
-    void modifyGraph(Modifier *mod) const;
+    void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
+    void modifyGraph(Modifier *mod);
 };
 
 #endif // OPERATIONS_H

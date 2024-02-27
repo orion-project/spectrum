@@ -13,6 +13,7 @@
         <file alias="home">../img/toolbar/home.svg</file>
         <file alias="format_x">../img/toolbar/format_x.svg</file>
         <file alias="format_y">../img/toolbar/format_y.svg</file>
+        <file alias="graph_delete">../img/toolbar/graph_delete.svg</file>
         <file alias="graph_props">../img/toolbar/graph_props.svg</file>
         <file alias="graph_offset">../img/toolbar/graph_offset.svg</file>
         <file alias="graph_scale">../img/toolbar/graph_scale.svg</file>

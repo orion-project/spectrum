@@ -24,7 +24,7 @@ Operations::Operations(QObject *parent) : QObject(parent)
 {
 }
 
-void Operations::addFromFile() const
+void Operations::addFromFile()
 {
     auto states = CustomDataHelpers::loadDataSourceStates();
     auto state = states["file"].toObject();
@@ -40,7 +40,7 @@ void Operations::addFromFile() const
     }
 }
 
-void Operations::addFromCsvFile() const
+void Operations::addFromCsvFile()
 {
     auto res = CsvConfigDialog::openFile();
     if (res.dataSources.isEmpty())
@@ -57,7 +57,7 @@ void Operations::addFromCsvFile() const
         addGraph(dataSource, DoConfig(false), DoLoad(false));
 }
 
-void Operations::addFromClipboardCsv() const
+void Operations::addFromClipboardCsv()
 {
     auto res = CsvConfigDialog::openClipboard();
     if (res.dataSources.isEmpty())
@@ -74,27 +74,27 @@ void Operations::addFromClipboardCsv() const
         addGraph(dataSource, DoConfig(false), DoLoad(false));
 }
 
-void Operations::addFromClipboard() const
+void Operations::addFromClipboard()
 {
     addGraph(new ClipboardDataSource);
 }
 
-void Operations::addRandomSample() const
+void Operations::addRandomSample()
 {
     addGraph(new RandomSampleDataSource);
 }
 
-void Operations::modifyOffset() const
+void Operations::modifyOffset()
 {
     modifyGraph(new OffsetModifier);
 }
 
-void Operations::modifyScale() const
+void Operations::modifyScale()
 {
     modifyGraph(new ScaleModifier);
 }
 
-void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad) const
+void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad)
 {
     if (doConfig.value)
     {
@@ -121,7 +121,7 @@ void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLo
     emit graphCreated(graph);
 }
 
-void Operations::modifyGraph(Modifier* mod) const
+void Operations::modifyGraph(Modifier* mod)
 {
     // TODO: modify several selected graphs
     SELECTED_GRAPH
@@ -141,7 +141,7 @@ void Operations::modifyGraph(Modifier* mod) const
     emit graphUpdated(graph);
 }
 
-void Operations::graphRefresh() const
+void Operations::graphRefresh()
 {
     // TODO: refresh several selected graphs
     SELECTED_GRAPH
@@ -165,7 +165,7 @@ void Operations::graphRefresh() const
     emit graphUpdated(graph);
 }
 
-void Operations::graphReopen() const
+void Operations::graphReopen()
 {
     SELECTED_GRAPH
 
@@ -198,7 +198,7 @@ void Operations::graphReopen() const
     emit graphUpdated(graph);
 }
 
-void Operations::graphTitle() const
+void Operations::graphTitle()
 {
     SELECTED_GRAPH
 }

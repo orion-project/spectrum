@@ -54,6 +54,7 @@ public:
     void zoomOutY();
     void formatX();
     void formatY();
+    void formatTitle();
     void formatLegend();
     void formatGraph();
     void copyPlotImage();
@@ -65,19 +66,19 @@ public:
     void savePlotFormat();
     void loadPlotFormat();
     void rename();
+    void deleteGraph();
+    void toggleLegend();
+    void toggleTitle();
 
     Graph* selectedGraph() const;
+    QVector<Graph*> selectedGraphs() const;
     void selectGraph(Graph* graph);
     bool updateGraph(Graph* graph);
 
     QSize sizeHint() const override { return QSize(600, 400); }
 
     bool isLegendVisible() const;
-    void setLegendVisible(bool on);
-
     bool isTitleVisible() const;
-    void setTitleVisible(bool on);
-    void editTitle();
 
 protected:
     void closeEvent(class QCloseEvent*) override;
@@ -102,6 +103,7 @@ private:
     void createContextMenus();
     void markModified(const QString& reason);
     void updateTitle(const QString& title);
+    void deleteGraphs(const QVector<Graph*>& graphs);
 };
 
 #endif // PLOTWINDOW_H

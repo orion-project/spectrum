@@ -52,11 +52,13 @@ private:
     PlotWindow* activePlot(bool warn = true) const;
     PlotObj* findPlotById(const QString& id) const;
     Graph* selectedGraph() const;
+    QVector<Graph*> selectedGraphs() const;
     void graphSelected(Graph* graph) const;
     void graphCreated(Graph* graph) const;
     void graphUpdated(Graph* graph) const;
     void mdiSubWindowActivated(QMdiSubWindow *window) const;
     void viewMenuShown();
+    void updateStatusBar();
 
 private slots:
     void newPlot();
@@ -64,33 +66,7 @@ private slots:
     void deletePlot();
     void editCopy();
     void editPaste();
-    void editCopyFormat();
-    void editPasteFormat();
-    void limitsDlg();
-    void limitsDlgX();
-    void limitsDlgY();
-    void autolimits();
-    void autolimitsX();
-    void autolimitsY();
-    void limitsToSelection();
-    void limitsToSelectionX();
-    void limitsToSelectionY();
-    void zoomIn();
-    void zoomOut();
-    void zoomInX();
-    void zoomOutX();
-    void zoomInY();
-    void zoomOutY();
-    void toggleLegend();
-    void toggleTitle();
     void toggleDataGrid();
-    void formatTitle();
-    void formatX();
-    void formatY();
-    void formatLegend();
-    void formatGraph();
-    void savePlotFormat();
-    void loadPlotFormat();
 };
 
 #endif // MAINWINDOW_H

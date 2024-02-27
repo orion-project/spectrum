@@ -26,6 +26,13 @@ PlotItem::~PlotItem()
     delete graph;
 }
 
+#define SELECTED_GRAPHS \
+    auto graphs = selectedGraphs(); \
+    if (graphs.isEmpty()) { \
+        Ori::Gui::PopupMessage::warning(qApp->tr("Please select a graph")); \
+        return; \
+    }
+
 static QIcon makeGraphIcon(QColor color)
 {
     int H, S, L;
@@ -111,14 +118,14 @@ void PlotWindow::createContextMenus()
     titleX->setDefaultWidget(labelX);
     menuX->addAction(titleX);
     menuX->addAction(QIcon(":/toolbar/title_x"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgX);
-    menuX->addAction(QIcon(":/toolbar/format_x"), tr("Format..."), this, [this]{ formatX(); });
+    menuX->addAction(QIcon(":/toolbar/format_x"), tr("Format..."), this, &PlotWindow::formatX);
     menuX->addSeparator();
     menuX->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->xAxis); });
     menuX->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->xAxis); });
     menuX->addSeparator();
-    menuX->addAction(QIcon(":/toolbar/limits_x"), tr("Limits..."), this, [this]{ limitsDlgX(); });
-    menuX->addAction(QIcon(":/toolbar/limits_auto_x"), tr("Fit to Graphs"), this, [this]{ autolimitsX(); });
-    menuX->addAction(QIcon(":/toolbar/limits_fit_x"), tr("Fit to Selection"), this, [this]{ limitsToSelectionX(); });
+    menuX->addAction(QIcon(":/toolbar/limits_x"), tr("Limits..."), this, &PlotWindow::limitsDlgX);
+    menuX->addAction(QIcon(":/toolbar/limits_auto_x"), tr("Fit to Graphs"), this, &PlotWindow::autolimitsX);
+    menuX->addAction(QIcon(":/toolbar/limits_fit_x"), tr("Fit to Selection"), this, &PlotWindow::limitsToSelectionX);
     menuX->addSeparator();
     menuX->addAction(tr("Factor..."), _plot, &QCPL::Plot::axisFactorDlgX);
 
@@ -129,41 +136,43 @@ void PlotWindow::createContextMenus()
     titleY->setDefaultWidget(labelY);
     menuY->addAction(titleY);
     menuY->addAction(QIcon(":/toolbar/title_y"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgY);
-    menuY->addAction(QIcon(":/toolbar/format_y"), tr("Format..."), this, [this]{ formatY(); });
+    menuY->addAction(QIcon(":/toolbar/format_y"), tr("Format..."), this, &PlotWindow::formatY);
     menuY->addSeparator();
     menuY->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->yAxis); });
     menuY->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->yAxis); });
     menuY->addSeparator();
-    menuY->addAction(QIcon(":/toolbar/limits_y"), tr("Limits..."), this, [this]{ limitsDlgY(); });
-    menuY->addAction(QIcon(":/toolbar/limits_auto_y"), tr("Fit to Graphs"), this, [this]{ limitsToSelectionY(); });
-    menuY->addAction(QIcon(":/toolbar/limits_fit_y"), tr("Fit to Selection"), this, [this]{ limitsToSelectionY(); });
+    menuY->addAction(QIcon(":/toolbar/limits_y"), tr("Limits..."), this, &PlotWindow::limitsDlgY);
+    menuY->addAction(QIcon(":/toolbar/limits_auto_y"), tr("Fit to Graphs"), this, &PlotWindow::limitsToSelectionY);
+    menuY->addAction(QIcon(":/toolbar/limits_fit_y"), tr("Fit to Selection"), this, &PlotWindow::limitsToSelectionY);
     menuY->addSeparator();
     menuY->addAction(tr("Factor..."), _plot, &QCPL::Plot::axisFactorDlgY);
 
     auto menuLegend = new QMenu(this);
-    menuLegend->addAction(QIcon(":/toolbar/plot_legend"), tr("Format..."), this, [this]{ formatLegend(); });
+    menuLegend->addAction(QIcon(":/toolbar/plot_legend"), tr("Format..."), this, &PlotWindow::formatLegend);
     menuLegend->addSeparator();
     menuLegend->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyLegendFormat(_plot->legend); });
-    menuLegend->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteLegendFormat(); });
+    menuLegend->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pasteLegendFormat);
 
     auto menuTitle = new QMenu(this);
     menuTitle->addAction(QIcon(":/toolbar/plot_title"), tr("Text..."), _plot, &QCPL::Plot::titleTextDlg);
-    menuTitle->addAction(QIcon(":/toolbar/plot_title"), tr("Format..."), this, [this]{ editTitle(); });
+    menuTitle->addAction(QIcon(":/toolbar/plot_title"), tr("Format..."), this, &PlotWindow::formatTitle);
     menuTitle->addSeparator();
     menuTitle->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyTitleFormat(_plot->title()); });
-    menuTitle->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteTitleFormat(); });
+    menuTitle->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pasteTitleFormat);
 
     auto menuGraph = new QMenu(this);
     menuGraph->addAction(QIcon(":/toolbar/graph_title"), tr("Title..."), _operations, &Operations::graphTitle);
-    menuGraph->addAction(QIcon(":/toolbar/graph_props"), tr("Format..."), this, [this]{ formatGraph(); });
+    menuGraph->addAction(QIcon(":/toolbar/graph_props"), tr("Format..."), this, &PlotWindow::formatGraph);
     menuGraph->addSeparator();
-    menuGraph->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, [this]{ copyPlotImage(); });
+    menuGraph->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, &PlotWindow::copyPlotImage);
+    menuGraph->addSeparator();
+    menuGraph->addAction(QIcon(":/toolbar/graph_delete"), tr("Delete"), this, &PlotWindow::deleteGraph);
 
     auto menuPlot = new QMenu(this);
-    menuPlot->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, [this]{ copyPlotImage(); });
+    menuPlot->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, &PlotWindow::copyPlotImage);
     menuPlot->addSeparator();
-    menuPlot->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ copyPlotFormat(); });
-    menuPlot->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pastePlotFormat(); });
+    menuPlot->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, &PlotWindow::copyPlotFormat);
+    menuPlot->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pastePlotFormat);
 
     _plot->menuAxisX = menuX;
     _plot->menuAxisY = menuY;
@@ -216,6 +225,33 @@ void PlotWindow::addGraph(Graph* g)
     g->setIcon(makeGraphIcon(g->color()));
 
     _items.append(item);
+}
+
+void PlotWindow::deleteGraph()
+{
+    SELECTED_GRAPHS
+
+    QStringList msg;
+    msg << tr("These graphs will be deleted:\n");
+    for (auto g : graphs)
+        msg <<g->title();
+    msg << tr("\nConfirm?");
+
+    if (Ori::Dlg::yes(msg.join('\n')))
+        deleteGraphs(graphs);
+}
+
+void PlotWindow::deleteGraphs(const QVector<Graph*>& graphs)
+{
+    for (auto g : graphs)
+    {
+        auto item = itemForGraph(g);
+        if (!item) continue;
+        _plot->removeGraph(item->line);
+        _items.removeAll(item);
+    }
+    _plot->replot();
+    markModified("PlotWindow::deleteGraphs");
 }
 
 void PlotWindow::limitsDlg()
@@ -296,35 +332,12 @@ void PlotWindow::limitsToSelectionY()
     markModified("PlotWindow::limitsToSelectionY");
 }
 
-void PlotWindow::zoomIn()
-{
-    _plot->zoomIn();
-}
-
-void PlotWindow::zoomOut()
-{
-    _plot->zoomOut();
-}
-
-void PlotWindow::zoomInX()
-{
-    _plot->zoomInX();
-}
-
-void PlotWindow::zoomOutX()
-{
-    _plot->zoomOutX();
-}
-
-void PlotWindow::zoomInY()
-{
-    _plot->zoomInY();
-}
-
-void PlotWindow::zoomOutY()
-{
-    _plot->zoomOutY();
-}
+void PlotWindow::zoomIn() { _plot->zoomIn(); }
+void PlotWindow::zoomOut() { _plot->zoomOut(); }
+void PlotWindow::zoomInX() { _plot->zoomInX(); }
+void PlotWindow::zoomOutX() { _plot->zoomOutX(); }
+void PlotWindow::zoomInY() { _plot->zoomInY(); }
+void PlotWindow::zoomOutY() { _plot->zoomOutY(); }
 
 void PlotWindow::graphLineSelected(bool selected)
 {
@@ -360,6 +373,15 @@ Graph* PlotWindow::selectedGraph() const
     return item->graph;
 }
 
+QVector<Graph*> PlotWindow::selectedGraphs() const
+{
+    QVector<Graph*> res;
+    foreach (auto line, _plot->selectedGraphs())
+        if (auto item = itemForLine(line); item)
+            res << item->graph;
+    return res;
+}
+
 void PlotWindow::selectGraph(Graph* graph)
 {
     auto item = itemForGraph(graph);
@@ -385,11 +407,9 @@ bool PlotWindow::isLegendVisible() const
     return _plot->legend->visible();
 }
 
-void PlotWindow::setLegendVisible(bool on)
+void PlotWindow::toggleLegend()
 {
-    if (_plot->legend->visible() == on)
-        return;
-    _plot->legend->setVisible(on);
+    _plot->legend->setVisible(!_plot->legend->visible());
     _plot->replot();
     markModified("PlotWindow::setLegendVisible");
 }
@@ -399,21 +419,14 @@ bool PlotWindow::isTitleVisible() const
     return _plot->title() && _plot->title()->visible();
 }
 
-void PlotWindow::setTitleVisible(bool on)
+void PlotWindow::toggleTitle()
 {
-    if (_plot->title()->visible() == on)
-        return;
-    _plot->title()->setVisible(on);
-    if (on && _plot->title()->text().isEmpty())
+    _plot->title()->setVisible(!_plot->title()->visible());
+    if (_plot->title()->visible() && _plot->title()->text().isEmpty())
         _plot->title()->setText(_plotObj->title());
     _plot->updateTitleVisibility();
     _plot->replot();
     markModified("PlotWindow::setTitleVisible");
-}
-
-void PlotWindow::editTitle()
-{
-    _plot->titleFormatDlg();
 }
 
 void PlotWindow::formatX()
@@ -424,6 +437,11 @@ void PlotWindow::formatX()
 void PlotWindow::formatY()
 {
     _plot->axisFormatDlgY();
+}
+
+void PlotWindow::formatTitle()
+{
+    _plot->titleFormatDlg();
 }
 
 void PlotWindow::formatLegend()
