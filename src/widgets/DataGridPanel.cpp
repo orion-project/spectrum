@@ -28,11 +28,19 @@ DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
 
 void DataGridPanel::showData(PlotObj *plot, Graph *graph)
 {
-    _iconPlot->setPixmap(plot->icon().pixmap(16, 16));
-    _titlePlot->setText(plot->title());
-    _iconGraph->setPixmap(graph->icon().pixmap(16, 16));
-    _titleGraph->setText(graph->title());
-    _dataGrid->setData(graph->data().xs, graph->data().ys);
+    if (plot)
+    {
+        _plotId = plot->id();
+        _iconPlot->setPixmap(plot->icon().pixmap(16, 16));
+        _titlePlot->setText(plot->title());
+    }
+    if (graph)
+    {
+        _graphId = graph->id();
+        _iconGraph->setPixmap(graph->icon().pixmap(16, 16));
+        _titleGraph->setText(graph->title());
+        _dataGrid->setData(graph->data().xs, graph->data().ys);
+    }
 }
 
 void DataGridPanel::copyData()

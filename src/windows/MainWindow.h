@@ -1,6 +1,8 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include "tools/OriMessageBus.h"
+
 #include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
@@ -11,6 +13,7 @@ class QMdiSubWindow;
 QT_END_NAMESPACE
 
 class Graph;
+class PlotObj;
 class DataGridPanel;
 class Operations;
 class PlotWindow;
@@ -20,13 +23,16 @@ namespace Widgets {
     class StatusBar;
 }}
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public Ori::IMessageBusListener
 {
     Q_OBJECT
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    // Ori::IMessageBusListener
+    void messageBusEvent(int event, const QMap<QString, QVariant>& params) override;
 
 private:
     QMdiArea* _mdiArea;
@@ -44,6 +50,7 @@ private:
     void newProject();
 
     PlotWindow* activePlot(bool warn = true) const;
+    PlotObj* findPlotById(const QString& id) const;
     Graph* selectedGraph() const;
     void graphSelected(Graph* graph) const;
     void graphCreated(Graph* graph) const;

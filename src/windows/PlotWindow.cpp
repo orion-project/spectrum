@@ -8,6 +8,7 @@
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
+#include "tools/OriMessageBus.h"
 #include "widgets/OriFlatToolBar.h"
 #include "widgets/OriPopupMessage.h"
 
@@ -66,10 +67,6 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
 
     _plotObj = new PlotObj;
     _plotObj->_icon = nextPlotIcon();
-    _plotObj->_title = tr("Diagram %1").arg(++plotIndex);
-
-    setWindowIcon(_plotObj->icon());
-    setWindowTitle(_plotObj->title());
 
     _plot = new QCPL::Plot;
     _plot->formatAxisTitleAfterFactorSet = true;
@@ -80,8 +77,6 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
     _plot->addTextVarY("{(factor)}", tr("Axis factor (in brackets)"), [this]{
         auto s = QCPL::axisFactorStr(_plot->axisFactorY()); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
     _plot->setPlottingHint(QCP::phFastPolylines, true);
-    if (_plot->title())
-        _plot->title()->setText(_plotObj->title());
     connect(_plot, &QCPL::Plot::modified, this, &PlotWindow::markModified);
 
     _cursor = new QCPL::Cursor(_plot);
@@ -96,6 +91,9 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
     createContextMenus();
 
     Ori::Layouts::LayoutV({toolbar, _plot}).setMargin(0).setSpacing(0).useFor(this);
+
+    setWindowIcon(_plotObj->icon());
+    updateTitle(tr("Diagram %1").arg(++plotIndex));
 }
 
 PlotWindow::~PlotWindow()
@@ -184,6 +182,15 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
         ce->accept();
     else
         ce->ignore();
+}
+
+void PlotWindow::updateTitle(const QString& title)
+{
+    QString oldTitle = _plotObj->_title;
+    _plotObj->_title = title;
+    setWindowTitle(title);
+    if (_plot->title() and _plot->title()->text() == oldTitle)
+        _plot->title()->setText(title);
 }
 
 void PlotWindow::markModified(const QString &reason)
@@ -399,6 +406,7 @@ void PlotWindow::setTitleVisible(bool on)
     _plot->title()->setVisible(on);
     if (on && _plot->title()->text().isEmpty())
         _plot->title()->setText(_plotObj->title());
+    _plot->updateTitleVisibility();
     _plot->replot();
     markModified("PlotWindow::setTitleVisible");
 }
@@ -543,3 +551,12 @@ void PlotWindow::copyPlotImage()
         tr("Image has been copied to Clipboard"), -1, Qt::AlignRight|Qt::AlignBottom, this))->show();
 }
 
+void PlotWindow::rename()
+{
+    QString newTitle = Ori::Dlg::inputText(tr("Diagram title:"), _plotObj->title());
+    if (newTitle.isEmpty()) return;
+    updateTitle(newTitle);
+    markModified("PlotWindow::rename");
+    _plot->replot(); // Update title in QCPL::Plot
+    Ori::MessageBus::instance().send(MSG_PLOT_RENAMED, {{"plotId", _plotObj->id()}});
+}

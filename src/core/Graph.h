@@ -15,6 +15,8 @@ public:
     Graph(DataSource* dataSource);
     ~Graph();
 
+    QString id() const { return _id; }
+
     const QString& title() const { return _title; }
     void setTitle(const QString& title) { _title = title; _autoTitle = false; }
 
@@ -35,6 +37,7 @@ public:
     QString modify(Modifier* mod);
 
 private:
+    QString _id;
     bool _autoTitle = true;
     DataSource* _dataSource;
     QList<Modifier*> _modifiers;
@@ -48,10 +51,17 @@ private:
 class PlotObj
 {
 public:
+    PlotObj();
+
+    QString id() const { return _id; }
+
     const QString& title() const { return _title; }
+    void setTitle(const QString& title) { _title = title; }
+
     const QIcon& icon() const { return _icon; }
 
 private:
+    QString _id;
     QString _title;
     QIcon _icon;
 

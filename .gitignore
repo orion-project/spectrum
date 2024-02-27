@@ -36,3 +36,4 @@ bin/spectrum.exe
 tmp
 out
 __pycache__
+*.drawio.bkp

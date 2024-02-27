@@ -64,6 +64,7 @@ public:
     void pasteAxisFormat(QCPAxis *axis);
     void savePlotFormat();
     void loadPlotFormat();
+    void rename();
 
     Graph* selectedGraph() const;
     void selectGraph(Graph* graph);
@@ -100,6 +101,7 @@ private:
 
     void createContextMenus();
     void markModified(const QString& reason);
+    void updateTitle(const QString& title);
 };
 
 #endif // PLOTWINDOW_H

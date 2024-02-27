@@ -8,7 +8,6 @@
 #include "../widgets/DataGridPanel.h"
 #include "../windows/PlotWindow.h"
 
-#include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
 #include "tools/OriSettings.h"
@@ -69,6 +68,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     loadSettings();
 
     //setMenuWidget(toolWidget);
+
+    Ori::MessageBus::instance().registerListener(this);
 
     QTimer::singleShot(200, this, [this](){ this->newProject(); });
 }
@@ -306,6 +307,18 @@ void MainWindow::createStatusBar()
     setStatusBar(_statusBar);
 }
 
+void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& params)
+{
+    switch (event)
+    {
+    case MSG_PLOT_RENAMED:
+        QString plotId = params.value("plotId").toString();
+        if (_panelDataGrid->isVisible() && _panelDataGrid->plotId() == plotId)
+            _panelDataGrid->showData(findPlotById(plotId), nullptr);
+        break;
+    }
+}
+
 PlotWindow* MainWindow::activePlot(bool warn) const
 {
     auto mdiChild = _mdiArea->currentSubWindow();
@@ -313,6 +326,17 @@ PlotWindow* MainWindow::activePlot(bool warn) const
     if (!plotWnd and warn)
         PopupMessage::warning(tr("There is no active diagram"));
     return plotWnd;
+}
+
+PlotObj* MainWindow::findPlotById(const QString& id) const
+{
+    foreach (auto wnd, _mdiArea->subWindowList())
+    {
+        auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
+        if (plotWnd && plotWnd->plotObj()->id() == id)
+            return plotWnd->plotObj();
+    }
+    return nullptr;
 }
 
 Graph* MainWindow::selectedGraph() const
@@ -340,11 +364,7 @@ void MainWindow::newPlot()
 void MainWindow::renamePlot()
 {
     auto plot = activePlot();
-    if (!plot) return;
-
-    QString newTitle = Ori::Dlg::inputText(tr("Diagram title:"), plot->windowTitle());
-    if (!newTitle.isEmpty())
-        plot->setWindowTitle(newTitle);
+    if (plot) plot->rename();
 }
 
 void MainWindow::deletePlot()

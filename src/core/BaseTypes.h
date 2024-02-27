@@ -22,4 +22,6 @@ struct CsvGraphParams
     int skipFirstLines;
 };
 
+#define MSG_PLOT_RENAMED 1
+
 #endif // BASE_TYPES_H

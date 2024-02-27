@@ -25,10 +25,14 @@ public:
     void showData(PlotObj* plot, Graph* graph);
     void copyData();
 
+    QString plotId() const { return _plotId; }
+    QString graphId() const { return _graphId; }
+
 private:
     QLabel *_titlePlot, *_titleGraph;
     QLabel *_iconPlot, *_iconGraph;
     QCPL::GraphDataGrid* _dataGrid;
+    QString _plotId, _graphId;
 };
 
 #endif // DATAGRIDPANEL_H

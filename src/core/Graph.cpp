@@ -3,8 +3,15 @@
 #include "DataSources.h"
 #include "Modifiers.h"
 
+#include <QUuid>
+
+//------------------------------------------------------------------------------
+//                                  Graph
+//------------------------------------------------------------------------------
+
 Graph::Graph(DataSource* dataSource): _dataSource(dataSource)
 {
+    _id = QUuid::createUuid().toString(QUuid::Id128);
     _data = _dataSource->data();
     _title = _dataSource->makeTitle();
 }
@@ -58,4 +65,13 @@ QString Graph::modify(Modifier* mod)
 
     _data = res.result();
     return QString();
+}
+
+//------------------------------------------------------------------------------
+//                                 PlotObj
+//------------------------------------------------------------------------------
+
+PlotObj::PlotObj()
+{
+    _id = QUuid::createUuid().toString(QUuid::Id128);
 }
