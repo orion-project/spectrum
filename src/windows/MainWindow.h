@@ -54,11 +54,12 @@ private:
     Graph* findGraphById(const QString& id) const;
     Graph* selectedGraph() const;
     QVector<Graph*> selectedGraphs() const;
-    void graphSelected(Graph* graph) const;
-    void graphCreated(Graph* graph) const;
-    void graphUpdated(Graph* graph) const;
-    void mdiSubWindowActivated(QMdiSubWindow *window) const;
+    void graphSelected(Graph* graph);
+    void graphCreated(Graph* graph);
+    void graphUpdated(Graph* graph);
+    void mdiSubWindowActivated(QMdiSubWindow* window);
     void viewMenuShown();
+    void updateDataGrid();
     void updateStatusBar();
 
 private slots:

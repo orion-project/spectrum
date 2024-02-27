@@ -5,6 +5,7 @@
 #include "../Operations.h"
 #include "../core/Graph.h"
 #include "../core/DataExporters.h"
+#include "../core/DataSources.h"
 #include "../widgets/DataGridPanel.h"
 #include "../windows/PlotWindow.h"
 
@@ -33,12 +34,13 @@ using Ori::Gui::PopupMessage;
 
 enum StatusPanels
 {
+    STATUS_PLOTS,
     STATUS_GRAPHS,
     STATUS_MODIF,
     STATUS_POINTS,
     STATUS_FACTOR_X,
     STATUS_FACTOR_Y,
-    STATUS_FILE,
+    STATUS_DATA_SOURCE,
 
     STATUS_PANELS_COUNT,
 };
@@ -170,7 +172,7 @@ void MainWindow::createActions()
     auto actnGraphRefresh = A_(tr("Refresh"), tr("Reread points from data source"), _operations, SLOT(graphRefresh()), ":/toolbar/update", QKeySequence("Ctrl+R"));
     auto actGraphReopen = A_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
     auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), this, IN_ACTIVE_PLOT(renameGraph), ":/toolbar/graph_title", QKeySequence("F2"));
-    auto actGraphProps = A_(tr("Properties..."), tr("Set line properties of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
+    auto actGraphProps = A_(tr("Line Properties..."), tr("Set line properties of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
     auto actGraphDelete = A_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete");
 
     // By default the Graph toolbar is in the second row, should be added after all others
@@ -200,20 +202,21 @@ void MainWindow::createActions()
     auto actFormatTitle = A_(tr("Title Format..."), this, IN_ACTIVE_PLOT(formatTitle), ":/toolbar/plot_title");
     auto actFormatX = A_(tr("X-axis Format..."), this, IN_ACTIVE_PLOT(formatX), ":/toolbar/format_x");
     auto actFormatY = A_(tr("Y-axis  Format..."), this, IN_ACTIVE_PLOT(formatY), ":/toolbar/format_y");
+    auto actFactorX = A_(tr("X-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgX), ":/toolbar/factor_x");
+    auto actFactorY = A_(tr("Y-axis  Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgY), ":/toolbar/factor_y");
     auto actFormatLegend = A_(tr("Legend Format..."), this, IN_ACTIVE_PLOT(formatLegend), ":/toolbar/plot_legend");
-    auto actFormatGraph = A_(tr("Graph Format..."), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
     auto actSavePlotFormat = A_(tr("Save Plot Format..."), this, IN_ACTIVE_PLOT(savePlotFormat), ":/toolbar/save_format");
     auto actLoadPlotFormat = A_(tr("Load Plot Format..."), this, IN_ACTIVE_PLOT(loadPlotFormat), ":/toolbar/open_format");
 
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
-        actFormatTitle, actFormatLegend, actFormatX, actFormatY, actFormatGraph,
+        actFormatTitle, actFormatLegend, 0, actFormatX, actFormatY, 0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
     });
     tbFormat->setVisible(false); // hidden by default
     addToolBar(Qt::LeftToolBarArea, tbFormat);
 
     menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
-        actFormatTitle, actFormatLegend, actFormatX, actFormatY, actFormatGraph,
+        actFormatTitle, actFormatLegend, 0, actFormatX, actFormatY, 0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
     }));
 
@@ -301,6 +304,8 @@ void MainWindow::createDocks()
 void MainWindow::createStatusBar()
 {
     _statusBar = new Ori::Widgets::StatusBar(STATUS_PANELS_COUNT);
+    _statusBar->connect(STATUS_FACTOR_X, &Ori::Widgets::Label::doubleClicked, IN_ACTIVE_PLOT(axisFactorDlgX));
+    _statusBar->connect(STATUS_FACTOR_Y, &Ori::Widgets::Label::doubleClicked, IN_ACTIVE_PLOT(axisFactorDlgY));
 
     auto versionLabel = new Ori::Widgets::Label(Z::HelpSystem::appVersion());
     versionLabel->setContentsMargins(3, 0, 3, 0);
@@ -329,12 +334,40 @@ void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
             _panelDataGrid->showData(nullptr, findGraphById(graphId));
         break;
     }
+    case MSG_GRAPH_DELETED:
+    case MSG_AXIS_FACTOR_CHANGED:
+        updateStatusBar();
+        break;
     }
 }
 
 void MainWindow::updateStatusBar()
 {
+    _statusBar->setText(STATUS_PLOTS, tr("Diagrams: %1").arg(_mdiArea->subWindowList().size()));
+    if (auto plot = activePlot(); plot) {
+        _statusBar->setText(STATUS_GRAPHS, tr("Graphs: %1").arg(plot->graphCount()));
+        _statusBar->setText(STATUS_FACTOR_X, plot->displayFactorX());
+        _statusBar->setText(STATUS_FACTOR_Y, plot->displayFactorY());
+    } else {
+        _statusBar->clear(STATUS_GRAPHS);
+        _statusBar->clear(STATUS_FACTOR_X);
+        _statusBar->clear(STATUS_FACTOR_Y);
+    }
+    if (auto graph = selectedGraph(); graph) {
+        _statusBar->setText(STATUS_POINTS, tr("Points: %1").arg(graph->pointsCount()));
+        _statusBar->setText(STATUS_DATA_SOURCE, graph->dataSource()->displayStr());
+    } else {
+        _statusBar->clear(STATUS_POINTS);
+        _statusBar->clear(STATUS_DATA_SOURCE);
+    }
+}
 
+void MainWindow::updateDataGrid()
+{
+    if (_panelDataGrid->isVisible())
+        if (auto plot = qobject_cast<PlotWindow*>(sender()); plot)
+            if (auto graph = selectedGraph(); graph)
+                _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
 PlotWindow* MainWindow::activePlot(bool warn) const
@@ -407,10 +440,11 @@ void MainWindow::deletePlot()
 {
     auto plot = activePlot();
     if (plot)
-        _mdiArea->currentSubWindow()->close();
+        if (_mdiArea->currentSubWindow()->close())
+            updateStatusBar();
 }
 
-void MainWindow::graphCreated(Graph* graph) const
+void MainWindow::graphCreated(Graph* graph)
 {
     auto plot = activePlot();
     if (!plot)
@@ -426,47 +460,38 @@ void MainWindow::graphCreated(Graph* graph) const
 
     plot->addGraph(graph);
 
-    if (AppSettings::autolimitAfterGraphGreated())
+    if (AppSettings::instance().autolimitAfterGraphGreated)
         plot->autolimits();
-    if (AppSettings::selectNewGraph())
+    if (AppSettings::instance().selectNewGraph)
         plot->selectGraph(graph);
+    else
+        updateStatusBar();
 }
 
-void MainWindow::graphUpdated(Graph* graph) const
+void MainWindow::graphUpdated(Graph* graph)
 {
     foreach (auto wnd, _mdiArea->subWindowList())
     {
         auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
         if (plotWnd && plotWnd->updateGraph(graph))
+        {
+            updateStatusBar();
+            updateDataGrid();
             return;
+        }
     }
 }
 
-void MainWindow::graphSelected(Graph* graph) const
+void MainWindow::graphSelected(Graph*)
 {
-    if (!graph) return;
-
-    _statusBar->setText(STATUS_POINTS, tr("Points: %1").arg(graph->pointsCount()));
-
-    if (!_panelDataGrid->isVisible()) return;
-
-    auto plot = qobject_cast<PlotWindow*>(sender());
-    if (!plot) return;
-
-    _panelDataGrid->showData(plot->plotObj(), graph);
+    updateStatusBar();
+    updateDataGrid();
 }
 
-void MainWindow::mdiSubWindowActivated(QMdiSubWindow *window) const
+void MainWindow::mdiSubWindowActivated(QMdiSubWindow*)
 {
-    if (!_panelDataGrid->isVisible()) return;
-
-    if (!window) return;
-    auto plot = qobject_cast<PlotWindow*>(window->widget());
-    if (!plot) return;
-    auto graph = plot->selectedGraph();
-    if (!graph) return;
-
-    _panelDataGrid->showData(plot->plotObj(), graph);
+    updateStatusBar();
+    updateDataGrid();
 }
 
 void MainWindow::viewMenuShown()

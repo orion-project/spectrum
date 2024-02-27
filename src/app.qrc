@@ -11,6 +11,8 @@
         <file alias="delete">../img/toolbar/delete.svg</file>
         <file alias="help">../img/toolbar/help.svg</file>
         <file alias="home">../img/toolbar/home.svg</file>
+        <file alias="factor_x">../img/toolbar/factor_x.svg</file>
+        <file alias="factor_y">../img/toolbar/factor_y.svg</file>
         <file alias="format_x">../img/toolbar/format_x.svg</file>
         <file alias="format_y">../img/toolbar/format_y.svg</file>
         <file alias="graph_delete">../img/toolbar/graph_delete.svg</file>

@@ -20,6 +20,9 @@ public:
     /// Creates a title for graph line displayed in legend
     virtual QString makeTitle() const = 0;
 
+    /// Some ident displayed to user to give a clue from what the graph has been built
+    virtual QString displayStr() const { return QString(); }
+
     virtual QString canRefresh() const { return QString(); }
     virtual ConfigResult configure() { return ConfigResult(false); }
     const GraphPoints& data() { return _data; }
@@ -35,6 +38,7 @@ public:
     ConfigResult configure() override;
     GraphResult read() override;
     QString makeTitle() const override;
+    QString displayStr() const override { return _fileName; }
 private:
     QString _fileName;
 };
@@ -46,6 +50,7 @@ public:
     ConfigResult configure() override;
     GraphResult read() override;
     QString makeTitle() const override;
+    QString displayStr() const override { return _fileName; }
 private:
     QString _fileName;
     CsvGraphParams _params;
@@ -60,6 +65,7 @@ public:
     GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
+    QString displayStr() const override { return "Random sample"; }
 private:
     int _index;
 };
@@ -72,6 +78,7 @@ public:
     GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
+    QString displayStr() const override { return "Clipboard"; }
 private:
     int _index;
 };
@@ -83,6 +90,7 @@ public:
     GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
+    QString displayStr() const override { return "Clipboard"; }
 private:
     CsvGraphParams _params;
     friend class CsvConfigDialog;

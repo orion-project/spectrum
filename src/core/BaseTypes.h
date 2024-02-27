@@ -24,5 +24,7 @@ struct CsvGraphParams
 
 #define MSG_PLOT_RENAMED 1
 #define MSG_GRAPH_RENAMED 2
+#define MSG_GRAPH_DELETED 3
+#define MSG_AXIS_FACTOR_CHANGED 4
 
 #endif // BASE_TYPES_H

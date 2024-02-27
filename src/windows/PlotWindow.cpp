@@ -20,6 +20,7 @@
 #include "qcpl_io_json.h"
 
 using Ori::Gui::PopupMessage;
+using Ori::MessageBus;
 
 PlotItem::~PlotItem()
 {
@@ -142,7 +143,7 @@ void PlotWindow::createContextMenus()
     menuX->addAction(QIcon(":/toolbar/limits_auto_x"), tr("Fit to Graphs"), this, &PlotWindow::autolimitsX);
     menuX->addAction(QIcon(":/toolbar/limits_fit_x"), tr("Fit to Selection"), this, &PlotWindow::limitsToSelectionX);
     menuX->addSeparator();
-    menuX->addAction(tr("Factor..."), _plot, &QCPL::Plot::axisFactorDlgX);
+    menuX->addAction(QIcon(":/toolbar/factor_x"), tr("Factor..."), this, &PlotWindow::axisFactorDlgX);
 
     auto menuY = new QMenu(this);
     auto titleY = new QWidgetAction(this);
@@ -160,7 +161,7 @@ void PlotWindow::createContextMenus()
     menuY->addAction(QIcon(":/toolbar/limits_auto_y"), tr("Fit to Graphs"), this, &PlotWindow::limitsToSelectionY);
     menuY->addAction(QIcon(":/toolbar/limits_fit_y"), tr("Fit to Selection"), this, &PlotWindow::limitsToSelectionY);
     menuY->addSeparator();
-    menuY->addAction(tr("Factor..."), _plot, &QCPL::Plot::axisFactorDlgY);
+    menuY->addAction(QIcon(":/toolbar/factor_y"), tr("Factor..."), this, &PlotWindow::axisFactorDlgY);
 
     auto menuLegend = new QMenu(this);
     menuLegend->addAction(QIcon(":/toolbar/plot_legend"), tr("Format..."), this, &PlotWindow::formatLegend);
@@ -249,7 +250,7 @@ void PlotWindow::deleteGraph()
     QStringList msg;
     msg << tr("These graphs will be deleted:\n");
     for (auto g : graphs)
-        msg <<g->title();
+        msg << g->title();
     msg << tr("\nConfirm?");
 
     if (Ori::Dlg::yes(msg.join('\n')))
@@ -268,6 +269,7 @@ void PlotWindow::deleteGraphs(const QVector<Graph*>& graphs)
     }
     _plot->replot();
     markModified("PlotWindow::deleteGraphs");
+    MessageBus::send(MSG_GRAPH_DELETED);
 }
 
 void PlotWindow::limitsDlg()
@@ -453,6 +455,18 @@ void PlotWindow::toggleTitle()
     markModified("PlotWindow::setTitleVisible");
 }
 
+void PlotWindow::axisFactorDlgX()
+{
+    if (_plot->axisFactorDlgX())
+        MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+}
+
+void PlotWindow::axisFactorDlgY()
+{
+    if (_plot->axisFactorDlgY())
+        MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+}
+
 void PlotWindow::formatX()
 {
     _plot->axisFormatDlgX();
@@ -600,7 +614,7 @@ void PlotWindow::rename()
     updateTitle(newTitle);
     markModified("PlotWindow::rename");
     _plot->replot(); // Update title in QCPL::Plot
-    Ori::MessageBus::instance().send(MSG_PLOT_RENAMED, {{"id", _plotObj->id()}});
+    MessageBus::send(MSG_PLOT_RENAMED, {{"id", _plotObj->id()}});
 }
 
 void PlotWindow::renameGraph()
@@ -615,5 +629,17 @@ void PlotWindow::renameGraph()
         item->line->setName(graph->title());
         _plot->replot();
     }
-    Ori::MessageBus::instance().send(MSG_GRAPH_RENAMED, {{"id", graph->id()}});
+    MessageBus::send(MSG_GRAPH_RENAMED, {{"id", graph->id()}});
+}
+
+QString PlotWindow::displayFactorX() const
+{
+    QString s = QCPL::axisFactorStr(_plot->axisFactorX());
+    return s.isEmpty() ? QStringLiteral("X: ×1") : QStringLiteral("X: ") + s;
+}
+
+QString PlotWindow::displayFactorY() const
+{
+    QString s = QCPL::axisFactorStr(_plot->axisFactorY());
+    return s.isEmpty() ? QStringLiteral("Y: ×1") : QStringLiteral("Y: ") + s;
 }

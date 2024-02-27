@@ -10,9 +10,8 @@ public:
 
     AppSettings();
 
-    static bool autolimitAfterGraphGreated();
-    static bool selectNewGraph();
-
+    bool autolimitAfterGraphGreated = true;
+    bool selectNewGraph = true;
     bool isDevMode = false;
     bool exportHideCursor = false;
 

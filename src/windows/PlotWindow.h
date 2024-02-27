@@ -70,10 +70,13 @@ public:
     void deleteGraph();
     void toggleLegend();
     void toggleTitle();
+    void axisFactorDlgX();
+    void axisFactorDlgY();
 
     Graph* selectedGraph() const;
     QVector<Graph*> selectedGraphs() const;
     Graph* findGraphById(const QString& id) const;
+
     void selectGraph(Graph* graph);
     bool updateGraph(Graph* graph);
 
@@ -81,6 +84,8 @@ public:
 
     bool isLegendVisible() const;
     bool isTitleVisible() const;
+    QString displayFactorX() const;
+    QString displayFactorY() const;
 
 protected:
     void closeEvent(class QCloseEvent*) override;
