@@ -113,7 +113,20 @@ GraphResult CsvFileDataSource::read()
 
 QString CsvFileDataSource::makeTitle() const
 {
-    return _params.title;
+    QString title = _params.title;
+    if (!_fileName.isEmpty())
+    {
+        QString fileName = QFileInfo(_fileName).fileName();
+        static QRegularExpression reFilename("^.*(\\{ds\\}).*$");
+        if (auto m = reFilename.match(title); m.hasMatch())
+        {
+            int start = m.capturedStart(1);
+            int len = m.capturedLength(1);
+            if (start > -1 && len > 0)
+                title.replace(start, len, fileName);
+        }
+    }
+    return title;
 }
 
 //------------------------------------------------------------------------------

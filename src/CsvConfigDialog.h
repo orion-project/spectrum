@@ -46,7 +46,7 @@ private:
         QPushButton *buttonDel;
     };
 
-    QString _dlgTitle, _text;
+    QString _dlgTitle, _text, _dataSource;
     QStringList _files, _previewLines;
     QStackedWidget *_tabs;
     QPlainTextEdit *_fileTextPreview;

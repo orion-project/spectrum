@@ -16,7 +16,10 @@ public:
 
     virtual ~DataSource();
     virtual GraphResult read() = 0;
+
+    /// Creates a title for graph line displayed in legend
     virtual QString makeTitle() const = 0;
+
     virtual QString canRefresh() const { return QString(); }
     virtual ConfigResult configure() { return ConfigResult(false); }
     const GraphPoints& data() { return _data; }
@@ -48,6 +51,7 @@ private:
     CsvGraphParams _params;
     friend class CsvConfigDialog;
 };
+
 
 class RandomSampleDataSource : public DataSource
 {

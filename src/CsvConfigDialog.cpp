@@ -102,8 +102,10 @@ CsvOpenResult CsvConfigDialog::openFile()
     if (!fileDlg.open(&state.file)) return CsvOpenResult();
 
     CsvConfigDialog csvDlg;
-    state.applyTo(csvDlg);
     csvDlg._files = fileDlg.files;
+    csvDlg._dataSource = fileDlg.files.size() > 1 ? QStringLiteral("{ds}")
+        : QFileInfo(fileDlg.files.first()).fileName();
+    state.applyTo(csvDlg);
 
     if (!csvDlg.exec())
         return CsvOpenResult();
@@ -158,6 +160,7 @@ CsvOpenResult CsvConfigDialog::openClipboard()
     CsvConfigDialog csvDlg;
     csvDlg._text = text;
     csvDlg._dlgTitle = tr("Paste as CSV");
+    csvDlg._dataSource = "Clipboard";
 
     CsvDlgState state;
     state.applyTo(csvDlg);
@@ -447,11 +450,12 @@ void CsvConfigDialog::addGraphItem(int colX, int colY)
     Ori::Gui::adjustFont(item.title);
     item.colX->setValue(colX);
     item.colY->setValue(colY);
-    item.title->setText(QString("{ds} [%2;%3]").arg(colX).arg(colY));
+    item.title->setText(QString("%1 [%2;%3]").arg(_dataSource).arg(colX).arg(colY));
 
     auto updateGraphTitle = [item](){
         QString title = item.title->text();
-        auto m = QRegularExpression("^.*\\[\\s*(\\d+)\\s*[,;]\\s*(\\d+)\\s*\\].*$").match(title);
+        static QRegularExpression reXY("^.*\\[\\s*(\\d+)\\s*[,;]\\s*(\\d+)\\s*\\].*$");
+        auto m = reXY.match(title);
         if (!m.hasMatch()) return;
         int startX = m.capturedStart(1);
         int lenX = m.capturedLength(1);
