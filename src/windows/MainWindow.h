@@ -45,15 +45,13 @@ private:
     void createActions();
     void createDocks();
     void createStatusBar();
-    void saveSettings();
-    void loadSettings();
-    void newProject();
+    void storeState();
+    void restoreState();
 
     PlotWindow* activePlot(bool warn = true) const;
     PlotObj* findPlotById(const QString& id) const;
     Graph* findGraphById(const QString& id) const;
-    Graph* selectedGraph() const;
-    QVector<Graph*> selectedGraphs() const;
+    Graph* selectedGraph(bool warn = true) const;
     void graphSelected(Graph* graph);
     void graphCreated(Graph* graph);
     void graphUpdated(Graph* graph);
@@ -64,10 +62,8 @@ private:
 
 private slots:
     void newPlot();
-    void renamePlot();
     void deletePlot();
     void editCopy();
-    void editPaste();
     void toggleDataGrid();
 };
 

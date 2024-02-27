@@ -70,28 +70,26 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     createActions();
     createStatusBar();
 
-    loadSettings();
-
-    //setMenuWidget(toolWidget);
+    restoreState();
 
     Ori::MessageBus::instance().registerListener(this);
 
-    QTimer::singleShot(200, this, [this](){ this->newProject(); });
+    QTimer::singleShot(200, this, [this](){ newPlot(); });
 }
 
 MainWindow::~MainWindow()
 {
-    saveSettings();
+    storeState();
 }
 
-void MainWindow::saveSettings()
+void MainWindow::storeState()
 {
     Ori::Settings s;
     s.storeWindowGeometry(this);
     s.storeDockState(this);
 }
 
-void MainWindow::loadSettings()
+void MainWindow::restoreState()
 {
     Ori::Settings s;
     s.restoreWindowGeometry(this);
@@ -108,32 +106,32 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actPrjNewPlot = A_(tr("New Diagram"), tr("Add new diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
-    auto actPrjRenamePlot = A_(tr("Rename Diagram..."), tr("Rename current diagram"), this, SLOT(renamePlot()), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
-    auto actPrjDeletePLot = A_(tr("Delete Diagram"), tr("Delete current diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
-
-    addToolBar(Ori::Gui::toolbar(tr("Project"), "project", {
-        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePLot,
-    }));
+    auto actPrjNewPlot = A_(tr("New Diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
+    auto actPrjRenamePlot = A_(tr("Rename Diagram..."), this, IN_ACTIVE_PLOT(rename), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
+    auto actPrjDeletePLot = A_(tr("Delete Diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Project"), this, {
         actPrjNewPlot, actPrjRenamePlot, actPrjDeletePLot,
     }));
 
+    addToolBar(Ori::Gui::toolbar(tr("Project"), "project", {
+        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePLot,
+    }));
+
     //---------------------------------------------------------
 
-    auto actCopy = A_(tr("Copy"), this, SLOT(editCopy()), ":/toolbar/copy", QKeySequence::Copy);
-    auto actPaste = A_(tr("Paste"), this, SLOT(editPaste()), ":/toolbar/paste", QKeySequence::Paste);
-    auto actPasteCsv = A_(tr("Paste as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
-    auto actCopyFormat = A_(tr("Copy Format"), this, IN_ACTIVE_PLOT(copyPlotFormat), ":/toolbar/copy_fmt", QKeySequence("Ctrl+Shift+C"));
-    auto actPasteFormat = A_(tr("Paste Format"), this, IN_ACTIVE_PLOT(pastePlotFormat), ":/toolbar/paste_fmt", QKeySequence("Ctrl+Shift+V"));
-
-    addToolBar(Ori::Gui::toolbar(tr("Edit"), "edit", {
-        actCopy, actPaste, actPasteCsv
-    }));
+    auto actCopy = A_(tr("Copy"), tr("Copy graph data or image"), this, SLOT(editCopy()), ":/toolbar/copy", QKeySequence::Copy);
+    auto actPaste = A_(tr("Paste"), tr("Create graph from Clipboard data"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste", QKeySequence::Paste);
+    auto actPasteCsv = A_(tr("Paste as CSV..."), tr("Create graphs from Clipboard data (with config dialog)"), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table", QKeySequence("Ctrl+Alt+V"));
+    auto actCopyFormat = A_(tr("Copy Format"), tr("Copy diagram format"), this, IN_ACTIVE_PLOT(copyPlotFormat), ":/toolbar/copy_fmt", QKeySequence("Ctrl+Shift+C"));
+    auto actPasteFormat = A_(tr("Paste Format"), tr("Paste diagram format"), this, IN_ACTIVE_PLOT(pastePlotFormat), ":/toolbar/paste_fmt", QKeySequence("Ctrl+Shift+V"));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Edit"), this, {
         actCopy, actPaste, actPasteCsv, 0, actCopyFormat, actPasteFormat,
+    }));
+
+    addToolBar(Ori::Gui::toolbar(tr("Edit"), "edit", {
+        actCopy, actPaste, actPasteCsv
     }));
 
     //---------------------------------------------------------
@@ -153,18 +151,18 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actAddFile = A_(tr("From File..."), _operations, SLOT(addFromFile()), ":/toolbar/add_file", Qt::Key_Insert);
-    auto actAddCsv = A_(tr("From CSV File..."), _operations, SLOT(addFromCsvFile()), ":/toolbar/add_table", QKeySequence("Shift+Ctrl+Ins"));
-    auto actAddClipboard = A_(tr("From Clipboard"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste", QKeySequence("Shift+Ctrl+V"));
-    auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table", QKeySequence("Ctrl+Alt+V"));
-    auto actAddRandom = A_(tr("Random Sample"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
-
-    addToolBar(Ori::Gui::toolbar(tr("Add"), "add", {
-        actAddFile, actAddCsv, 0, actAddRandom,
-    }));
+    auto actAddFile = A_(tr("From File..."), tr("Create graph from file data"), _operations, SLOT(addFromFile()), ":/toolbar/add_file", Qt::Key_Insert);
+    auto actAddCsv = A_(tr("From CSV File..."), tr("Create graphs from file (with config dialog)"), _operations, SLOT(addFromCsvFile()), ":/toolbar/add_table", QKeySequence("Shift+Ctrl+Ins"));
+    auto actAddClipboard = A_(tr("From Clipboard"), tr("Create graph from Clipboard data"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste");
+    auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), tr("Create graphs from Clipboard data (with config dialog)"), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
+    auto actAddRandom = A_(tr("Random Sample"), tr("Add random sample graph"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Add"), this, {
         actAddFile, actAddCsv, 0, actAddClipboard, actAddCsvClipboard, 0, actAddRandom,
+    }));
+
+    addToolBar(Ori::Gui::toolbar(tr("Add"), "add", {
+        actAddFile, actAddCsv, 0, actAddRandom,
     }));
 
     //---------------------------------------------------------
@@ -175,25 +173,25 @@ void MainWindow::createActions()
     auto actGraphProps = A_(tr("Line Properties..."), tr("Set line properties of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
     auto actGraphDelete = A_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete");
 
+    menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {
+        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps, 0, actGraphDelete,
+    }));
+
     // By default the Graph toolbar is in the second row, should be added after all others
     auto tbGraph = Ori::Gui::toolbar(tr("Graph"), "graph", {
         actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps, 0, actGraphDelete,
     });
-
-    menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {
-        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps, 0, actGraphDelete,
-    }));
 
     //---------------------------------------------------------
 
     auto actOffset = A_(tr("Offset"), _operations, SLOT(modifyOffset()), ":/toolbar/graph_offset", Qt::Key_Plus);
     auto actScale = A_(tr("Scale"), _operations, SLOT(modifyScale()), ":/toolbar/graph_scale", Qt::Key_Asterisk);
 
-    addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
+    menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
         actOffset, actScale,
     }));
 
-    menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
+    addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
         actOffset, actScale,
     }));
 
@@ -208,17 +206,17 @@ void MainWindow::createActions()
     auto actSavePlotFormat = A_(tr("Save Plot Format..."), this, IN_ACTIVE_PLOT(savePlotFormat), ":/toolbar/save_format");
     auto actLoadPlotFormat = A_(tr("Load Plot Format..."), this, IN_ACTIVE_PLOT(loadPlotFormat), ":/toolbar/open_format");
 
+    menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
+        actFormatTitle, actFormatLegend, 0, actFormatX, actFormatY, 0, actFactorX, actFactorY,
+        0, actSavePlotFormat, actLoadPlotFormat,
+    }));
+
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
         actFormatTitle, actFormatLegend, 0, actFormatX, actFormatY, 0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
     });
     tbFormat->setVisible(false); // hidden by default
     addToolBar(Qt::LeftToolBarArea, tbFormat);
-
-    menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
-        actFormatTitle, actFormatLegend, 0, actFormatX, actFormatY, 0, actFactorX, actFactorY,
-        0, actSavePlotFormat, actLoadPlotFormat,
-    }));
 
     //---------------------------------------------------------
 
@@ -238,13 +236,13 @@ void MainWindow::createActions()
     auto actZoomOutX = A_(tr("Zoom-out X"), this, IN_ACTIVE_PLOT(zoomOutX), ":/toolbar/limits_zoom_out_x", QKeySequence("Alt+-"));
     auto actZoomOutY = A_(tr("Zoom-out Y"), this, IN_ACTIVE_PLOT(zoomOutY), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
-    addToolBar(Qt::RightToolBarArea, Ori::Gui::toolbar(tr("Limits"), "limits", {
+    menuBar->addMenu(Ori::Gui::menu(tr("Limits"), this, {
         actLimitsBoth, actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
         actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
         actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
     }));
 
-    menuBar->addMenu(Ori::Gui::menu(tr("Limits"), this, {
+    addToolBar(Qt::RightToolBarArea, Ori::Gui::toolbar(tr("Limits"), "limits", {
         actLimitsBoth, actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
         actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
         actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
@@ -289,7 +287,6 @@ void MainWindow::createActions()
     addToolBar(Qt::BottomToolBarArea, toolbarMdi);
 
 #undef A_
-#undef T_
 }
 
 void MainWindow::createDocks()
@@ -344,7 +341,7 @@ void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
 void MainWindow::updateStatusBar()
 {
     _statusBar->setText(STATUS_PLOTS, tr("Diagrams: %1").arg(_mdiArea->subWindowList().size()));
-    if (auto plot = activePlot(); plot) {
+    if (auto plot = activePlot(false); plot) {
         _statusBar->setText(STATUS_GRAPHS, tr("Graphs: %1").arg(plot->graphCount()));
         _statusBar->setText(STATUS_FACTOR_X, plot->displayFactorX());
         _statusBar->setText(STATUS_FACTOR_Y, plot->displayFactorY());
@@ -353,7 +350,7 @@ void MainWindow::updateStatusBar()
         _statusBar->clear(STATUS_FACTOR_X);
         _statusBar->clear(STATUS_FACTOR_Y);
     }
-    if (auto graph = selectedGraph(); graph) {
+    if (auto graph = selectedGraph(false); graph) {
         _statusBar->setText(STATUS_POINTS, tr("Points: %1").arg(graph->pointsCount()));
         _statusBar->setText(STATUS_DATA_SOURCE, graph->dataSource()->displayStr());
     } else {
@@ -366,7 +363,7 @@ void MainWindow::updateDataGrid()
 {
     if (_panelDataGrid->isVisible())
         if (auto plot = qobject_cast<PlotWindow*>(sender()); plot)
-            if (auto graph = selectedGraph(); graph)
+            if (auto graph = selectedGraph(false); graph)
                 _panelDataGrid->showData(plot->plotObj(), graph);
 }
 
@@ -402,21 +399,10 @@ Graph* MainWindow::findGraphById(const QString& id) const
     return nullptr;
 }
 
-Graph* MainWindow::selectedGraph() const
+Graph* MainWindow::selectedGraph(bool warn) const
 {
-    auto plot = activePlot();
+    auto plot = activePlot(warn);
     return plot ? plot->selectedGraph() : nullptr;
-}
-
-QVector<Graph*> MainWindow::selectedGraphs() const
-{
-    auto plot = activePlot();
-    return plot ? plot->selectedGraphs() : QVector<Graph*>();
-}
-
-void MainWindow::newProject()
-{
-    newPlot();
 }
 
 void MainWindow::newPlot()
@@ -430,12 +416,6 @@ void MainWindow::newPlot()
     mdiChild->show();
 }
 
-void MainWindow::renamePlot()
-{
-    auto plot = activePlot();
-    if (plot) plot->rename();
-}
-
 void MainWindow::deletePlot()
 {
     auto plot = activePlot();
@@ -446,16 +426,17 @@ void MainWindow::deletePlot()
 
 void MainWindow::graphCreated(Graph* graph)
 {
-    auto plot = activePlot();
+    auto plot = activePlot(false);
     if (!plot)
     {
-        qWarning() << "There is no active plot window";
-        // TODO: it can be no active plot when a window of another type is active.
-        // It could be protocol, console, notes, etc (possible future window types).
-        // We should to do something in this case: disable graph producing actions
-        // or may be ask for a plot window, to place the new graph into.
-        delete graph;
-        return;
+        newPlot();
+        plot = activePlot(false);
+        if (!plot)
+        {
+            qWarning() << "Failed to create new plot window";
+            delete graph;
+            return;
+        }
     }
 
     plot->addGraph(graph);
@@ -496,7 +477,7 @@ void MainWindow::mdiSubWindowActivated(QMdiSubWindow*)
 
 void MainWindow::viewMenuShown()
 {
-    auto plot = activePlot();
+    auto plot = activePlot(false);
     _actToggleDatagrid->setChecked(_dockDataGrid->isVisible());
     _actViewLegend->setChecked(plot && plot->isLegendVisible());
     _actViewTitle->setChecked(plot && plot->isTitleVisible());
@@ -529,10 +510,4 @@ void MainWindow::editCopy()
 
     // TODO: show popup message if there is no dialog here, otherwise leave a comment
     DataExporters::copyToClipboard(graph->data());
-}
-
-void MainWindow::editPaste()
-{
-    auto plot = activePlot();
-    if (plot) _operations->addFromClipboard();
 }
