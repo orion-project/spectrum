@@ -23,5 +23,6 @@ struct CsvGraphParams
 };
 
 #define MSG_PLOT_RENAMED 1
+#define MSG_GRAPH_RENAMED 2
 
 #endif // BASE_TYPES_H

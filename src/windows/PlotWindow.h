@@ -66,12 +66,14 @@ public:
     void savePlotFormat();
     void loadPlotFormat();
     void rename();
+    void renameGraph();
     void deleteGraph();
     void toggleLegend();
     void toggleTitle();
 
     Graph* selectedGraph() const;
     QVector<Graph*> selectedGraphs() const;
+    Graph* findGraphById(const QString& id) const;
     void selectGraph(Graph* graph);
     bool updateGraph(Graph* graph);
 

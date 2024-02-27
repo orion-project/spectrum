@@ -26,11 +26,26 @@ PlotItem::~PlotItem()
     delete graph;
 }
 
+#define SELECTED_GRAPH \
+    auto graph = selectedGraph(); \
+    if (!graph) { \
+        if (_items.size() == 1) \
+            graph = _items.first()->graph; \
+        else { \
+            PopupMessage::warning(qApp->tr("Please select a graph")); \
+            return; \
+        }\
+    }
+
 #define SELECTED_GRAPHS \
     auto graphs = selectedGraphs(); \
     if (graphs.isEmpty()) { \
-        Ori::Gui::PopupMessage::warning(qApp->tr("Please select a graph")); \
-        return; \
+        if (_items.size() == 1) \
+            graphs = {_items.first()->graph}; \
+        else { \
+            PopupMessage::warning(qApp->tr("Please select a graph")); \
+            return; \
+        }\
     }
 
 static QIcon makeGraphIcon(QColor color)
@@ -161,7 +176,7 @@ void PlotWindow::createContextMenus()
     menuTitle->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pasteTitleFormat);
 
     auto menuGraph = new QMenu(this);
-    menuGraph->addAction(QIcon(":/toolbar/graph_title"), tr("Title..."), _operations, &Operations::graphTitle);
+    menuGraph->addAction(QIcon(":/toolbar/graph_title"), tr("Title..."), this, &PlotWindow::renameGraph);
     menuGraph->addAction(QIcon(":/toolbar/graph_props"), tr("Format..."), this, &PlotWindow::formatGraph);
     menuGraph->addSeparator();
     menuGraph->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, &PlotWindow::copyPlotImage);
@@ -249,6 +264,7 @@ void PlotWindow::deleteGraphs(const QVector<Graph*>& graphs)
         if (!item) continue;
         _plot->removeGraph(item->line);
         _items.removeAll(item);
+        delete item;
     }
     _plot->replot();
     markModified("PlotWindow::deleteGraphs");
@@ -380,6 +396,14 @@ QVector<Graph*> PlotWindow::selectedGraphs() const
         if (auto item = itemForLine(line); item)
             res << item->graph;
     return res;
+}
+
+Graph* PlotWindow::findGraphById(const QString& id) const
+{
+    for (auto& item : _items)
+        if (item->graph->id() == id)
+            return item->graph;
+    return nullptr;
 }
 
 void PlotWindow::selectGraph(Graph* graph)
@@ -576,5 +600,20 @@ void PlotWindow::rename()
     updateTitle(newTitle);
     markModified("PlotWindow::rename");
     _plot->replot(); // Update title in QCPL::Plot
-    Ori::MessageBus::instance().send(MSG_PLOT_RENAMED, {{"plotId", _plotObj->id()}});
+    Ori::MessageBus::instance().send(MSG_PLOT_RENAMED, {{"id", _plotObj->id()}});
+}
+
+void PlotWindow::renameGraph()
+{
+    SELECTED_GRAPH
+    QString newTitle = Ori::Dlg::inputText(tr("Graph title:"), graph->title());
+    if (newTitle.isEmpty()) return;
+    graph->setTitle(newTitle);
+    markModified("PlotWindow::renameGraph");
+    if (auto item = itemForGraph(graph); item)
+    {
+        item->line->setName(graph->title());
+        _plot->replot();
+    }
+    Ori::MessageBus::instance().send(MSG_GRAPH_RENAMED, {{"id", graph->id()}});
 }

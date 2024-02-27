@@ -197,8 +197,3 @@ void Operations::graphReopen()
     }
     emit graphUpdated(graph);
 }
-
-void Operations::graphTitle()
-{
-    SELECTED_GRAPH
-}

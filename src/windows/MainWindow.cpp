@@ -169,7 +169,7 @@ void MainWindow::createActions()
 
     auto actnGraphRefresh = A_(tr("Refresh"), tr("Reread points from data source"), _operations, SLOT(graphRefresh()), ":/toolbar/update", QKeySequence("Ctrl+R"));
     auto actGraphReopen = A_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
-    auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), _operations, SLOT(graphTitle()), ":/toolbar/graph_title", QKeySequence("F2"));
+    auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), this, IN_ACTIVE_PLOT(renameGraph), ":/toolbar/graph_title", QKeySequence("F2"));
     auto actGraphProps = A_(tr("Properties..."), tr("Set line properties of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
     auto actGraphDelete = A_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete");
 
@@ -316,10 +316,19 @@ void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
     switch (event)
     {
     case MSG_PLOT_RENAMED:
-        QString plotId = params.value("plotId").toString();
+    {
+        QString plotId = params.value("id").toString();
         if (_panelDataGrid->isVisible() && _panelDataGrid->plotId() == plotId)
             _panelDataGrid->showData(findPlotById(plotId), nullptr);
         break;
+    }
+    case MSG_GRAPH_RENAMED:
+    {
+        QString graphId = params.value("id").toString();
+        if (_panelDataGrid->isVisible() && _panelDataGrid->graphId() == graphId)
+            _panelDataGrid->showData(nullptr, findGraphById(graphId));
+        break;
+    }
     }
 }
 
@@ -344,6 +353,18 @@ PlotObj* MainWindow::findPlotById(const QString& id) const
         auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
         if (plotWnd && plotWnd->plotObj()->id() == id)
             return plotWnd->plotObj();
+    }
+    return nullptr;
+}
+
+Graph* MainWindow::findGraphById(const QString& id) const
+{
+    foreach (auto wnd, _mdiArea->subWindowList())
+    {
+        auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
+        if (!plotWnd) continue;
+        if (auto g = plotWnd->findGraphById(id); g)
+            return g;
     }
     return nullptr;
 }

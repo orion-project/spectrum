@@ -51,6 +51,7 @@ private:
 
     PlotWindow* activePlot(bool warn = true) const;
     PlotObj* findPlotById(const QString& id) const;
+    Graph* findGraphById(const QString& id) const;
     Graph* selectedGraph() const;
     QVector<Graph*> selectedGraphs() const;
     void graphSelected(Graph* graph) const;

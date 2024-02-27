@@ -33,7 +33,6 @@ public slots:
     void modifyScale();
     void graphRefresh();
     void graphReopen();
-    void graphTitle();
 
 signals:
     void graphCreated(Graph* g);
