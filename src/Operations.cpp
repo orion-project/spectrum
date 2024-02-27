@@ -6,12 +6,15 @@
 #include "core/Graph.h"
 #include "core/DataSources.h"
 #include "core/Modifiers.h"
+#include "widgets/RangeEditor.h"
 
 #include "helpers/OriDialogs.h"
+#include "helpers/OriLayouts.h"
 #include "widgets/OriPopupMessage.h"
 
 #include <QApplication>
 #include <QDebug>
+#include <QGroupBox>
 
 #define SELECTED_GRAPH \
     auto graph = getSelectedGraph(); \
@@ -81,7 +84,50 @@ void Operations::addFromClipboard()
 
 void Operations::addRandomSample()
 {
-    addGraph(new RandomSampleDataSource);
+    auto root = CustomDataHelpers::loadDataSourceStates();
+    auto rnd = root["random_sample"].toObject();
+
+    RandomSampleParams params;
+    params.rangeY.min = rnd["min"].toDouble(0);
+    params.rangeY.max = rnd["max"].toDouble(100);
+    params.rangeX.start = rnd["start"].toDouble(0);
+    params.rangeX.stop = rnd["stop"].toDouble(99);
+    params.rangeX.step = rnd["step"].toDouble(1);
+    params.rangeX.points = rnd["points"].toInt(100);
+    params.rangeX.useStep = rnd["useStep"].toBool(false);
+
+    auto editorX = new RangeEditor;
+    editorX->setRange(params.rangeX);
+
+    auto editorY = new MinMaxEditor;
+    editorY->setValue(params.rangeY);
+
+    auto editor = Ori::Layouts::LayoutV({
+        Ori::Layouts::LayoutV({editorX}).makeGroupBox("X"),
+        Ori::Layouts::LayoutV({editorY}).makeGroupBox("Y"),
+    }).setMargin(0).makeWidgetAuto();
+
+    if (Ori::Dlg::Dialog(editor.get(), false)
+        .withTitle(tr("Random Sample Params"))
+        .withContentToButtonsSpacingFactor(3)
+        .withVerification([editorX]{ return editorX->range().verify(); })
+        .exec())
+    {
+        params.rangeX = editorX->range();
+        params.rangeY = editorY->value();
+
+        addGraph(new RandomSampleDataSource(params));
+
+        rnd["min"] = params.rangeY.min;
+        rnd["max"] = params.rangeY.max;
+        rnd["start"] = params.rangeX.start;
+        rnd["stop"] = params.rangeX.stop;
+        rnd["step"] = params.rangeX.step;
+        rnd["points"] = params.rangeX.points;
+        rnd["useStep"] = params.rangeX.useStep;
+        root["random_sample"] = rnd;
+        CustomDataHelpers::saveDataSourceStates(root);
+    }
 }
 
 void Operations::modifyOffset()

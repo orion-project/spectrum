@@ -22,6 +22,30 @@ struct CsvGraphParams
     int skipFirstLines;
 };
 
+struct PlottingRange
+{
+    double start;
+    double stop;
+    double step;
+    int points = 100;
+    bool useStep = false;
+
+    QVector<double> calcValues() const;
+    QString verify() const;
+};
+
+struct MinMax
+{
+    double min;
+    double max;
+};
+
+struct RandomSampleParams
+{
+    PlottingRange rangeX;
+    MinMax rangeY;
+};
+
 #define MSG_PLOT_RENAMED 1
 #define MSG_GRAPH_RENAMED 2
 #define MSG_GRAPH_DELETED 3

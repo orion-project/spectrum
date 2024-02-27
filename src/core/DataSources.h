@@ -61,13 +61,14 @@ private:
 class RandomSampleDataSource : public DataSource
 {
 public:
-    RandomSampleDataSource();
+    RandomSampleDataSource(const RandomSampleParams& params);
     GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
     QString displayStr() const override { return "Random sample"; }
 private:
     int _index;
+    RandomSampleParams _params;
 };
 
 

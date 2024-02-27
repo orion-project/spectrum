@@ -11,9 +11,6 @@
 #include <QFileInfo>
 #include <QMimeData>
 
-static int __randomSampleIndex = 0;
-static int __clipboardCallCount = 0;
-
 //------------------------------------------------------------------------------
 //                                 DataSource
 //------------------------------------------------------------------------------
@@ -133,28 +130,28 @@ QString CsvFileDataSource::makeTitle() const
 //                             RandomSampleDataSource
 //------------------------------------------------------------------------------
 
-RandomSampleDataSource::RandomSampleDataSource()
+RandomSampleDataSource::RandomSampleDataSource(const RandomSampleParams& params)
 {
-    _index = ++__randomSampleIndex;
+    static int randomSampleIndex = 0;
+    _index = ++randomSampleIndex;
+    _params = params;
 }
 
 GraphResult RandomSampleDataSource::read()
 {
-    const double H = 25;
-    const int count = 100;
-
-    QVector<double> xs(count);
-    QVector<double> ys(count);
-
-    double y = (Ori::Tools::rand()%100)*H*0.01;
-    for (int i = 0; i < count; i++)
+    QVector<double> xs = _params.rangeX.calcValues();
+    QVector<double> ys(xs.size());
+    const double Y = _params.rangeY.max - _params.rangeY.min;
+    const double H = Y / 4.0;
+    const double max = double(std::numeric_limits<quint32>::max());
+    double y = double(Ori::Tools::rand())/max * H;
+    for (int i = 0; i < xs.size(); i++)
     {
-        y = qAbs(y + (Ori::Tools::rand()%100)*H*0.01 - H*0.5);
-
-        xs[i] = i;
-        ys[i] = y;
+        y = qAbs(y + double(Ori::Tools::rand())/max*H - H*0.5);
+        if (y > Y)
+            y = Y - double(Ori::Tools::rand())/max*H;
+        ys[i] = y + _params.rangeY.min;
     }
-
     _data = {xs, ys};
     return GraphResult::ok(_data);
 }
@@ -166,7 +163,7 @@ QString RandomSampleDataSource::canRefresh() const
 
 QString RandomSampleDataSource::makeTitle() const
 {
-     return QString("random-sample (%1)").arg(_index);
+    return QString("random-sample (%1)").arg(_index);
 }
 
 //------------------------------------------------------------------------------
@@ -175,8 +172,9 @@ QString RandomSampleDataSource::makeTitle() const
 
 ClipboardDataSource::ClipboardDataSource()
 {
+    static int clipboardCallCount = 0;
     if (qApp->clipboard()->mimeData()->hasText())
-        _index = ++__clipboardCallCount;
+        _index = ++clipboardCallCount;
 }
 
 GraphResult ClipboardDataSource::read()

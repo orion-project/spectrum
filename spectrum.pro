@@ -58,6 +58,7 @@ SOURCES += src/main.cpp\
     src/OpenFileDlg.cpp \
     src/Operations.cpp \
     src/app/PersistentState.cpp \
+    src/core/BaseTypes.cpp \
     src/core/DataExporters.cpp \
     src/core/DataReaders.cpp \
     src/core/DataSources.cpp \
@@ -65,6 +66,7 @@ SOURCES += src/main.cpp\
     src/core/GraphMath.cpp \
     src/core/Modifiers.cpp \
     src/widgets/DataGridPanel.cpp \
+    src/widgets/RangeEditor.cpp \
     src/windows/HelpWindow.cpp \
     src/windows/MainWindow.cpp \
     src/windows/PlotWindow.cpp
@@ -85,6 +87,7 @@ HEADERS  += \
     src/core/GraphMath.h \
     src/core/Modifiers.h \
     src/widgets/DataGridPanel.h \
+    src/widgets/RangeEditor.h \
     src/windows/HelpWindow.h \
     src/windows/MainWindow.h \
     src/windows/PlotWindow.h

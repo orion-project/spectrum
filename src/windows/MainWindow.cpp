@@ -155,7 +155,7 @@ void MainWindow::createActions()
     auto actAddCsv = A_(tr("From CSV File..."), tr("Create graphs from file (with config dialog)"), _operations, SLOT(addFromCsvFile()), ":/toolbar/add_table", QKeySequence("Shift+Ctrl+Ins"));
     auto actAddClipboard = A_(tr("From Clipboard"), tr("Create graph from Clipboard data"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste");
     auto actAddCsvClipboard = A_(tr("From Clipboard as CSV..."), tr("Create graphs from Clipboard data (with config dialog)"), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
-    auto actAddRandom = A_(tr("Random Sample"), tr("Add random sample graph"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
+    auto actAddRandom = A_(tr("Random Sample..."), tr("Add random sample graph"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Add"), this, {
         actAddFile, actAddCsv, 0, actAddClipboard, actAddCsvClipboard, 0, actAddRandom,
