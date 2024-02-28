@@ -14,8 +14,8 @@
 
 #include "qcpl_plot.h"
 #include "qcpl_colors.h"
-#include "qcpl_cursor.h"
-#include "qcpl_cursor_panel.h"
+//#include "qcpl_cursor.h"
+//#include "qcpl_cursor_panel.h"
 #include "qcpl_format.h"
 #include "qcpl_io_json.h"
 
@@ -102,18 +102,21 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
     _plot->setPlottingHint(QCP::phFastPolylines, true);
     connect(_plot, &QCPL::Plot::modified, this, &PlotWindow::markModified);
 
-    _cursor = new QCPL::Cursor(_plot);
-    _plot->serviceGraphs().append(_cursor);
+    //_cursor = new QCPL::Cursor(_plot);
+    //_plot->serviceGraphs().append(_cursor);
 
-    auto toolbar = new Ori::Widgets::FlatToolBar;
-    toolbar->setIconSize({16, 16});
+    //auto toolbar = new Ori::Widgets::FlatToolBar;
+    //toolbar->setIconSize({16, 16});
 
-    _cursorPanel = new QCPL::CursorPanel(_cursor);
-    _cursorPanel->placeIn(toolbar);
+    //_cursorPanel = new QCPL::CursorPanel(_cursor);
+    //_cursorPanel->placeIn(toolbar);
 
     createContextMenus();
 
-    Ori::Layouts::LayoutV({toolbar, _plot}).setMargin(0).setSpacing(0).useFor(this);
+    Ori::Layouts::LayoutV({
+        //toolbar,
+        _plot,
+    }).setMargin(0).setSpacing(0).useFor(this);
 
     setWindowIcon(_plotObj->icon());
     updateTitle(tr("Diagram %1").arg(++plotIndex));
@@ -591,17 +594,17 @@ void PlotWindow::loadPlotFormat()
 
 void PlotWindow::copyPlotImage()
 {
-    bool oldVisible = _cursor->visible();
-    if (AppSettings::instance().exportHideCursor)
-        _cursor->setVisible(false);
+    //bool oldVisible = _cursor->visible();
+    //if (AppSettings::instance().exportHideCursor)
+    //    _cursor->setVisible(false);
 
     QImage image(_plot->width(), _plot->height(), QImage::Format_RGB32);
     QCPPainter painter(&image);
     _plot->toPainter(&painter);
     qApp->clipboard()->setImage(image);
 
-    if (oldVisible != _cursor->visible())
-        _cursor->setVisible(oldVisible);
+    //if (oldVisible != _cursor->visible())
+    //    _cursor->setVisible(oldVisible);
 
     (new PopupMessage(PopupMessage::AFFIRM,
         tr("Image has been copied to Clipboard"), -1, Qt::AlignRight|Qt::AlignBottom, this))->show();

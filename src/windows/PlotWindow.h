@@ -4,8 +4,8 @@
 #include <QMdiSubWindow>
 
 namespace QCPL {
-class Cursor;
-class CursorPanel;
+//class Cursor;
+//class CursorPanel;
 class Plot;
 }
 class Graph;
@@ -99,8 +99,8 @@ private slots:
 private:
     PlotObj* _plotObj;
     QCPL::Plot* _plot;
-    QCPL::Cursor* _cursor;
-    QCPL::CursorPanel* _cursorPanel;
+    //QCPL::Cursor* _cursor;
+    //QCPL::CursorPanel* _cursorPanel;
     QList<PlotItem*> _items;
     Operations* _operations;
 
