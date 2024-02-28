@@ -3,13 +3,11 @@
 #include "../core/Graph.h"
 #include "../core/GraphMath.h"
 #include "../app/PersistentState.h"
-#include "../app/AppSettings.h"
 #include "../Operations.h"
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
 #include "tools/OriMessageBus.h"
-#include "widgets/OriFlatToolBar.h"
 #include "widgets/OriPopupMessage.h"
 
 #include "qcpl_plot.h"
@@ -183,7 +181,8 @@ void PlotWindow::createContextMenus()
     menuGraph->addAction(QIcon(":/toolbar/graph_title"), tr("Title..."), this, &PlotWindow::renameGraph);
     menuGraph->addAction(QIcon(":/toolbar/graph_props"), tr("Format..."), this, &PlotWindow::formatGraph);
     menuGraph->addSeparator();
-    menuGraph->addAction(QIcon(":/toolbar/copy_img"), tr("Copy Image"), this, &PlotWindow::copyPlotImage);
+    menuGraph->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, &PlotWindow::copyGraphFormat);
+    menuGraph->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pasteGraphFormat);
     menuGraph->addSeparator();
     menuGraph->addAction(QIcon(":/toolbar/graph_delete"), tr("Delete"), this, &PlotWindow::deleteGraph);
 
@@ -411,6 +410,21 @@ Graph* PlotWindow::findGraphById(const QString& id) const
     return nullptr;
 }
 
+QCPGraph* PlotWindow::selectedGraphLine(bool warn) const
+{
+    auto lines = _plot->selectedGraphs();
+    if (lines.isEmpty()) {
+        if (_items.size() == 1)
+            return _items.first()->line;
+        else {
+            if (warn)
+                PopupMessage::warning(tr("Graphs not selected"));
+            return nullptr;
+        }
+    }
+    return lines.first();
+}
+
 void PlotWindow::selectGraph(Graph* graph)
 {
     auto item = itemForGraph(graph);
@@ -492,22 +506,13 @@ void PlotWindow::formatLegend()
 
 void PlotWindow::formatGraph()
 {
-    auto lines = _plot->selectedGraphs();
-    if (lines.isEmpty()) {
-        PopupMessage::warning(tr("Graphs not selected"));
-        return;
-    }
-
-    QCPGraph *line = lines.first();
+    auto line = selectedGraphLine();
+    if (!line) return;
 
     QCPL::GraphFormatDlgProps props;
     props.title = tr("Format %1").arg(line->name());
-    props.plot = _plot;
     if (QCPL::graphFormatDlg(line, props))
-    {
-        _plot->replot();
         markModified("PlotWindow::formatGraph");
-    }
 }
 
 void PlotWindow::copyPlotFormat()
@@ -524,7 +529,7 @@ void PlotWindow::pastePlotFormat()
         _plot->replot();
         markModified("PlotWindow::pastePlotFormat");
     }
-    else Ori::Dlg::info(err);
+    else PopupMessage::warning(err);
 }
 
 void PlotWindow::pasteTitleFormat()
@@ -535,7 +540,7 @@ void PlotWindow::pasteTitleFormat()
         _plot->replot();
         markModified("PlotWindow::pasteTitleFormat");
     }
-    else Ori::Dlg::info(err);
+    else PopupMessage::warning(err);
 }
 
 void PlotWindow::pasteLegendFormat()
@@ -546,7 +551,7 @@ void PlotWindow::pasteLegendFormat()
         _plot->replot();
         markModified("PlotWindow::pasteLegendFormat");
     }
-    else Ori::Dlg::info(err);
+    else PopupMessage::warning(err);
 }
 
 void PlotWindow::pasteAxisFormat(QCPAxis *axis)
@@ -557,7 +562,27 @@ void PlotWindow::pasteAxisFormat(QCPAxis *axis)
         _plot->replot();
         markModified("PlotWindow::pasteAxisFormat");
     }
-    else Ori::Dlg::info(err);
+    else PopupMessage::warning(err);
+}
+
+void PlotWindow::copyGraphFormat()
+{
+    auto line = selectedGraphLine();
+    if (line) QCPL::copyGraphFormat(line);
+}
+
+void PlotWindow::pasteGraphFormat()
+{
+    auto line = selectedGraphLine();
+    if (!line) return;
+
+    auto err = QCPL::pasteGraphFormat(line);
+    if (err.isEmpty())
+    {
+        _plot->replot();
+        markModified("PlotWindow::pasteGraphFormat");
+    }
+    else PopupMessage::warning(err);
 }
 
 void PlotWindow::savePlotFormat()

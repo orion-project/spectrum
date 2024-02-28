@@ -72,10 +72,13 @@ public:
     void toggleTitle();
     void axisFactorDlgX();
     void axisFactorDlgY();
+    void copyGraphFormat();
+    void pasteGraphFormat();
 
     Graph* selectedGraph() const;
     QVector<Graph*> selectedGraphs() const;
     Graph* findGraphById(const QString& id) const;
+    QCPGraph* selectedGraphLine(bool warn = true) const;
 
     void selectGraph(Graph* graph);
     bool updateGraph(Graph* graph);
