@@ -18,10 +18,10 @@ class DataGridPanel;
 class Operations;
 class PlotWindow;
 
-namespace Ori {
-namespace Widgets {
-    class StatusBar;
-}}
+namespace Ori::Widgets {
+class StatusBar;
+class MdiToolBar;
+}
 
 class MainWindow : public QMainWindow, public Ori::IMessageBusListener
 {
@@ -40,6 +40,7 @@ private:
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
     Ori::Widgets::StatusBar *_statusBar;
+    Ori::Widgets::MdiToolBar *_mdiToolbar;
     QAction *_actToggleDatagrid, *_actViewTitle, *_actViewLegend;
 
     void createActions();
@@ -65,6 +66,7 @@ private slots:
     void deletePlot();
     void editCopy();
     void toggleDataGrid();
+    void renameDiagramFromMdiToolbar();
 };
 
 #endif // MAINWINDOW_H

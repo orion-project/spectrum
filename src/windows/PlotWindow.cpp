@@ -206,7 +206,10 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
 
     if (graphCount() == 0 or
         Ori::Dlg::yes(tr("Delete diagram <b>%1</b> and all its graphs?").arg(windowTitle())))
+    {
         ce->accept();
+        MessageBus::send(MSG_PLOT_DELETED);
+    }
     else
         ce->ignore();
 }

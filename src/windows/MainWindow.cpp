@@ -280,11 +280,19 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto toolbarMdi = new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea);
-    toolbarMdi->setMovable(false);
-    toolbarMdi->setFloatable(false);
-    toolbarMdi->flat = true;
-    addToolBar(Qt::BottomToolBarArea, toolbarMdi);
+    _mdiToolbar = new Ori::Widgets::MdiToolBar(tr("Windows"), _mdiArea);
+    _mdiToolbar->setMovable(false);
+    _mdiToolbar->setFloatable(false);
+    _mdiToolbar->flat = true;
+    _mdiToolbar->menuForButton = Ori::Gui::menu({
+        A_(tr("Rename..."), this, SLOT(renameDiagramFromMdiToolbar()), ":/toolbar/plot_rename"),
+        0,
+        A_(tr("Close"), this, [this]{ _mdiToolbar->windowUnderMenu->close(); }, ":/toolbar/plot_delete"),
+    });
+    _mdiToolbar->menuForSpace = Ori::Gui::menu({
+        A_(tr("New Diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new"),
+    });
+    addToolBar(Qt::BottomToolBarArea, _mdiToolbar);
 
 #undef A_
 }
@@ -333,6 +341,7 @@ void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
     }
     case MSG_GRAPH_DELETED:
     case MSG_AXIS_FACTOR_CHANGED:
+    case MSG_PLOT_DELETED:
         updateStatusBar();
         break;
     }
@@ -420,8 +429,7 @@ void MainWindow::deletePlot()
 {
     auto plot = activePlot();
     if (plot)
-        if (_mdiArea->currentSubWindow()->close())
-            updateStatusBar();
+        _mdiArea->currentSubWindow()->close();
 }
 
 void MainWindow::graphCreated(Graph* graph)
@@ -510,4 +518,10 @@ void MainWindow::editCopy()
 
     // TODO: show popup message if there is no dialog here, otherwise leave a comment
     DataExporters::copyToClipboard(graph->data());
+}
+
+void MainWindow::renameDiagramFromMdiToolbar()
+{
+    auto plot = qobject_cast<PlotWindow*>(_mdiToolbar->windowUnderMenu->widget());
+    if (plot) plot->rename();
 }

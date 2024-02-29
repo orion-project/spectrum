@@ -50,5 +50,6 @@ struct RandomSampleParams
 #define MSG_GRAPH_RENAMED 2
 #define MSG_GRAPH_DELETED 3
 #define MSG_AXIS_FACTOR_CHANGED 4
+#define MSG_PLOT_DELETED 5
 
 #endif // BASE_TYPES_H
