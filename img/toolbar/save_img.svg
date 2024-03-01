@@ -1,0 +1,40 @@
+<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<linearGradient id="a" gradientTransform="matrix(1 0 0 .89 -2.48 -1.27)" gradientUnits="userSpaceOnUse" x1="4.59" x2="16.45" y1="2.66" y2="16.98">
+<stop offset="0" stop-color="#fdffff"/>
+<stop offset="1" stop-color="#b2d3fa"/>
+</linearGradient>
+<linearGradient id="b" gradientTransform="matrix(1 0 0 .89 -2.48 -1.27)" gradientUnits="userSpaceOnUse" x1="16.45" x2="3.7" y1="2.66" y2="19.06">
+<stop offset="0" stop-color="#92b1de"/>
+<stop offset="1" stop-color="#525f96"/>
+</linearGradient>
+<linearGradient id="c" gradientTransform="matrix(1.46 0 0 1 -11.02 3.46)" gradientUnits="userSpaceOnUse" x1="9.42" x2="13.84" y1="6.32" y2="12.54">
+<stop offset="0" stop-color="#a1de92"/>
+<stop offset="1" stop-color="#5f9652"/>
+</linearGradient>
+<linearGradient id="d" gradientUnits="userSpaceOnUse" x1="11.4076" x2="14.1844" xlink:href="#e" y1="6.0384" y2="3.1472"/>
+<linearGradient id="e">
+<stop offset="0" stop-color="#f3c668"/>
+<stop offset="1" stop-color="#f9f398"/>
+</linearGradient>
+<linearGradient id="f" gradientTransform="matrix(1.46 0 0 1 -2.02 12.46)" gradientUnits="userSpaceOnUse" x1="12.96" x2="10.72" y1="16.16" y2="20.56">
+<stop offset="0" stop-color="#50b938"/>
+<stop offset="1" stop-color="#2f4b29"/>
+</linearGradient>
+<linearGradient id="g" gradientUnits="userSpaceOnUse" x1="17.57" x2="14.58" xlink:href="#e" y1="20.15" y2="16.5"/>
+<path d="m17.5.5v17h-17v-17z" style="fill-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:21.44;fill:url(#a);stroke:url(#b)"/>
+<path d="m4.35 6.28 9.65 6.72v4h-13v-7.1z" fill="url(#c)"/>
+<ellipse cx="12.5" cy="4.5" fill="url(#d)" rx="2.5" ry="2.5"/>
+<g fill-rule="evenodd" transform="translate(-9 -9)">
+<path d="m13.28 15.36-2.28 10.64h-1v-7.09z" fill="url(#f)" opacity=".51"/>
+<path d="m13.48 15.36 6.52 4.64v6h-2z" fill="url(#g)" opacity=".32"/>
+</g>
+<path d="m18 18v-10h-8c-1.11 0-2 .69-2 2v8z" fill="#fff" fill-opacity=".65"/>
+<rect height="14" rx=".59" ry=".51" style="fill:#6565d0;fill-rule:evenodd;stroke:#3f4397;stroke-linecap:square;stroke-linejoin:round;stroke-dashoffset:21.44" transform="scale(1 -1)" width="14" x="9.5" y="-23.5"/>
+<path d="m21 10v7h-9v-7z" fill="#fff" fill-opacity=".93"/>
+<path d="m13.5-23.5h6v5h-6z" fill="#e5e5f1" stroke="#a7aada" stroke-linecap="square" transform="scale(1 -1)"/>
+<path d="m15 22h1v-2h-1z" fill="#373a6c" fill-opacity=".72"/>
+<g fill="#fafafa" stroke="#b6b7cb">
+<path d="m12 9.5h9m-8 2h4m-4 2h7"/>
+<path d="m12 9.5h9m-8 2h4m-4 4h5"/>
+</g>
+</svg>

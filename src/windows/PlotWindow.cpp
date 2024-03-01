@@ -10,12 +10,13 @@
 #include "tools/OriMessageBus.h"
 #include "widgets/OriPopupMessage.h"
 
-#include "qcpl_plot.h"
-#include "qcpl_colors.h"
 //#include "qcpl_cursor.h"
 //#include "qcpl_cursor_panel.h"
+#include "qcpl_colors.h"
+#include "qcpl_export.h"
 #include "qcpl_format.h"
 #include "qcpl_io_json.h"
+#include "qcpl_plot.h"
 
 using Ori::Gui::PopupMessage;
 using Ori::MessageBus;
@@ -179,7 +180,7 @@ void PlotWindow::createContextMenus()
 
     auto menuGraph = new QMenu(this);
     menuGraph->addAction(QIcon(":/toolbar/graph_title"), tr("Title..."), this, &PlotWindow::renameGraph);
-    menuGraph->addAction(QIcon(":/toolbar/graph_props"), tr("Format..."), this, &PlotWindow::formatGraph);
+    menuGraph->addAction(QIcon(":/toolbar/graph_format"), tr("Format..."), this, &PlotWindow::formatGraph);
     menuGraph->addSeparator();
     menuGraph->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, &PlotWindow::copyGraphFormat);
     menuGraph->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pasteGraphFormat);
@@ -634,8 +635,7 @@ void PlotWindow::copyPlotImage()
     //if (oldVisible != _cursor->visible())
     //    _cursor->setVisible(oldVisible);
 
-    (new PopupMessage(PopupMessage::AFFIRM,
-        tr("Image has been copied to Clipboard"), -1, Qt::AlignRight|Qt::AlignBottom, this))->show();
+    PopupMessage::affirm(tr("Image has been copied to Clipboard"), Qt::AlignRight|Qt::AlignBottom);
 }
 
 void PlotWindow::rename()
@@ -673,4 +673,14 @@ QString PlotWindow::displayFactorY() const
 {
     QString s = QCPL::axisFactorStr(_plot->axisFactorY());
     return s.isEmpty() ? QStringLiteral("Y: ×1") : QStringLiteral("Y: ") + s;
+}
+
+void PlotWindow::exportPlotImg()
+{
+    QCPL::ExportToImageProps props;
+    props.fromJson(PersistentState::load("export_img"));
+    if (QCPL::exportImageDlg(_plot, props)) {
+        PersistentState::save("export_img", props.toJson());
+        PopupMessage::affirm(tr("Image has been saved\n%1").arg(props.fileName), Qt::AlignRight|Qt::AlignBottom);
+    }
 }

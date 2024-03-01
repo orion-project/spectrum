@@ -108,14 +108,17 @@ void MainWindow::createActions()
 
     auto actPrjNewPlot = A_(tr("New Diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
     auto actPrjRenamePlot = A_(tr("Rename Diagram..."), this, IN_ACTIVE_PLOT(rename), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
-    auto actPrjDeletePLot = A_(tr("Delete Diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
+    auto actPrjDeletePlot = A_(tr("Delete Diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
+    auto actSavePlotImg = A_(tr("Save Diagram as Image..."), this, IN_ACTIVE_PLOT(exportPlotImg), ":/toolbar/save_img");
+    auto actExit = A_(tr("Exit"), this, SLOT(close()));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Project"), this, {
-        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePLot,
+        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePlot, actSavePlotImg,
+        0, actExit
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Project"), "project", {
-        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePLot,
+        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePlot, actSavePlotImg
     }));
 
     //---------------------------------------------------------
@@ -170,7 +173,7 @@ void MainWindow::createActions()
     auto actnGraphRefresh = A_(tr("Refresh"), tr("Reread points from data source"), _operations, SLOT(graphRefresh()), ":/toolbar/update", QKeySequence("Ctrl+R"));
     auto actGraphReopen = A_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
     auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), this, IN_ACTIVE_PLOT(renameGraph), ":/toolbar/graph_title", QKeySequence("F2"));
-    auto actGraphProps = A_(tr("Line Properties..."), tr("Set line properties of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_props");
+    auto actGraphProps = A_(tr("Line Format..."), tr("Set line format of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_format");
     auto actGraphDelete = A_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {

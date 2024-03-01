@@ -74,6 +74,7 @@ public:
     void axisFactorDlgY();
     void copyGraphFormat();
     void pasteGraphFormat();
+    void exportPlotImg();
 
     Graph* selectedGraph() const;
     QVector<Graph*> selectedGraphs() const;

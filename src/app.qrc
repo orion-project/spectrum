@@ -16,7 +16,7 @@
         <file alias="format_x">../img/toolbar/format_x.svg</file>
         <file alias="format_y">../img/toolbar/format_y.svg</file>
         <file alias="graph_delete">../img/toolbar/graph_delete.svg</file>
-        <file alias="graph_props">../img/toolbar/graph_props.svg</file>
+        <file alias="graph_format">../img/toolbar/graph_format.svg</file>
         <file alias="graph_offset">../img/toolbar/graph_offset.svg</file>
         <file alias="graph_scale">../img/toolbar/graph_scale.svg</file>
         <file alias="graph_title">../img/toolbar/graph_title.svg</file>
@@ -49,6 +49,7 @@
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
         <file alias="protocol">../img/toolbar/protocol.svg</file>
         <file alias="save_format">../img/toolbar/save_format.svg</file>
+        <file alias="save_img">../img/toolbar/save_img.svg</file>
         <file alias="title_x">../img/toolbar/title_x.svg</file>
         <file alias="title_y">../img/toolbar/title_y.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
