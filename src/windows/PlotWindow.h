@@ -43,9 +43,9 @@ public:
     void autolimits();
     void autolimitsX();
     void autolimitsY();
-    void limitsToSelection();
-    void limitsToSelectionX();
-    void limitsToSelectionY();
+//    void limitsToSelection();
+//    void limitsToSelectionX();
+//    void limitsToSelectionY();
     void zoomIn();
     void zoomOut();
     void zoomInX();
@@ -54,9 +54,15 @@ public:
     void zoomOutY();
     void formatX();
     void formatY();
+    void formatX2();
+    void formatY2();
     void formatTitle();
     void formatLegend();
     void formatGraph();
+    void addAxisBottom();
+    void addAxisLeft();
+    void addAxisTop();
+    void addAxisRight();
     void copyPlotImage();
     void copyPlotFormat();
     void pastePlotFormat();

@@ -1,7 +1,7 @@
 #include "PlotWindow.h"
 
 #include "../core/Graph.h"
-#include "../core/GraphMath.h"
+//#include "../core/GraphMath.h"
 #include "../app/PersistentState.h"
 #include "../Operations.h"
 
@@ -129,6 +129,27 @@ PlotWindow::~PlotWindow()
 
 void PlotWindow::createContextMenus()
 {
+    auto menuAxis = new QMenu(this);
+    auto titleAxis = new QWidgetAction(this);
+    auto labelAxis = new QLabel;
+    labelAxis->setMargin(6);
+    labelAxis->setFrameShape(QFrame::StyledPanel);
+    titleAxis->setDefaultWidget(labelAxis);
+    menuAxis->addAction(titleAxis);
+    connect(menuAxis, &QMenu::aboutToShow, this, [this, labelAxis]{
+        labelAxis->setText("<b>" + _plot->axisIdent(_plot->axisUnderMenu) + "</b>");
+    });
+    menuAxis->addAction(tr("Text..."), this, [this]{ _plot->axisTextDlg(_plot->axisUnderMenu); });
+    menuAxis->addAction(tr("Format..."), this, [this]{ _plot->axisFormatDlg(_plot->axisUnderMenu); });
+    menuAxis->addSeparator();
+    menuAxis->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->axisUnderMenu); });
+    menuAxis->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->axisUnderMenu); });
+    menuAxis->addSeparator();
+    menuAxis->addAction(tr("Limits..."), this, [this]{ _plot->limitsDlg(_plot->axisUnderMenu); });
+    menuAxis->addAction(tr("Fit to Graphs"), this, [this]{ _plot->autolimits(_plot->axisUnderMenu, true); });
+    menuAxis->addSeparator();
+    menuAxis->addAction(QIcon(":/toolbar/factor_x"), tr("Factor..."), this, [this]{ _plot->axisFactorDlg(_plot->axisUnderMenu); });
+/*
     auto menuX = new QMenu(this);
     auto titleX = new QWidgetAction(this);
     auto labelX = new QLabel(tr("<b>Axis X</b>"));
@@ -164,7 +185,7 @@ void PlotWindow::createContextMenus()
     menuY->addAction(QIcon(":/toolbar/limits_fit_y"), tr("Fit to Selection"), this, &PlotWindow::limitsToSelectionY);
     menuY->addSeparator();
     menuY->addAction(QIcon(":/toolbar/factor_y"), tr("Factor..."), this, &PlotWindow::axisFactorDlgY);
-
+*/
     auto menuLegend = new QMenu(this);
     menuLegend->addAction(QIcon(":/toolbar/plot_legend"), tr("Format..."), this, &PlotWindow::formatLegend);
     menuLegend->addSeparator();
@@ -193,8 +214,9 @@ void PlotWindow::createContextMenus()
     menuPlot->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, &PlotWindow::copyPlotFormat);
     menuPlot->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pastePlotFormat);
 
-    _plot->menuAxisX = menuX;
-    _plot->menuAxisY = menuY;
+    _plot->menuAxis = menuAxis;
+//    _plot->menuAxisX = menuX;
+//    _plot->menuAxisY = menuY;
     _plot->menuGraph = menuGraph;
     _plot->menuPlot = menuPlot;
     _plot->menuLegend = menuLegend;
@@ -319,7 +341,7 @@ void PlotWindow::autolimitsY()
     // TODO if limits changed
     markModified("PlotWindow::autolimitsY");
 }
-
+/*
 void PlotWindow::limitsToSelection()
 {
     // TODO: process multiselection
@@ -355,7 +377,7 @@ void PlotWindow::limitsToSelectionY()
     // TODO if limits changed
     markModified("PlotWindow::limitsToSelectionY");
 }
-
+*/
 void PlotWindow::zoomIn() { _plot->zoomIn(); }
 void PlotWindow::zoomOut() { _plot->zoomOut(); }
 void PlotWindow::zoomInX() { _plot->zoomInX(); }
@@ -498,6 +520,16 @@ void PlotWindow::formatY()
     _plot->axisFormatDlgY();
 }
 
+void PlotWindow::formatX2()
+{
+    _plot->axisFormatDlg(_plot->xAxis2);
+}
+
+void PlotWindow::formatY2()
+{
+    _plot->axisFormatDlg(_plot->yAxis2);
+}
+
 void PlotWindow::formatTitle()
 {
     _plot->titleFormatDlg();
@@ -517,6 +549,30 @@ void PlotWindow::formatGraph()
     props.title = tr("Format %1").arg(line->name());
     if (QCPL::graphFormatDlg(line, props))
         markModified("PlotWindow::formatGraph");
+}
+
+void PlotWindow::addAxisBottom()
+{
+    _plot->addAxis(QCPAxis::atBottom);
+    _plot->replot();
+}
+
+void PlotWindow::addAxisLeft()
+{
+    _plot->addAxis(QCPAxis::atLeft);
+    _plot->replot();
+}
+
+void PlotWindow::addAxisTop()
+{
+    _plot->addAxis(QCPAxis::atTop);
+    _plot->replot();
+}
+
+void PlotWindow::addAxisRight()
+{
+    _plot->addAxis(QCPAxis::atRight);
+    _plot->replot();
 }
 
 void PlotWindow::copyPlotFormat()

@@ -201,21 +201,37 @@ void MainWindow::createActions()
     //---------------------------------------------------------
 
     auto actFormatTitle = A_(tr("Title Format..."), this, IN_ACTIVE_PLOT(formatTitle), ":/toolbar/plot_title");
-    auto actFormatX = A_(tr("X-axis Format..."), this, IN_ACTIVE_PLOT(formatX), ":/toolbar/format_x");
-    auto actFormatY = A_(tr("Y-axis  Format..."), this, IN_ACTIVE_PLOT(formatY), ":/toolbar/format_y");
-    auto actFactorX = A_(tr("X-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgX), ":/toolbar/factor_x");
-    auto actFactorY = A_(tr("Y-axis  Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgY), ":/toolbar/factor_y");
+//    auto actFormatX = A_(tr("X-axis Format..."), this, IN_ACTIVE_PLOT(formatX), ":/toolbar/format_x");
+//    auto actFormatY = A_(tr("Y-axis Format..."), this, IN_ACTIVE_PLOT(formatY), ":/toolbar/format_y");
+    auto actFormatX = A_(tr("Bottom Axis Format..."), this, IN_ACTIVE_PLOT(formatX), ":/toolbar/format_x");
+    auto actFormatY = A_(tr("Left Axis Format..."), this, IN_ACTIVE_PLOT(formatY), ":/toolbar/format_y");
+    auto actFormatX2 = A_(tr("Top Axis Format..."), this, IN_ACTIVE_PLOT(formatX2));
+    auto actFormatY2 = A_(tr("Right Axis Format..."), this, IN_ACTIVE_PLOT(formatY2));
+//    auto actFactorX = A_(tr("X-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgX), ":/toolbar/factor_x");
+//    auto actFactorY = A_(tr("Y-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgY), ":/toolbar/factor_y");
     auto actFormatLegend = A_(tr("Legend Format..."), this, IN_ACTIVE_PLOT(formatLegend), ":/toolbar/plot_legend");
     auto actSavePlotFormat = A_(tr("Save Plot Format..."), this, IN_ACTIVE_PLOT(savePlotFormat), ":/toolbar/save_format");
     auto actLoadPlotFormat = A_(tr("Load Plot Format..."), this, IN_ACTIVE_PLOT(loadPlotFormat), ":/toolbar/open_format");
 
+    auto menuAddAxis = Ori::Gui::menu(tr("Add Axis"), {
+        A_(tr("At Bottom"), this, IN_ACTIVE_PLOT(addAxisBottom)),
+        A_(tr("At Left"), this, IN_ACTIVE_PLOT(addAxisLeft)),
+        A_(tr("At Top"), this, IN_ACTIVE_PLOT(addAxisTop)),
+        A_(tr("At Right"), this, IN_ACTIVE_PLOT(addAxisRight)),
+    });
+
     menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
-        actFormatTitle, actFormatLegend, 0, actFormatX, actFormatY, 0, actFactorX, actFactorY,
+        actFormatTitle, actFormatLegend,
+        0, actFormatX, actFormatY, actFormatX2, actFormatY2,
+        0, menuAddAxis,
+        //0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
     }));
 
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
-        actFormatTitle, actFormatLegend, 0, actFormatX, actFormatY, 0, actFactorX, actFactorY,
+        actFormatTitle, actFormatLegend,
+        //0, actFormatX, actFormatY,
+        //0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
     });
     tbFormat->setVisible(false); // hidden by default
@@ -229,9 +245,9 @@ void MainWindow::createActions()
     auto actAutolimits = A_(tr("Autolimits"), this, IN_ACTIVE_PLOT(autolimits), ":/toolbar/limits_auto", QKeySequence("Alt+0"));
     auto actAutolimitsX = A_(tr("Autolimits X"), this, IN_ACTIVE_PLOT(autolimitsX), ":/toolbar/limits_auto_x", QKeySequence("Alt+X"));
     auto actAutolimitsY = A_(tr("Autolimits Y"), this, IN_ACTIVE_PLOT(autolimitsY), ":/toolbar/limits_auto_y", QKeySequence("Alt+Y"));
-    auto actFitSelection = A_(tr("Fit Selection"), this, IN_ACTIVE_PLOT(limitsToSelection), ":/toolbar/limits_fit", QKeySequence("Ctrl+/"));
-    auto actFitSelectionX = A_(tr("Fit Selection X"), this, IN_ACTIVE_PLOT(limitsToSelectionX), ":/toolbar/limits_fit_x", QKeySequence("Shift+Ctrl+/,x"));
-    auto actFitSelectionY = A_(tr("Fit Selection Y"), this, IN_ACTIVE_PLOT(limitsToSelectionY), ":/toolbar/limits_fit_y", QKeySequence("Shift+Ctrl+/,y"));
+//    auto actFitSelection = A_(tr("Fit Selection"), this, IN_ACTIVE_PLOT(limitsToSelection), ":/toolbar/limits_fit", QKeySequence("Ctrl+/"));
+//    auto actFitSelectionX = A_(tr("Fit Selection X"), this, IN_ACTIVE_PLOT(limitsToSelectionX), ":/toolbar/limits_fit_x", QKeySequence("Shift+Ctrl+/,x"));
+//    auto actFitSelectionY = A_(tr("Fit Selection Y"), this, IN_ACTIVE_PLOT(limitsToSelectionY), ":/toolbar/limits_fit_y", QKeySequence("Shift+Ctrl+/,y"));
     auto actZoomIn = A_(tr("Zoom-in"), this, IN_ACTIVE_PLOT(zoomIn), ":/toolbar/limits_zoom_in", QKeySequence("Ctrl+Alt+="));
     auto actZoomOut = A_(tr("Zoom-out"), this, IN_ACTIVE_PLOT(zoomOut), ":/toolbar/limits_zoom_out", QKeySequence("Ctrl+Alt+-"));
     auto actZoomInX = A_(tr("Zoom-in X"), this, IN_ACTIVE_PLOT(zoomInX), ":/toolbar/limits_zoom_in_x", QKeySequence("Alt+="));
@@ -240,15 +256,15 @@ void MainWindow::createActions()
     auto actZoomOutY = A_(tr("Zoom-out Y"), this, IN_ACTIVE_PLOT(zoomOutY), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Limits"), this, {
-        actLimitsBoth, actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
-        actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
-        actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
+        actLimitsBoth, actAutolimits, /*actFitSelection,*/ actZoomIn, actZoomOut, 0,
+        actLimitsX, actAutolimitsX, /*actFitSelectionX,*/ actZoomInX, actZoomOutX, 0,
+        actLimitsY, actAutolimitsY, /*actFitSelectionY,*/ actZoomInY, actZoomOutY,
     }));
 
     addToolBar(Qt::RightToolBarArea, Ori::Gui::toolbar(tr("Limits"), "limits", {
-        actLimitsBoth, actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
-        actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
-        actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
+        actLimitsBoth, actAutolimits, /*actFitSelection,*/ actZoomIn, actZoomOut, 0,
+        actLimitsX, actAutolimitsX, /*actFitSelectionX,*/ actZoomInX, actZoomOutX, 0,
+        actLimitsY, actAutolimitsY, /*actFitSelectionY,*/ actZoomInY, actZoomOutY,
     }));
 
     //---------------------------------------------------------
