@@ -11,9 +11,11 @@
 
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
+#include "tools/OriMruList.h"
 #include "tools/OriSettings.h"
 #include "widgets/OriLabels.h"
 #include "widgets/OriMdiToolBar.h"
+#include "widgets/OriMruMenu.h"
 #include "widgets/OriPopupMessage.h"
 #include "widgets/OriStatusBar.h"
 
@@ -59,6 +61,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     _operations->getSelectedGraph = [this](){ return selectedGraph(); };
     connect(_operations, &Operations::graphCreated, this, &MainWindow::graphCreated);
     connect(_operations, &Operations::graphUpdated, this, &MainWindow::graphUpdated);
+    connect(_operations->mruPlotFormats(), &Ori::MruFileList::clicked, this, [this](const QString& fileName){
+        auto plot = activePlot(); if (plot) plot->loadPlotFormat(fileName);
+    });
 
     _mdiArea = new QMdiArea;
     _mdiArea->setBackground(QBrush(QPixmap(":/misc/mdi_background")));
@@ -210,8 +215,8 @@ void MainWindow::createActions()
 //    auto actFactorX = A_(tr("X-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgX), ":/toolbar/factor_x");
 //    auto actFactorY = A_(tr("Y-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgY), ":/toolbar/factor_y");
     auto actFormatLegend = A_(tr("Legend Format..."), this, IN_ACTIVE_PLOT(formatLegend), ":/toolbar/plot_legend");
-    auto actSavePlotFormat = A_(tr("Save Plot Format..."), this, IN_ACTIVE_PLOT(savePlotFormat), ":/toolbar/save_format");
-    auto actLoadPlotFormat = A_(tr("Load Plot Format..."), this, IN_ACTIVE_PLOT(loadPlotFormat), ":/toolbar/open_format");
+    auto actSavePlotFormat = A_(tr("Save Plot Format..."), this, IN_ACTIVE_PLOT(savePlotFormatDlg), ":/toolbar/save_format");
+    auto actLoadPlotFormat = A_(tr("Load Plot Format..."), this, IN_ACTIVE_PLOT(loadPlotFormatDlg), ":/toolbar/open_format");
 
     auto menuAddAxis = Ori::Gui::menu(tr("Add Axis"), {
         A_(tr("At Bottom"), this, IN_ACTIVE_PLOT(addAxisBottom)),
@@ -226,6 +231,7 @@ void MainWindow::createActions()
         0, menuAddAxis,
         //0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
+        new Ori::Widgets::MruMenu(tr("Recent Formats"), _operations->mruPlotFormats()),
     }));
 
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {

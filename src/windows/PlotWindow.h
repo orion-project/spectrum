@@ -23,7 +23,6 @@ public:
     QCPGraph* line;
 };
 
-
 class PlotWindow : public QWidget
 {
     Q_OBJECT
@@ -69,8 +68,9 @@ public:
     void pasteTitleFormat();
     void pasteLegendFormat();
     void pasteAxisFormat(QCPAxis *axis);
-    void savePlotFormat();
-    void loadPlotFormat();
+    void savePlotFormatDlg();
+    void loadPlotFormatDlg();
+    void loadPlotFormat(const QString& fileName);
     void rename();
     void renameGraph();
     void deleteGraph();

@@ -11,6 +11,11 @@ class Graph;
 class DataSource;
 class Modifier;
 
+namespace Ori {
+class MruFileList;
+}
+
+
 class Operations : public QObject
 {
     Q_OBJECT
@@ -22,6 +27,8 @@ public:
 
     using DoConfig = Ori::Argument<bool, struct DoConfigTag>;
     using DoLoad = Ori::Argument<bool, struct DoLoadTag>;
+
+    Ori::MruFileList* mruPlotFormats() { return _mruPlotFormats; }
 
 public slots:
     void addFromFile();
@@ -39,6 +46,8 @@ signals:
     void graphUpdated(Graph* g);
 
 private:
+    Ori::MruFileList *_mruPlotFormats;
+
     void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
     void modifyGraph(Modifier *mod);
 };

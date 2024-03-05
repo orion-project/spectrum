@@ -10,6 +10,7 @@
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
+#include "tools/OriMruList.h"
 #include "widgets/OriPopupMessage.h"
 
 #include <QApplication>
@@ -25,6 +26,8 @@
 
 Operations::Operations(QObject *parent) : QObject(parent)
 {
+    _mruPlotFormats = new Ori::MruFileList(this);
+    _mruPlotFormats->load("mruPlotFormats");
 }
 
 void Operations::addFromFile()

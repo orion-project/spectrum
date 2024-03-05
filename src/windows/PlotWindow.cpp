@@ -8,8 +8,10 @@
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
 #include "tools/OriMessageBus.h"
+#include "tools/OriMruList.h"
 #include "widgets/OriPopupMessage.h"
 
+#include "qcpl_axis.h"
 //#include "qcpl_cursor.h"
 //#include "qcpl_cursor_panel.h"
 #include "qcpl_colors.h"
@@ -645,7 +647,7 @@ void PlotWindow::pasteGraphFormat()
     else PopupMessage::warning(err);
 }
 
-void PlotWindow::savePlotFormat()
+void PlotWindow::savePlotFormatDlg()
 {
     QString recentPath = RecentData::getDir("plot_format_path");
     auto fileName = QFileDialog::getSaveFileName(
@@ -653,12 +655,12 @@ void PlotWindow::savePlotFormat()
     if (fileName.isEmpty())
         return;
     RecentData::setDir("plot_format_path", fileName);
-    QString err = QCPL::saveFormatToFile(fileName, _plot);
+    QString err = QCPL::saveFormatToFile(fileName, _plot, {.onlyPrimaryAxes=false});
     if (!err.isEmpty())
         Ori::Dlg::error(err);
 }
 
-void PlotWindow::loadPlotFormat()
+void PlotWindow::loadPlotFormatDlg()
 {
     QString recentPath = RecentData::getDir("plot_format_path");
     auto fileName = QFileDialog::getOpenFileName(
@@ -666,14 +668,20 @@ void PlotWindow::loadPlotFormat()
     if (fileName.isEmpty())
         return;
     RecentData::setDir("plot_format_path", fileName);
+    loadPlotFormat(fileName);
+}
+
+void PlotWindow::loadPlotFormat(const QString& fileName)
+{
     QCPL::JsonReport report;
-    auto err = QCPL::loadFormatFromFile(fileName, _plot, &report);
+    auto err = QCPL::loadFormatFromFile(fileName, _plot, &report, {.autoCreateAxes=true});
     markModified("PlotWindow::loadPlotFormat");
     if (!err.isEmpty())
     {
         Ori::Dlg::error(err);
         return;
     }
+    _operations->mruPlotFormats()->append(fileName);
     _plot->replot();
 }
 
@@ -706,6 +714,9 @@ void PlotWindow::rename()
 
 void PlotWindow::renameGraph()
 {
+    QCPL::chooseAxes(_plot, {});
+    return;
+
     SELECTED_GRAPH
     QString newTitle = Ori::Dlg::inputText(tr("Graph title:"), graph->title());
     if (newTitle.isEmpty()) return;
