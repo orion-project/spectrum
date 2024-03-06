@@ -180,9 +180,10 @@ void MainWindow::createActions()
     auto actGraphTitle = A_(tr("Title..."), tr("Edit title of selected graph"), this, IN_ACTIVE_PLOT(renameGraph), ":/toolbar/graph_title", QKeySequence("F2"));
     auto actGraphProps = A_(tr("Line Format..."), tr("Set line format of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_format");
     auto actGraphDelete = A_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete");
+    auto actGraphAxes = A_(tr("Change Axes..."), this, IN_ACTIVE_PLOT(changeGraphAxes));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {
-        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps, 0, actGraphDelete,
+        actnGraphRefresh, actGraphReopen, 0, actGraphTitle, actGraphProps, actGraphAxes, 0, actGraphDelete,
     }));
 
     // By default the Graph toolbar is in the second row, should be added after all others
@@ -206,36 +207,34 @@ void MainWindow::createActions()
     //---------------------------------------------------------
 
     auto actFormatTitle = A_(tr("Title Format..."), this, IN_ACTIVE_PLOT(formatTitle), ":/toolbar/plot_title");
-//    auto actFormatX = A_(tr("X-axis Format..."), this, IN_ACTIVE_PLOT(formatX), ":/toolbar/format_x");
-//    auto actFormatY = A_(tr("Y-axis Format..."), this, IN_ACTIVE_PLOT(formatY), ":/toolbar/format_y");
     auto actFormatX = A_(tr("Bottom Axis Format..."), this, IN_ACTIVE_PLOT(formatX), ":/toolbar/format_x");
     auto actFormatY = A_(tr("Left Axis Format..."), this, IN_ACTIVE_PLOT(formatY), ":/toolbar/format_y");
     auto actFormatX2 = A_(tr("Top Axis Format..."), this, IN_ACTIVE_PLOT(formatX2));
     auto actFormatY2 = A_(tr("Right Axis Format..."), this, IN_ACTIVE_PLOT(formatY2));
-//    auto actFactorX = A_(tr("X-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgX), ":/toolbar/factor_x");
-//    auto actFactorY = A_(tr("Y-axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlgY), ":/toolbar/factor_y");
+    auto actFormatAxis = A_(tr("Format Axis..."), this, IN_ACTIVE_PLOT(formatAxis), ":/toolbar/format_axis");
+    auto actFactorAxis = A_(tr("Set Axis Factor..."), this, IN_ACTIVE_PLOT(axisFactorDlg), ":/toolbar/factor_axis");
     auto actFormatLegend = A_(tr("Legend Format..."), this, IN_ACTIVE_PLOT(formatLegend), ":/toolbar/plot_legend");
     auto actSavePlotFormat = A_(tr("Save Plot Format..."), this, IN_ACTIVE_PLOT(savePlotFormatDlg), ":/toolbar/save_format");
     auto actLoadPlotFormat = A_(tr("Load Plot Format..."), this, IN_ACTIVE_PLOT(loadPlotFormatDlg), ":/toolbar/open_format");
 
     auto menuAddAxis = Ori::Gui::menu(tr("Add Axis"), {
-        A_(tr("At Bottom"), this, IN_ACTIVE_PLOT(addAxisBottom)),
-        A_(tr("At Left"), this, IN_ACTIVE_PLOT(addAxisLeft)),
-        A_(tr("At Top"), this, IN_ACTIVE_PLOT(addAxisTop)),
-        A_(tr("At Right"), this, IN_ACTIVE_PLOT(addAxisRight)),
+        A_(tr("At Bottom"), this, IN_ACTIVE_PLOT(addAxisBottom), ":/toolbar/axis_bottom"),
+        A_(tr("At Left"), this, IN_ACTIVE_PLOT(addAxisLeft), ":/toolbar/axis_left"),
+        A_(tr("At Top"), this, IN_ACTIVE_PLOT(addAxisTop), ":/toolbar/axis_top"),
+        A_(tr("At Right"), this, IN_ACTIVE_PLOT(addAxisRight), ":/toolbar/axis_right"),
     });
 
     menuBar->addMenu(Ori::Gui::menu(tr("Format"), this, {
         actFormatTitle, actFormatLegend,
         0, actFormatX, actFormatY, actFormatX2, actFormatY2,
-        0, menuAddAxis,
-        //0, actFactorX, actFactorY,
+        0, actFormatAxis, actFactorAxis, menuAddAxis,
         0, actSavePlotFormat, actLoadPlotFormat,
         new Ori::Widgets::MruMenu(tr("Recent Formats"), _operations->mruPlotFormats()),
     }));
 
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
         actFormatTitle, actFormatLegend,
+        0, actFormatAxis, actFactorAxis,
         //0, actFormatX, actFormatY,
         //0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
@@ -436,7 +435,7 @@ Graph* MainWindow::findGraphById(const QString& id) const
 Graph* MainWindow::selectedGraph(bool warn) const
 {
     auto plot = activePlot(warn);
-    return plot ? plot->selectedGraph() : nullptr;
+    return plot ? plot->selectedGraph(warn) : nullptr;
 }
 
 void MainWindow::newPlot()
@@ -533,7 +532,7 @@ void MainWindow::editCopy()
     auto plot = activePlot();
     if (!plot) return;
 
-    auto graph = plot->selectedGraph();
+    auto graph = plot->selectedGraph(false);
     if (!graph)
     {
         // There will be popup message after copying image

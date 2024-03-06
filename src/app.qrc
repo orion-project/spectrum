@@ -3,6 +3,10 @@
         <file alias="add_file">../img/toolbar/add_file.svg</file>
         <file alias="add_random">../img/toolbar/add_dice.svg</file>
         <file alias="add_table">../img/toolbar/add_table.svg</file>
+        <file alias="axis_bottom">../img/toolbar/axis_bottom.svg</file>
+        <file alias="axis_left">../img/toolbar/axis_left.svg</file>
+        <file alias="axis_top">../img/toolbar/axis_top.svg</file>
+        <file alias="axis_right">../img/toolbar/axis_right.svg</file>
         <file alias="bug">../img/toolbar/bug.svg</file>
         <file alias="book">../img/toolbar/book.svg</file>
         <file alias="copy">../img/toolbar/copy.svg</file>
@@ -11,8 +15,10 @@
         <file alias="delete">../img/toolbar/delete.svg</file>
         <file alias="help">../img/toolbar/help.svg</file>
         <file alias="home">../img/toolbar/home.svg</file>
+        <file alias="factor_axis">../img/toolbar/factor_axis.svg</file>
         <file alias="factor_x">../img/toolbar/factor_x.svg</file>
         <file alias="factor_y">../img/toolbar/factor_y.svg</file>
+        <file alias="format_axis">../img/toolbar/format_axis.svg</file>
         <file alias="format_x">../img/toolbar/format_x.svg</file>
         <file alias="format_y">../img/toolbar/format_y.svg</file>
         <file alias="graph_delete">../img/toolbar/graph_delete.svg</file>
@@ -23,6 +29,7 @@
         <file alias="limits">../img/toolbar/limits.svg</file>
         <file alias="limits_x">../img/toolbar/limits_x.svg</file>
         <file alias="limits_y">../img/toolbar/limits_y.svg</file>
+        <file alias="limits_auto_lite">../img/toolbar/limits_auto_lite.svg</file>
         <file alias="limits_auto_x">../img/toolbar/limits_auto_x.svg</file>
         <file alias="limits_auto_y">../img/toolbar/limits_auto_y.svg</file>
         <file alias="limits_auto">../img/toolbar/limits_auto.svg</file>

@@ -55,6 +55,7 @@ public:
     void formatY();
     void formatX2();
     void formatY2();
+    void formatAxis();
     void formatTitle();
     void formatLegend();
     void formatGraph();
@@ -78,15 +79,16 @@ public:
     void toggleTitle();
     void axisFactorDlgX();
     void axisFactorDlgY();
+    void axisFactorDlg();
     void copyGraphFormat();
     void pasteGraphFormat();
     void exportPlotImg();
+    void changeGraphAxes();
 
-    Graph* selectedGraph() const;
-    QVector<Graph*> selectedGraphs() const;
-    Graph* findGraphById(const QString& id) const;
+    Graph* selectedGraph(bool warn = true) const;
+    QVector<Graph*> selectedGraphs(bool warn = true) const;
     QCPGraph* selectedGraphLine(bool warn = true) const;
-
+    Graph* findGraphById(const QString& id) const;
     void selectGraph(Graph* graph);
     bool updateGraph(Graph* graph);
 
@@ -121,6 +123,7 @@ private:
     void markModified(const QString& reason);
     void updateTitle(const QString& title);
     void deleteGraphs(const QVector<Graph*>& graphs);
+    void addAxisVars(QCPAxis* axis);
 };
 
 #endif // PLOTWINDOW_H

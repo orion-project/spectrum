@@ -28,28 +28,6 @@ PlotItem::~PlotItem()
     delete graph;
 }
 
-#define SELECTED_GRAPH \
-    auto graph = selectedGraph(); \
-    if (!graph) { \
-        if (_items.size() == 1) \
-            graph = _items.first()->graph; \
-        else { \
-            PopupMessage::warning(qApp->tr("Please select a graph")); \
-            return; \
-        }\
-    }
-
-#define SELECTED_GRAPHS \
-    auto graphs = selectedGraphs(); \
-    if (graphs.isEmpty()) { \
-        if (_items.size() == 1) \
-            graphs = {_items.first()->graph}; \
-        else { \
-            PopupMessage::warning(qApp->tr("Please select a graph")); \
-            return; \
-        }\
-    }
-
 static QIcon makeGraphIcon(QColor color)
 {
     int H, S, L;
@@ -92,14 +70,10 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
     _plotObj = new PlotObj;
     _plotObj->_icon = nextPlotIcon();
 
-    _plot = new QCPL::Plot;
+    _plot = new QCPL::Plot({.replaceDefaultAxes=true});
     _plot->formatAxisTitleAfterFactorSet = true;
-    _plot->addTextVarX("{factor}", tr("Axis factor"), [this]{ return QCPL::axisFactorStr(_plot->axisFactorX()); });
-    _plot->addTextVarY("{factor}", tr("Axis factor"), [this]{ return QCPL::axisFactorStr(_plot->axisFactorY()); });
-    _plot->addTextVarX("{(factor)}", tr("Axis factor (in brackets)"), [this]{
-        auto s = QCPL::axisFactorStr(_plot->axisFactorX()); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
-    _plot->addTextVarY("{(factor)}", tr("Axis factor (in brackets)"), [this]{
-        auto s = QCPL::axisFactorStr(_plot->axisFactorY()); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
+    foreach (auto axis, _plot->defaultAxes())
+        addAxisVars(axis);
     _plot->setPlottingHint(QCP::phFastPolylines, true);
     connect(_plot, &QCPL::Plot::modified, this, &PlotWindow::markModified);
 
@@ -142,52 +116,19 @@ void PlotWindow::createContextMenus()
         labelAxis->setText("<b>" + _plot->axisIdent(_plot->axisUnderMenu) + "</b>");
     });
     menuAxis->addAction(tr("Text..."), this, [this]{ _plot->axisTextDlg(_plot->axisUnderMenu); });
-    menuAxis->addAction(tr("Format..."), this, [this]{ _plot->axisFormatDlg(_plot->axisUnderMenu); });
+    menuAxis->addAction(QIcon(":/toolbar/format_axis"), tr("Format..."), this, [this]{ _plot->axisFormatDlg(_plot->axisUnderMenu); });
     menuAxis->addSeparator();
     menuAxis->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->axisUnderMenu); });
     menuAxis->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->axisUnderMenu); });
     menuAxis->addSeparator();
-    menuAxis->addAction(tr("Limits..."), this, [this]{ _plot->limitsDlg(_plot->axisUnderMenu); });
-    menuAxis->addAction(tr("Fit to Graphs"), this, [this]{ _plot->autolimits(_plot->axisUnderMenu, true); });
+    menuAxis->addAction(QIcon(":/toolbar/limits"), tr("Limits..."), this, [this]{ _plot->limitsDlg(_plot->axisUnderMenu); });
+    menuAxis->addAction(QIcon(":/toolbar/limits_auto_lite"), tr("Fit to Graphs"), this, [this]{ _plot->autolimits(_plot->axisUnderMenu, true); });
     menuAxis->addSeparator();
-    menuAxis->addAction(QIcon(":/toolbar/factor_x"), tr("Factor..."), this, [this]{ _plot->axisFactorDlg(_plot->axisUnderMenu); });
-/*
-    auto menuX = new QMenu(this);
-    auto titleX = new QWidgetAction(this);
-    auto labelX = new QLabel(tr("<b>Axis X</b>"));
-    labelX->setMargin(6);
-    titleX->setDefaultWidget(labelX);
-    menuX->addAction(titleX);
-    menuX->addAction(QIcon(":/toolbar/title_x"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgX);
-    menuX->addAction(QIcon(":/toolbar/format_x"), tr("Format..."), this, &PlotWindow::formatX);
-    menuX->addSeparator();
-    menuX->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->xAxis); });
-    menuX->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->xAxis); });
-    menuX->addSeparator();
-    menuX->addAction(QIcon(":/toolbar/limits_x"), tr("Limits..."), this, &PlotWindow::limitsDlgX);
-    menuX->addAction(QIcon(":/toolbar/limits_auto_x"), tr("Fit to Graphs"), this, &PlotWindow::autolimitsX);
-    menuX->addAction(QIcon(":/toolbar/limits_fit_x"), tr("Fit to Selection"), this, &PlotWindow::limitsToSelectionX);
-    menuX->addSeparator();
-    menuX->addAction(QIcon(":/toolbar/factor_x"), tr("Factor..."), this, &PlotWindow::axisFactorDlgX);
+    menuAxis->addAction(QIcon(":/toolbar/factor_axis"), tr("Factor..."), this, [this]{
+        if (_plot->axisFactorDlg(_plot->axisUnderMenu))
+            MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+    });
 
-    auto menuY = new QMenu(this);
-    auto titleY = new QWidgetAction(this);
-    auto labelY = new QLabel(tr("<b>Axis Y</b>"));
-    labelY->setMargin(6);
-    titleY->setDefaultWidget(labelY);
-    menuY->addAction(titleY);
-    menuY->addAction(QIcon(":/toolbar/title_y"), tr("Text..."), _plot, &QCPL::Plot::axisTextDlgY);
-    menuY->addAction(QIcon(":/toolbar/format_y"), tr("Format..."), this, &PlotWindow::formatY);
-    menuY->addSeparator();
-    menuY->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, [this]{ QCPL::copyAxisFormat(_plot->yAxis); });
-    menuY->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, [this]{ pasteAxisFormat(_plot->yAxis); });
-    menuY->addSeparator();
-    menuY->addAction(QIcon(":/toolbar/limits_y"), tr("Limits..."), this, &PlotWindow::limitsDlgY);
-    menuY->addAction(QIcon(":/toolbar/limits_auto_y"), tr("Fit to Graphs"), this, &PlotWindow::limitsToSelectionY);
-    menuY->addAction(QIcon(":/toolbar/limits_fit_y"), tr("Fit to Selection"), this, &PlotWindow::limitsToSelectionY);
-    menuY->addSeparator();
-    menuY->addAction(QIcon(":/toolbar/factor_y"), tr("Factor..."), this, &PlotWindow::axisFactorDlgY);
-*/
     auto menuLegend = new QMenu(this);
     menuLegend->addAction(QIcon(":/toolbar/plot_legend"), tr("Format..."), this, &PlotWindow::formatLegend);
     menuLegend->addSeparator();
@@ -204,6 +145,7 @@ void PlotWindow::createContextMenus()
     auto menuGraph = new QMenu(this);
     menuGraph->addAction(QIcon(":/toolbar/graph_title"), tr("Title..."), this, &PlotWindow::renameGraph);
     menuGraph->addAction(QIcon(":/toolbar/graph_format"), tr("Format..."), this, &PlotWindow::formatGraph);
+    menuGraph->addAction(tr("Change Axes..."), this, &PlotWindow::changeGraphAxes);
     menuGraph->addSeparator();
     menuGraph->addAction(QIcon(":/toolbar/copy_fmt"), tr("Copy Format"), this, &PlotWindow::copyGraphFormat);
     menuGraph->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pasteGraphFormat);
@@ -217,8 +159,6 @@ void PlotWindow::createContextMenus()
     menuPlot->addAction(QIcon(":/toolbar/paste_fmt"), tr("Paste Format"), this, &PlotWindow::pastePlotFormat);
 
     _plot->menuAxis = menuAxis;
-//    _plot->menuAxisX = menuX;
-//    _plot->menuAxisY = menuY;
     _plot->menuGraph = menuGraph;
     _plot->menuPlot = menuPlot;
     _plot->menuLegend = menuLegend;
@@ -237,6 +177,13 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
     }
     else
         ce->ignore();
+}
+
+void PlotWindow::addAxisVars(QCPAxis* axis)
+{
+    _plot->addTextVar(axis, "{factor}", tr("Axis factor"), [this, axis]{ return QCPL::axisFactorStr(_plot->axisFactor(axis)); });
+    _plot->addTextVar(axis, "{(factor)}", tr("Axis factor (in brackets)"), [this, axis]{
+        auto s = QCPL::axisFactorStr(_plot->axisFactor(axis)); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
 }
 
 void PlotWindow::updateTitle(const QString& title)
@@ -275,15 +222,16 @@ void PlotWindow::addGraph(Graph* g)
 
 void PlotWindow::deleteGraph()
 {
-    SELECTED_GRAPHS
+    auto graphs = selectedGraphs();
+    if (graphs.empty()) return;
 
     QStringList msg;
-    msg << tr("These graphs will be deleted:\n");
+    msg << tr("These graphs will be deleted:") << "<br><br>";
     for (auto g : graphs)
-        msg << g->title();
-    msg << tr("\nConfirm?");
+        msg << "<b>" << g->title() << "</b><br>";
+    msg << "<br>" << tr("Confirm?");
 
-    if (Ori::Dlg::yes(msg.join('\n')))
+    if (Ori::Dlg::yes(msg.join("")))
         deleteGraphs(graphs);
 }
 
@@ -412,22 +360,44 @@ PlotItem* PlotWindow::itemForGraph(Graph* graph) const
     return nullptr;
 }
 
-Graph* PlotWindow::selectedGraph() const
+Graph* PlotWindow::selectedGraph(bool warn) const
 {
+    if (_items.size() == 1)
+        return _items.first()->graph;
     auto lines = _plot->selectedGraphs();
-    if (lines.isEmpty()) return nullptr;
+    if (lines.isEmpty()) {
+        if (warn)
+            PopupMessage::warning(tr("Should select a graph"));
+        return nullptr;
+    }
     auto item = itemForLine(lines.first());
-    if (!item) return nullptr;
-    return item->graph;
+    return item ? item->graph : nullptr;
 }
 
-QVector<Graph*> PlotWindow::selectedGraphs() const
+QVector<Graph*> PlotWindow::selectedGraphs(bool warn) const
 {
+    if (_items.size() == 1)
+        return { _items.first()->graph };
     QVector<Graph*> res;
     foreach (auto line, _plot->selectedGraphs())
         if (auto item = itemForLine(line); item)
             res << item->graph;
+    if (res.isEmpty() and warn)
+        PopupMessage::warning(qApp->tr("Should select a graph"));
     return res;
+}
+
+QCPGraph* PlotWindow::selectedGraphLine(bool warn) const
+{
+    if (_items.size() == 1)
+        return _items.first()->line;
+    auto lines = _plot->selectedGraphs();
+    if (lines.isEmpty()) {
+        if (warn)
+            PopupMessage::warning(tr("Should select a graph"));
+        return nullptr;
+    }
+    return lines.first();
 }
 
 Graph* PlotWindow::findGraphById(const QString& id) const
@@ -436,21 +406,6 @@ Graph* PlotWindow::findGraphById(const QString& id) const
         if (item->graph->id() == id)
             return item->graph;
     return nullptr;
-}
-
-QCPGraph* PlotWindow::selectedGraphLine(bool warn) const
-{
-    auto lines = _plot->selectedGraphs();
-    if (lines.isEmpty()) {
-        if (_items.size() == 1)
-            return _items.first()->line;
-        else {
-            if (warn)
-                PopupMessage::warning(tr("Graphs not selected"));
-            return nullptr;
-        }
-    }
-    return lines.first();
 }
 
 void PlotWindow::selectGraph(Graph* graph)
@@ -512,6 +467,13 @@ void PlotWindow::axisFactorDlgY()
         MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
 }
 
+void PlotWindow::axisFactorDlg()
+{
+    auto axis = QCPL::chooseAxis(_plot);
+    if (axis && _plot->axisFactorDlg(axis))
+        MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+}
+
 void PlotWindow::formatX()
 {
     _plot->axisFormatDlgX();
@@ -530,6 +492,12 @@ void PlotWindow::formatX2()
 void PlotWindow::formatY2()
 {
     _plot->axisFormatDlg(_plot->yAxis2);
+}
+
+void PlotWindow::formatAxis()
+{
+    auto axis = QCPL::chooseAxis(_plot);
+    if (axis) _plot->axisFormatDlg(axis);
 }
 
 void PlotWindow::formatTitle()
@@ -555,25 +523,29 @@ void PlotWindow::formatGraph()
 
 void PlotWindow::addAxisBottom()
 {
-    _plot->addAxis(QCPAxis::atBottom);
+    auto axis = _plot->addAxis(QCPAxis::atBottom);
+    addAxisVars(axis);
     _plot->replot();
 }
 
 void PlotWindow::addAxisLeft()
 {
-    _plot->addAxis(QCPAxis::atLeft);
+    auto axis = _plot->addAxis(QCPAxis::atLeft);
+    addAxisVars(axis);
     _plot->replot();
 }
 
 void PlotWindow::addAxisTop()
 {
-    _plot->addAxis(QCPAxis::atTop);
+    auto axis = _plot->addAxis(QCPAxis::atTop);
+    addAxisVars(axis);
     _plot->replot();
 }
 
 void PlotWindow::addAxisRight()
 {
-    _plot->addAxis(QCPAxis::atRight);
+    auto axis = _plot->addAxis(QCPAxis::atRight);
+    addAxisVars(axis);
     _plot->replot();
 }
 
@@ -714,10 +686,9 @@ void PlotWindow::rename()
 
 void PlotWindow::renameGraph()
 {
-    QCPL::chooseAxes(_plot, {});
-    return;
+    auto graph = selectedGraph();
+    if (!graph) return;
 
-    SELECTED_GRAPH
     QString newTitle = Ori::Dlg::inputText(tr("Graph title:"), graph->title());
     if (newTitle.isEmpty()) return;
     graph->setTitle(newTitle);
@@ -749,5 +720,30 @@ void PlotWindow::exportPlotImg()
     if (QCPL::exportImageDlg(_plot, props)) {
         PersistentState::save("export_img", props.toJson());
         PopupMessage::affirm(tr("Image has been saved\n%1").arg(props.fileName), Qt::AlignRight|Qt::AlignBottom);
+    }
+}
+
+void PlotWindow::changeGraphAxes()
+{
+    auto graph = selectedGraphLine();
+    if (!graph) return;
+
+    bool changed = false;
+    auto res = QCPL::chooseAxes(_plot, {graph->keyAxis(), graph->valueAxis()});
+    if (res.x and res.x != graph->keyAxis()) {
+        changed = true;
+        res.x->setVisible(true);
+        graph->setKeyAxis(res.x);
+        _plot->autolimits(res.x, false);
+    }
+    if (res.y and res.y != graph->valueAxis()) {
+        changed = true;
+        res.y->setVisible(true);
+        graph->setValueAxis(res.y);
+        _plot->autolimits(res.y, false);
+    }
+    if (changed) {
+        _plot->replot();
+        markModified("PlotWindow::changeGraphAxes");
     }
 }
