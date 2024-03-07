@@ -72,9 +72,11 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
 
     _plot = new QCPL::Plot({.replaceDefaultAxes=true});
     _plot->formatAxisTitleAfterFactorSet = true;
+    _plot->highlightAxesOfSelectedGraphs = AppSettings::instance().highlightAxesOfSelectedGraphs;;
     foreach (auto axis, _plot->defaultAxes())
         addAxisVars(axis);
     _plot->setPlottingHint(QCP::phFastPolylines, true);
+    _plot->setInteraction(QCP::iMultiSelect, true);
     connect(_plot, &QCPL::Plot::modified, this, &PlotWindow::markModified);
 
     //_cursor = new QCPL::Cursor(_plot);
@@ -211,12 +213,21 @@ void PlotWindow::addGraph(Graph* g)
     auto item = new PlotItem;
     item->graph = g;
 
-    item->line = _plot->makeNewGraph(g->title(), {g->data().xs, g->data().ys});
+    item->line = _plot->makeNewGraph(g->title(), {g->data().xs, g->data().ys}, false);
     connect(item->line, SIGNAL(selectionChanged(bool)), this, SLOT(graphLineSelected(bool)));
 
     g->setColor(item->line->pen().color());
     g->setIcon(makeGraphIcon(g->color()));
 
+    if (AppSettings::instance().autolimitAfterGraphGreated)
+    {
+        _plot->autolimits(item->line->keyAxis(), false);
+        _plot->autolimits(item->line->valueAxis(), false);
+    }
+    if (AppSettings::instance().selectNewGraph)
+        selectGraphLine(item->line, false);
+
+    _plot->replot();
     _items.append(item);
 }
 
@@ -411,11 +422,14 @@ Graph* PlotWindow::findGraphById(const QString& id) const
 void PlotWindow::selectGraph(Graph* graph)
 {
     auto item = itemForGraph(graph);
-    if (!item) return;
+    if (item) selectGraphLine(item->line);
+}
 
+void PlotWindow::selectGraphLine(QCPGraph* line, bool replot)
+{
     _plot->deselectAll();
-    item->line->setSelection(QCPDataSelection(item->line->data()->dataRange()));
-    _plot->replot();
+    line->setSelection(QCPDataSelection(line->data()->dataRange()));
+    if (replot) _plot->replot();
 }
 
 bool PlotWindow::updateGraph(Graph* graph)
@@ -734,16 +748,23 @@ void PlotWindow::changeGraphAxes()
         changed = true;
         res.x->setVisible(true);
         graph->setKeyAxis(res.x);
-        _plot->autolimits(res.x, false);
+        if (AppSettings::instance().autolitmAfterAxesChanged)
+            _plot->autolimits(res.x, false);
     }
     if (res.y and res.y != graph->valueAxis()) {
         changed = true;
         res.y->setVisible(true);
         graph->setValueAxis(res.y);
-        _plot->autolimits(res.y, false);
+        if (AppSettings::instance().autolitmAfterAxesChanged)
+            _plot->autolimits(res.y, false);
     }
     if (changed) {
         _plot->replot();
         markModified("PlotWindow::changeGraphAxes");
     }
+}
+
+void PlotWindow::settingsChanged()
+{
+    _plot->highlightAxesOfSelectedGraphs = AppSettings::instance().highlightAxesOfSelectedGraphs;
 }

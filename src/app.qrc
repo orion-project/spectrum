@@ -57,6 +57,7 @@
         <file alias="protocol">../img/toolbar/protocol.svg</file>
         <file alias="save_format">../img/toolbar/save_format.svg</file>
         <file alias="save_img">../img/toolbar/save_img.svg</file>
+        <file alias="settings">../img/toolbar/settings.svg</file>
         <file alias="title_x">../img/toolbar/title_x.svg</file>
         <file alias="title_y">../img/toolbar/title_y.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
@@ -79,5 +80,8 @@
     <qresource prefix="/style">
         <file alias="app">app.qss</file>
         <file alias="help">help.css</file>
+    </qresource>
+    <qresource prefix="/config_pages">
+        <file alias="general">../img/misc/opts_gear.svg</file>
     </qresource>
 </RCC>

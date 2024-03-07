@@ -3,6 +3,8 @@
 
 #include <QMdiSubWindow>
 
+#include "../app/AppSettings.h"
+
 namespace QCPL {
 //class Cursor;
 //class CursorPanel;
@@ -23,7 +25,7 @@ public:
     QCPGraph* line;
 };
 
-class PlotWindow : public QWidget
+class PlotWindow : public QWidget, public IAppSettingsListener
 {
     Q_OBJECT
 
@@ -32,6 +34,9 @@ public:
     ~PlotWindow() override;
 
     PlotObj* plotObj() const { return _plotObj; }
+
+    // Implements IAppSettingsListener
+    void settingsChanged() override;
 
     int graphCount() const;
     void addGraph(Graph* g);
@@ -90,6 +95,7 @@ public:
     QCPGraph* selectedGraphLine(bool warn = true) const;
     Graph* findGraphById(const QString& id) const;
     void selectGraph(Graph* graph);
+    void selectGraphLine(QCPGraph* line, bool replot = true);
     bool updateGraph(Graph* graph);
 
     QSize sizeHint() const override { return QSize(600, 400); }

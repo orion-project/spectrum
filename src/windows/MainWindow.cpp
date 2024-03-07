@@ -274,6 +274,14 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
+    auto actAppSettings = A_(tr("Settings..."), this, []{ AppSettings::instance().edit(); }, ":/toolbar/settings");
+
+    menuBar->addMenu(Ori::Gui::menu(tr("Tools"), this, {
+        actAppSettings
+    }));
+
+    //---------------------------------------------------------
+
     auto actWndCascade = A_(tr("Cascade"), _mdiArea, SLOT(cascadeSubWindows()), ":/toolbar/wnd_cascade");
     auto actWndTile = A_(tr("Tile"), _mdiArea, SLOT(tileSubWindows()), ":/toolbar/wnd_tile");
 
@@ -472,13 +480,7 @@ void MainWindow::graphCreated(Graph* graph)
     }
 
     plot->addGraph(graph);
-
-    if (AppSettings::instance().autolimitAfterGraphGreated)
-        plot->autolimits();
-    if (AppSettings::instance().selectNewGraph)
-        plot->selectGraph(graph);
-    else
-        updateStatusBar();
+    updateStatusBar();
 }
 
 void MainWindow::graphUpdated(Graph* graph)
