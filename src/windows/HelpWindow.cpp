@@ -1,7 +1,7 @@
 #include "HelpWindow.h"
 
-#include "../app/AppSettings.h"
-#include "../app/PersistentState.h"
+#include "app/AppSettings.h"
+#include "app/PersistentState.h"
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"

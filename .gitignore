@@ -32,7 +32,7 @@ CMakeLists.txt.user*
 
 # Output
 bin/spectrum
-bin/spectrum.exe
+bin/*.exe
 tmp
 out
 __pycache__

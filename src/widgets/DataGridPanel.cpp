@@ -1,7 +1,10 @@
 #include "DataGridPanel.h"
+
+#include "core/Graph.h"
+
 #include "helpers/OriLayouts.h"
+
 #include "qcpl_graph_grid.h"
-#include "../core/Graph.h"
 
 #include <QLabel>
 #include <QDebug>

@@ -11,7 +11,7 @@ chmod +x make_*.py
 ## Version format
 
 ```
-MAJOR.MINOR.PATCH[-CODENAME]
+MAJOR.MINOR.PATCH
 ```
 
 See: [Semantic Versioning](https://semver.org)
@@ -20,10 +20,9 @@ See: [Semantic Versioning](https://semver.org)
 
 ### Update version info
 
-Decide version numbers for the new release. Current version is stored in `version.txt` file. Increase at least one of `MAJOR`, `MINOR`, or `PATCH` numbers when creating a new release. Update version info that is built into the application and make a new release tag:
+Decide version numbers for the new release. Current version is stored in `version.txt` file. Increase at least one of `MAJOR`, `MINOR`, or `PATCH` numbers when creating a new release. Update version info and make a new release tag:
 
 ```bash
- ./make_version.py 0.1.0
 git commit -am 'Update version info to 0.1.0'
 git tag -a v0.1.0 -m 'Short version description'
 git push origin v0.1.0

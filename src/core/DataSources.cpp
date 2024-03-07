@@ -1,7 +1,7 @@
 #include "DataSources.h"
 
-#include "DataReaders.h"
-#include "../CustomPrefs.h"
+#include "CustomPrefs.h"
+#include "core/DataReaders.h"
 
 #include "helpers/OriTools.h"
 

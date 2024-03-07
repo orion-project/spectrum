@@ -1,9 +1,9 @@
 #include "CsvConfigDialog.h"
 
 #include "CustomPrefs.h"
-#include "OpenFileDlg.h"
 #include "core/DataReaders.h"
 #include "core/DataSources.h"
+#include "dialogs/OpenFileDlg.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"

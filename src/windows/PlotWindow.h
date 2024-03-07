@@ -1,9 +1,9 @@
-#ifndef PLOTWINDOW_H
-#define PLOTWINDOW_H
+#ifndef PLOT_WINDOW_H
+#define PLOT_WINDOW_H
 
 #include <QMdiSubWindow>
 
-#include "../app/AppSettings.h"
+#include "app/AppSettings.h"
 
 namespace QCPL {
 //class Cursor;
@@ -132,4 +132,4 @@ private:
     void addAxisVars(QCPAxis* axis);
 };
 
-#endif // PLOTWINDOW_H
+#endif // PLOT_WINDOW_H

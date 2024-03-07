@@ -1,6 +1,6 @@
 #include "HelpSystem.h"
 
-#include "../windows/HelpWindow.h"
+#include "windows/HelpWindow.h"
 
 #include "core/OriVersion.h"
 #include "helpers/OriLayouts.h"
@@ -158,7 +158,7 @@ void HelpSystem::showAbout()
     labelCodename->setStyleSheet(textColor);
 
     f.setPixelSize(20);
-    auto labelDate = new QLabel(BUILDDATE);
+    auto labelDate = new QLabel(BUILD_DATE);
     labelDate->setFont(f);
     labelDate->setStyleSheet(textColor);
 

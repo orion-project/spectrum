@@ -1,11 +1,11 @@
 #include "Operations.h"
 
-#include "CsvConfigDialog.h"
 #include "CustomPrefs.h"
-#include "OpenFileDlg.h"
 #include "core/Graph.h"
 #include "core/DataSources.h"
 #include "core/Modifiers.h"
+#include "dialogs/CsvConfigDialog.h"
+#include "dialogs/OpenFileDlg.h"
 #include "widgets/RangeEditor.h"
 
 #include "helpers/OriDialogs.h"
