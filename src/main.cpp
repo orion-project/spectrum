@@ -9,6 +9,10 @@
 #include <QCommandLineParser>
 #include <QMessageBox>
 
+#ifndef Q_OS_WIN
+#include <iostream>
+#endif
+
 int main(int argc, char *argv[])
 {
 #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))

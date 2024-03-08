@@ -58,7 +58,10 @@ public:
         document()->setDefaultStyleSheet(QString::fromUtf8(f.readAll()));
     }
 
-    void setSource(const QUrl &url) override
+    void setSource(const QUrl &url)
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+        override
+#endif
     {
         if (isHttpUrl(url))
         {

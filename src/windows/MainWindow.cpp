@@ -235,11 +235,8 @@ void MainWindow::createActions()
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
         actFormatTitle, actFormatLegend,
         0, actFormatAxis, actFactorAxis,
-        //0, actFormatX, actFormatY,
-        //0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
     });
-    tbFormat->setVisible(false); // hidden by default
     addToolBar(Qt::LeftToolBarArea, tbFormat);
 
     //---------------------------------------------------------

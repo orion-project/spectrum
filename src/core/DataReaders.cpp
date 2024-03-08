@@ -18,11 +18,11 @@ static const QVector<QString>& valueSeparators()
 void LineSplitter::detect(const QString& line)
 {
     // Don't skip empty parts; a line like "1,,3" should issue 3 columns
-    splitBehavior = QString::KeepEmptyParts;
+    splitBehavior = Qt::KeepEmptyParts;
     for (auto sep = separators.cbegin(); sep != separators.cend(); sep++)
     {
         separator = *sep;
-        parts = line.splitRef(separator, splitBehavior);
+        parts = QStringView(line).split(separator, splitBehavior);
         if (parts.size() > 1)
         {
             empty = false;
@@ -30,16 +30,16 @@ void LineSplitter::detect(const QString& line)
         }
     }
     // Skip empty parts; a line like "1    3" should issue only 2 columns
-    splitBehavior = QString::SkipEmptyParts;
+    splitBehavior = Qt::SkipEmptyParts;
     separator = ' ';
-    parts = line.splitRef(separator, splitBehavior);
+    parts = QStringView(line).split(separator, splitBehavior);
     if (parts.size() > 1)
     {
         empty = false;
         return;
     }
     separator = '\t';
-    parts = line.splitRef(separator, splitBehavior);
+    parts = QStringView(line).split(separator, splitBehavior);
     if (parts.size() > 1)
     {
         empty = false;
@@ -53,16 +53,16 @@ void LineSplitter::split(const QString& line)
     if (empty)
         detect(line);
     else
-        parts = line.splitRef(separator, splitBehavior);
+        parts = QStringView(line).split(separator, splitBehavior);
 }
 
 //------------------------------------------------------------------------------
 //                                 ValueParser
 //------------------------------------------------------------------------------
 
-void ValueParser::parse(const QStringRef& s)
+void ValueParser::parse(const QStringView &s)
 {
-    QStringRef s1;
+    QStringView s1;
     if (stripNonDigits)
     {
         int len = s.length();
@@ -91,8 +91,9 @@ void ValueParser::parse(const QStringRef& s)
 //                                 ValueAutoParser
 //------------------------------------------------------------------------------
 
-void ValueAutoParser::parse(const QStringRef& s)
+void ValueAutoParser::parse(const QStringView& s)
 {
+    ok = false;
     if (decimalPoint)
     {
         value = localePoint.toDouble(s, &ok);
@@ -250,7 +251,7 @@ QString TextReader::read()
     if (text.isEmpty())
         return qApp->tr("Processing text is empty.");
 
-    QVector<QStringRef> lines = text.splitRef('\n', QString::SkipEmptyParts);
+    auto lines = QStringView(text).split('\n', Qt::SkipEmptyParts);
     if (lines.isEmpty())
         return qApp->tr("Processing text is empty.");
 
@@ -260,7 +261,7 @@ QString TextReader::read()
     {
         for (const QString& separator : valueSeparators())
         {
-            lines = text.splitRef(separator, QString::SkipEmptyParts);
+            lines = QStringView(text).split(separator, Qt::SkipEmptyParts);
             if (lines.size() >= 2)
                 break;
         }
@@ -274,19 +275,19 @@ QString TextReader::read()
     QVector<double> onlyY;
     ValueAutoParser valueParser;
 
-    for (const QStringRef& line : lines)
+    for (const QStringView& line : qAsConst(lines))
     {
         if (line.isEmpty()) continue;
 
-        QVector<QStringRef> parts;
+        QList<QStringView> parts;
         for (const QString& valueSeparator : valueSeparators())
         {
-            parts = line.split(valueSeparator, QString::SkipEmptyParts);
+            parts = line.split(valueSeparator, Qt::SkipEmptyParts);
             if (parts.size() > 1) break;
         }
 
         gotX = gotY = false;
-        for (const QStringRef& part : parts)
+        for (const QStringView& part : qAsConst(parts))
         {
             valueParser.parse(part);
             if (!valueParser.ok)
