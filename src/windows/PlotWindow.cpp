@@ -1,9 +1,9 @@
 #include "PlotWindow.h"
 
-#include "../core/Graph.h"
-//#include "../core/GraphMath.h"
-#include "../app/PersistentState.h"
-#include "../Operations.h"
+#include "Operations.h"
+#include "core/Graph.h"
+//#include "core/GraphMath.h"
+#include "app/PersistentState.h"
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"

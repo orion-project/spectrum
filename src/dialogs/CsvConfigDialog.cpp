@@ -1,9 +1,9 @@
 #include "CsvConfigDialog.h"
 
 #include "CustomPrefs.h"
-#include "OpenFileDlg.h"
 #include "core/DataReaders.h"
 #include "core/DataSources.h"
+#include "dialogs/OpenFileDlg.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
@@ -290,7 +290,7 @@ CsvConfigDialog::CsvConfigDialog(bool editMode) : QWidget(), _editMode(editMode)
 
     auto graphsGroup = new QGroupBox(tr("Graphs"));
     _layoutGraphs = new QGridLayout;
-    _layoutGraphs->setMargin(3);
+    _layoutGraphs->setContentsMargins(3, 3, 3, 3);
     _layoutGraphs->setHorizontalSpacing(6);
     _layoutGraphs->setVerticalSpacing(3);
     LayoutV({_layoutGraphs, Stretch()}).setMargin(0).useFor(graphsGroup);
@@ -421,7 +421,7 @@ void CsvConfigDialog::updatePreviewData()
     {
         lineSplitter.split(line);
         QStringList rowValues;
-        foreach (const QStringRef& part, lineSplitter.parts)
+        foreach (const auto& part, lineSplitter.parts)
         {
             valueParser.parse(part);
             rowValues << (valueParser.ok ? part.toString() : QStringLiteral("NaN"));

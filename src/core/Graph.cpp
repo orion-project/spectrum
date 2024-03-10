@@ -1,7 +1,7 @@
 #include "Graph.h"
 
-#include "DataSources.h"
-#include "Modifiers.h"
+#include "core/DataSources.h"
+#include "core/Modifiers.h"
 
 #include <QUuid>
 

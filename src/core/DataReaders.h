@@ -12,8 +12,8 @@ struct LineSplitter
     bool empty = true;
     QChar separator;
     QString separators;
-    QVector<QStringRef> parts;
-    QString::SplitBehavior splitBehavior;
+    QList<QStringView> parts;
+    Qt::SplitBehavior splitBehavior;
 
     void detect(const QString& line);
     void split(const QString& line);
@@ -26,7 +26,7 @@ struct ValueParser
         locale = QLocale(decimalPoint ? QLocale::C : QLocale::Russian);
     }
 
-    void parse(const QStringRef& s);
+    void parse(const QStringView& s);
 
     bool ok;
     double value;
@@ -36,7 +36,7 @@ struct ValueParser
 
 struct ValueAutoParser
 {
-    void parse(const QStringRef& s);
+    void parse(const QStringView& s);
 
     bool ok;
     double value;

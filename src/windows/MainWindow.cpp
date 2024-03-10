@@ -1,13 +1,13 @@
 #include "MainWindow.h"
 
-#include "../app/AppSettings.h"
-#include "../app/HelpSystem.h"
-#include "../Operations.h"
-#include "../core/Graph.h"
-#include "../core/DataExporters.h"
-#include "../core/DataSources.h"
-#include "../widgets/DataGridPanel.h"
-#include "../windows/PlotWindow.h"
+#include "Operations.h"
+#include "app/AppSettings.h"
+#include "app/HelpSystem.h"
+#include "core/Graph.h"
+#include "core/DataExporters.h"
+#include "core/DataSources.h"
+#include "widgets/DataGridPanel.h"
+#include "windows/PlotWindow.h"
 
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
@@ -235,11 +235,8 @@ void MainWindow::createActions()
     auto tbFormat = Ori::Gui::toolbar(tr("Format"), "format", {
         actFormatTitle, actFormatLegend,
         0, actFormatAxis, actFactorAxis,
-        //0, actFormatX, actFormatY,
-        //0, actFactorX, actFactorY,
         0, actSavePlotFormat, actLoadPlotFormat,
     });
-    tbFormat->setVisible(false); // hidden by default
     addToolBar(Qt::LeftToolBarArea, tbFormat);
 
     //---------------------------------------------------------

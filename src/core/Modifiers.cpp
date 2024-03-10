@@ -1,14 +1,13 @@
 #include "Modifiers.h"
 
-#include "GraphMath.h"
-#include "../CustomPrefs.h"
-#include "../app/HelpSystem.h"
+#include "CustomPrefs.h"
+#include "app/HelpSystem.h"
+#include "core/GraphMath.h"
 
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"
 #include "widgets/OriValueEdit.h"
-#include "widgets/OriOptionsGroup.h"
 
 #include <QApplication>
 #include <QGroupBox>
