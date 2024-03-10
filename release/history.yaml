@@ -1,12 +1,16 @@
 history:
-  - version: 7.0.2-alpha2
-    date: ?
+  - version: 7.0.3
+    date: 2024-03-10
     changes:
       - text: Can open several data files (plain and csv)
-      - text: Diagram format dialolgs (title, axes, legend)
+      - text: Diagram format dialolgs (graph, title, axes, legend)
+      - text: Copy-paste diagram part formats (graph, title, axes, legend)
       - text: Decimal axis factors
       - text: (NEW) Custom axis factor
       - text: (NEW) Internal help viever
+      - tetx: (NEW) Can use different axes for different graphs
+      - text: Add docs for Scale and Offset functions
+      - text: Switch to cmake
 
   - version: 7.0.1-alpha1
     date: 2020-02-16
