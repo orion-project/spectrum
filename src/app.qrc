@@ -25,6 +25,7 @@
         <file alias="graph_decim">../img/toolbar/graph_decim.svg</file>
         <file alias="graph_delete">../img/toolbar/graph_delete.svg</file>
         <file alias="graph_inv">../img/toolbar/graph_inv.svg</file>
+        <file alias="graph_fit">../img/toolbar/graph_fit.svg</file>
         <file alias="graph_flip">../img/toolbar/graph_flip.svg</file>
         <file alias="graph_format">../img/toolbar/graph_format.svg</file>
         <file alias="graph_norm">../img/toolbar/graph_norm.svg</file>

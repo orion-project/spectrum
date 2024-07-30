@@ -44,6 +44,7 @@ public slots:
     void modifyInvert();
     void modifyDecimate();
     void modifyAverage();
+    void modifyFitLimits();
     void graphRefresh();
     void graphReopen();
 

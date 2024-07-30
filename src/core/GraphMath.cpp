@@ -72,7 +72,7 @@ GraphPoints Offset::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;
-    int count = data.ys.size();
+    int count = values.size();
     QVector<double> newValues(count);
     double offset = 0;
     switch(mode)
@@ -92,7 +92,7 @@ GraphPoints Flip::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;
-    int count = data.ys.size();
+    int count = values.size();
     QVector<double> newValues(count);
     double center = 0;
     switch(centerMode)
@@ -114,7 +114,7 @@ GraphPoints Upend::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;
-    int count = data.ys.size();
+    int count = values.size();
     QVector<double> newValues(count);
     for (int i = 0; i < count; i++)
         newValues[i] = value - values.at(i);
@@ -125,7 +125,7 @@ GraphPoints Scale::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;
-    int count = data.ys.size();
+    int count = values.size();
     QVector<double> newValues(count);
     double offset = 0;
     switch (centerMode)
@@ -146,7 +146,7 @@ GraphPoints Normalize::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;
-    int count = data.ys.size();
+    int count = values.size();
     QVector<double> newValues(count);
     double factor = 1;
     switch (mode)
@@ -163,7 +163,7 @@ GraphPoints Invert::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;
-    int count = data.ys.size();
+    int count = values.size();
     QVector<double> newValues(count);
     for (int i = 0; i < count; i++)
         newValues[i] = value / values.at(i);
@@ -270,6 +270,30 @@ GraphPoints Average::calc(const GraphPoints& data) const
         }
     }
     return {xs, ys};
+}
+
+GraphPoints FitLimits::calc(const GraphPoints& data) const
+{
+    bool alongX = dir == DIR_X;
+    const QVector<double>& values = alongX ? data.xs : data.ys;
+    int count = values.size();
+    if (count < 2)
+        return {data.xs, data.ys};
+    QVector<double> newValues(count);
+    double scale, oldOffset;
+    if (alongX) {
+        scale = qAbs(end - beg) / qAbs(values.last() - values.first());
+        oldOffset = values.first();
+    } else {
+        double _min = min(data.ys);
+        double _max = max(data.ys);
+        scale = qAbs(end - beg) / (_max - _min);
+        oldOffset = _min;
+    }
+    double newOffset = beg;
+    for (int i = 0; i < count; i++)
+        newValues[i] = (values.at(i) - oldOffset) * scale + newOffset;
+    return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
 } // namespace GraphMath

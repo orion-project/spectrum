@@ -37,5 +37,6 @@ MODIFIER(Normalize)
 MODIFIER(Invert)
 MODIFIER(Decimate)
 MODIFIER(Average)
+MODIFIER(FitLimits)
 
 #endif // MODIFIERS_H

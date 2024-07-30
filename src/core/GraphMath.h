@@ -88,6 +88,13 @@ struct Average
     GraphPoints calc(const GraphPoints& data) const;
 };
 
+struct FitLimits
+{
+    Direction dir;
+    double beg, end;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
 } // namespace GraphMath
 
 #endif // GRAPH_MATH_H

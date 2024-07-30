@@ -10,7 +10,9 @@
 #include "widgets/OriValueEdit.h"
 
 #include <QApplication>
+#include <QFormLayout>
 #include <QGroupBox>
+#include <QLabel>
 #include <QRadioButton>
 #include <QSpinBox>
 
@@ -172,12 +174,13 @@ struct State
 
 bool dlg(const QString &title, std::initializer_list<LayoutItem> items, const QString &helpTopic, std::function<void()> apply)
 {
+    Q_UNUSED(helpTopic)
     auto editor = LayoutV(items).setMargin(0).makeWidgetAuto();
     auto ok = Ori::Dlg::Dialog(editor)
         .windowModal()
         .withTitle(title)
-        .withOnHelp([helpTopic]{ Z::HelpSystem::topic(helpTopic); })
-        .withHelpIcon(":/toolbar/help")
+        // .withOnHelp([helpTopic]{ Z::HelpSystem::topic(helpTopic); })
+        // .withHelpIcon(":/toolbar/help")
         .withContentToButtonsSpacingFactor(2)
         .exec();
     if (ok)
@@ -386,5 +389,39 @@ bool AverageModifier::configure()
         state["step"] = _params.step = intv->step();
         state["useStep"] = _params.useStep = intv->useStep();
         state["pointPos"] = _params.pointPos = pos->selection();
+    });
+}
+
+//------------------------------------------------------------------------------
+//                            FitLimitsModifier
+//------------------------------------------------------------------------------
+
+bool FitLimitsModifier::configure()
+{
+    auto dir = new AxisOption;
+
+    auto lims = new QGroupBox(qApp->tr("New Limits"));
+    auto layout = new QFormLayout(lims);
+    auto begLabel = new QLabel(qApp->tr("Left"));
+    auto endLabel = new QLabel(qApp->tr("Right"));
+    auto beg = makeEditor();
+    auto end = makeEditor();
+    layout->addRow(begLabel, beg);
+    layout->addRow(endLabel, end);
+
+    dir->connect(dir->button(DIR_X), &QRadioButton::toggled, dir, [begLabel, endLabel](bool alongX){
+        begLabel->setText(alongX ? qApp->tr("Left") : qApp->tr("Bottom"));
+        endLabel->setText(alongX ? qApp->tr("Right") : qApp->tr("Top"));
+    });
+
+    State state("fitLimits");
+    dir->setSelection(state["dir"], DIR_X);
+    beg->setValue(state["beg"].toDouble(0));
+    end->setValue(state["end"].toDouble(1));
+
+    return dlg(qApp->tr("Fit Limits"), {dir, lims}, "fit_limits", [&]{
+        state["dir"] = _params.dir = dir->selection();
+        state["beg"] = _params.beg = beg->value();
+        state["end"] = _params.end = end->value();
     });
 }

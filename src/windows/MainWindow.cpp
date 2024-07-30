@@ -201,13 +201,16 @@ void MainWindow::createActions()
     auto actInvert = A_(tr("Invert (Const ÷ Graph)..."), _operations, SLOT(modifyInvert()), ":/toolbar/graph_inv");
     auto actDecimate = A_(tr("Decimate..."), _operations, SLOT(modifyDecimate()), ":/toolbar/graph_decim");
     auto actAverage = A_(tr("Average..."), _operations, SLOT(modifyAverage()), ":/toolbar/graph_avg");
+    auto actFitLimits = A_(tr("Fit Limits..."), _operations, SLOT(modifyFitLimits()), ":/toolbar/graph_fit");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
         actOffset, actUpend, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
+        0, actFitLimits,
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
         actOffset, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
+        0, actFitLimits,
     }));
 
     //---------------------------------------------------------
