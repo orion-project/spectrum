@@ -37,7 +37,11 @@ public slots:
     void addFromClipboardCsv();
     void addRandomSample();
     void modifyOffset();
+    void modifyFlip();
+    void modifyFlipRaw();
     void modifyScale();
+    void modifyNormalize();
+    void modifyInvert();
     void graphRefresh();
     void graphReopen();
 

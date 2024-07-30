@@ -22,20 +22,52 @@ double min(const QVector<double>& data);
 double max(const QVector<double>& data);
 double avg(const QVector<double>& data);
 
+enum Direction {DIR_Y, DIR_X};
+
 struct Offset
 {
-    enum Direction {DIR_X, DIR_Y} dir;
-    enum Mode {MODE_MAX, MODE_MIN, MODE_AVG, MODE_VAL} mode;
+    Direction dir;
+    enum Mode {MODE_MAX, MODE_MIN, MODE_AVG, MODE_MID, MODE_VAL} mode;
+    double value;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct Flip
+{
+    Direction dir;
+    enum Mode {CENTER_ZERO, CENTER_MAX, CENTER_MIN, CENTER_AVG, CENTER_MID, CENTER_VAL} centerMode;
+    double centerValue;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct FlipRaw
+{
+    Direction dir;
     double value;
     GraphPoints calc(const GraphPoints& data) const;
 };
 
 struct Scale
 {
-    enum Direction {DIR_X, DIR_Y} dir;
-    enum CenterMode {CENTER_NON, CENTER_MAX, CENTER_MIN, CENTER_AVG, CENTER_VAL} centerMode;
+    Direction dir;
+    enum CenterMode {CENTER_ZERO, CENTER_MAX, CENTER_MIN, CENTER_AVG, CENTER_MID, CENTER_VAL} centerMode;
     double centerValue;
     double scaleFactor;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct Normalize
+{
+    Direction dir;
+    enum Mode {MODE_MAX, MODE_VAL} mode;
+    double value;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct Invert
+{
+    Direction dir;
+    double value;
     GraphPoints calc(const GraphPoints& data) const;
 };
 

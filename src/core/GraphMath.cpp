@@ -63,6 +63,11 @@ double avg(const QVector<double>& data)
     return res / double(data.size());
 }
 
+double mid(const QVector<double>& data)
+{
+    return (min(data) + max(data)) / 2.0;
+}
+
 GraphPoints Offset::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
@@ -75,10 +80,44 @@ GraphPoints Offset::calc(const GraphPoints& data) const
     case MODE_MAX: offset = -max(values); break;
     case MODE_MIN: offset = -min(values); break;
     case MODE_AVG: offset = -avg(values); break;
+    case MODE_MID: offset = -mid(values); break;
     case MODE_VAL: offset = value; break;
     }
     for (int i = 0; i < count; i++)
         newValues[i] = values.at(i) + offset;
+    return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
+}
+
+GraphPoints Flip::calc(const GraphPoints& data) const
+{
+    bool alongX = dir == DIR_X;
+    const QVector<double>& values = alongX ? data.xs : data.ys;
+    int count = data.ys.size();
+    QVector<double> newValues(count);
+    double center = 0;
+    switch(centerMode)
+    {
+    case CENTER_ZERO: center = 0; break;
+    case CENTER_MAX: center = max(values); break;
+    case CENTER_MIN: center = min(values); break;
+    case CENTER_AVG: center = avg(values); break;
+    case CENTER_MID: center = mid(values); break;
+    case CENTER_VAL: center = centerValue; break;
+    }
+    center *= 2; // -(g - c) + c
+    for (int i = 0; i < count; i++)
+        newValues[i] = center - values.at(i);
+    return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
+}
+
+GraphPoints FlipRaw::calc(const GraphPoints& data) const
+{
+    bool alongX = dir == DIR_X;
+    const QVector<double>& values = alongX ? data.xs : data.ys;
+    int count = data.ys.size();
+    QVector<double> newValues(count);
+    for (int i = 0; i < count; i++)
+        newValues[i] = value - values.at(i);
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
@@ -91,14 +130,43 @@ GraphPoints Scale::calc(const GraphPoints& data) const
     double offset = 0;
     switch (centerMode)
     {
-    case CENTER_NON: offset = 0; break;
-    case CENTER_MAX: offset = GraphMath::max(values); break;
-    case CENTER_MIN: offset = GraphMath::min(values); break;
-    case CENTER_AVG: offset = GraphMath::avg(values); break;
+    case CENTER_ZERO: offset = 0; break;
+    case CENTER_MAX: offset = max(values); break;
+    case CENTER_MIN: offset = min(values); break;
+    case CENTER_AVG: offset = avg(values); break;
+    case CENTER_MID: offset = mid(values); break;
     case CENTER_VAL: offset = centerValue;
     }
     for (int i = 0; i < count; i++)
         newValues[i] = (values.at(i) - offset) * scaleFactor + offset;
+    return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
+}
+
+GraphPoints Normalize::calc(const GraphPoints& data) const
+{
+    bool alongX = dir == DIR_X;
+    const QVector<double>& values = alongX ? data.xs : data.ys;
+    int count = data.ys.size();
+    QVector<double> newValues(count);
+    double factor = 1;
+    switch (mode)
+    {
+    case MODE_MAX: factor = max(values); break;
+    case MODE_VAL: factor = value;
+    }
+    for (int i = 0; i < count; i++)
+        newValues[i] = values.at(i) / factor;
+    return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
+}
+
+GraphPoints Invert::calc(const GraphPoints& data) const
+{
+    bool alongX = dir == DIR_X;
+    const QVector<double>& values = alongX ? data.xs : data.ys;
+    int count = data.ys.size();
+    QVector<double> newValues(count);
+    for (int i = 0; i < count; i++)
+        newValues[i] = value / values.at(i);
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 

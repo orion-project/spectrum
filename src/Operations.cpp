@@ -133,15 +133,12 @@ void Operations::addRandomSample()
     }
 }
 
-void Operations::modifyOffset()
-{
-    modifyGraph(new OffsetModifier);
-}
-
-void Operations::modifyScale()
-{
-    modifyGraph(new ScaleModifier);
-}
+void Operations::modifyOffset() { modifyGraph(new OffsetModifier); }
+void Operations::modifyFlip() { modifyGraph(new FlipModifier); }
+void Operations::modifyFlipRaw() { modifyGraph(new FlipRawModifier); }
+void Operations::modifyScale() { modifyGraph(new ScaleModifier); }
+void Operations::modifyNormalize() { modifyGraph(new NormalizeModifier); }
+void Operations::modifyInvert() { modifyGraph(new InvertModifier); }
 
 void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad)
 {

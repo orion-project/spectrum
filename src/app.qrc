@@ -22,7 +22,10 @@
         <file alias="format_x">../img/toolbar/format_x.svg</file>
         <file alias="format_y">../img/toolbar/format_y.svg</file>
         <file alias="graph_delete">../img/toolbar/graph_delete.svg</file>
+        <file alias="graph_inv">../img/toolbar/graph_inv.svg</file>
+        <file alias="graph_flip">../img/toolbar/graph_flip.svg</file>
         <file alias="graph_format">../img/toolbar/graph_format.svg</file>
+        <file alias="graph_norm">../img/toolbar/graph_norm.svg</file>
         <file alias="graph_offset">../img/toolbar/graph_offset.svg</file>
         <file alias="graph_scale">../img/toolbar/graph_scale.svg</file>
         <file alias="graph_title">../img/toolbar/graph_title.svg</file>
