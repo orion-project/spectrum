@@ -110,7 +110,7 @@ GraphPoints Flip::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-GraphPoints FlipRaw::calc(const GraphPoints& data) const
+GraphPoints Upend::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;
@@ -168,6 +168,108 @@ GraphPoints Invert::calc(const GraphPoints& data) const
     for (int i = 0; i < count; i++)
         newValues[i] = value / values.at(i);
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
+}
+
+GraphPoints Decimate::calc(const GraphPoints& data) const
+{
+    QVector<double> xs, ys;
+    if (data.xs.size() < 2 || data.xs.size() != data.ys.size())
+        return {data.xs, data.ys};
+    xs << data.xs.first();
+    ys << data.ys.first();
+    if ((useStep && step >= data.xs.last() - data.xs.first()) || points >= data.xs.size()) {
+        xs << data.xs.last();
+        ys << data.ys.last();
+        return {xs, ys};
+    }
+    if ((useStep && step <= 0) || points <= 1)
+        return {data.xs, data.ys};
+    if (useStep) {
+        double startX = data.xs.at(0);
+        for (int i = 1; i < data.xs.size(); i++) {
+            double x = data.xs.at(i);
+            if (x - startX > step) {
+                double prevX = data.xs.at(i-1);
+                xs << prevX;
+                ys << data.ys.at(i-1);
+                startX = prevX;
+            }
+        }
+    } else {
+        int startI = 0;
+        for (int i = 1; i < data.xs.size(); i++) {
+            if (i - startI >= points) {
+                xs << data.xs.at(i);
+                ys << data.ys.at(i);
+                startI = i;
+            }
+        }
+    }
+    return {xs, ys};
+}
+
+GraphPoints Average::calc(const GraphPoints& data) const
+{
+    QVector<double> xs, ys;
+    if (data.xs.size() < 2 || data.xs.size() != data.ys.size())
+        return {data.xs, data.ys};
+    if ((useStep && step >= data.xs.last() - data.xs.first()) || points >= data.xs.size()) {
+        double v = avg(data.ys);
+        xs << data.xs.first();
+        ys << v;
+        xs << data.xs.last();
+        ys << v;
+        return {xs, ys};
+    }
+    if ((useStep && step <= 0) || points <= 1)
+        return {data.xs, data.ys};
+    if (useStep) {
+        double startX = data.xs.at(0);
+        double acc = data.ys.at(0);
+        double cnt = 1;
+        for (int i = 1; i < data.xs.size(); i++) {
+            double x = data.xs.at(i);
+            if (x - startX > step) {
+                double prevX = data.xs.at(i-1);
+                switch (pointPos) {
+                case POS_BEG: xs << startX; break;
+                case POS_END: xs << prevX; break;
+                case POS_MID: xs << (prevX + startX)/2.0; break;
+                }
+                ys << acc / cnt;
+                acc = 0;
+                cnt = 0;
+                startX = prevX;
+            } else {
+                acc += data.ys.at(i);
+                cnt++;
+            }
+        }
+    } else {
+        int startI = 0;
+        double startX = data.xs.at(0);
+        double acc = data.ys.at(0);
+        double cnt = 1;
+        for (int i = 1; i < data.xs.size(); i++) {
+            double x = data.xs.at(i);
+            if (i - startI >= points) {
+                switch (pointPos) {
+                case POS_BEG: xs << startX; break;
+                case POS_END: xs << x; break;
+                case POS_MID: xs << (x + startX)/2.0; break;
+                }
+                ys << acc / cnt;
+                acc = 0;
+                cnt = 0;
+                startI = i;
+                startX = x;
+            } else {
+                acc += data.ys.at(i);
+                cnt++;
+            }
+        }
+    }
+    return {xs, ys};
 }
 
 } // namespace GraphMath

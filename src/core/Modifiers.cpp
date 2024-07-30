@@ -12,15 +12,17 @@
 #include <QApplication>
 #include <QGroupBox>
 #include <QRadioButton>
+#include <QSpinBox>
 
 using namespace Ori::Layouts;
 using namespace Ori::Gui;
 using namespace GraphMath;
+using Ori::Widgets::ValueEdit;
 
 namespace {
 
-Ori::Widgets::ValueEdit* makeEditor() {
-    auto editor = new Ori::Widgets::ValueEdit;
+ValueEdit* makeEditor() {
+    auto editor = new ValueEdit;
     Ori::Gui::adjustFont(editor);
     return editor;
 }
@@ -42,18 +44,17 @@ public:
     }
 
 private:
-    Ori::Widgets::ValueEdit* _editor;
+    ValueEdit* _editor;
 };
 
 template <typename TOption> class RadioOptions : public QGroupBox
 {
 public:
-    RadioOptions(const QString &title, std::initializer_list<QPair<TOption, QString>> opts) : QGroupBox(title), _title(title)
+    RadioOptions(const QString &title, std::initializer_list<QPair<TOption, QString>> opts) : QGroupBox(title)
     {
         setLayout(new QVBoxLayout);
         for (auto opt = opts.begin(); opt != opts.end(); opt++) {
             auto but = new QRadioButton(opt->second);
-            _buttonIds << opt->first;
             _buttons.insert(opt->first, but);
             layout()->addWidget(but);
         }
@@ -88,7 +89,7 @@ public:
         connect(_buttons[option], &QRadioButton::clicked, this, [this](bool checked){
             if (checked) _editor->setFocus();
         });
-        connect(_editor, &Ori::Widgets::ValueEdit::valueEdited, this, [this, option](){
+        connect(_editor, &ValueEdit::valueEdited, this, [this, option](){
             _buttons[option]->setChecked(true);
         });
         layout()->addWidget(_editor);
@@ -97,8 +98,6 @@ public:
     Ori::Widgets::ValueEdit* editor() const { return _editor; }
 
 private:
-    QString _title;
-    QList<int> _buttonIds;
     QMap<int, QRadioButton*> _buttons;
     Ori::Widgets::ValueEdit* _editor = nullptr;
 };
@@ -110,6 +109,43 @@ public:
         { DIR_X, qApp->tr("Along X Axis" )},
         { DIR_Y, qApp->tr("Along Y Axis" )},
     }) {}
+};
+
+class IntervalOption : public QGroupBox
+{
+public:
+    IntervalOption(const QString &title) : QGroupBox(title)
+    {
+        auto layout = new QGridLayout;
+        setLayout(layout);
+        _usePoints = new QRadioButton(tr("Points"));
+        _useStep = new QRadioButton(tr("Value"));
+        _points = new QSpinBox;
+        _points->setRange(1, std::numeric_limits<int>::max());
+        _step = makeEditor();
+        layout->addWidget(_usePoints, 0, 0);
+        layout->addWidget(_points, 0, 1);
+        layout->addWidget(_useStep, 1, 0);
+        layout->addWidget(_step, 1, 1);
+        connect(_usePoints, &QRadioButton::clicked, this, [this](bool checked){ if (checked) _points->setFocus(); });
+        connect(_useStep, &QRadioButton::clicked, this, [this](bool checked){ if (checked) _step->setFocus(); });
+        connect(_points, qOverload<int>(&QSpinBox::valueChanged), this, [this](){ _usePoints->setChecked(true); });
+        connect(_step, &ValueEdit::valueEdited, this, [this](){ _useStep->setChecked(true); });
+    }
+
+    int points() const { return _points->value(); }
+    void setPoints(const QJsonValue& val, int def) { _points->setValue(val.toInt(def)); }
+
+    double step() const { return _step->value(); }
+    void setStep(const QJsonValue& val, double def) { _step->setValue(val.toDouble(def)); }
+
+    bool useStep() const { return _useStep->isChecked(); }
+    void setUseStep(const QJsonValue& val) { (val.toBool() ? _useStep : _usePoints)->setChecked(true); }
+
+private:
+    QRadioButton *_usePoints, *_useStep;
+    QSpinBox *_points;
+    ValueEdit *_step;
 };
 
 struct State
@@ -217,16 +253,16 @@ bool FlipModifier::configure()
 //                              FlipRawModifier
 //------------------------------------------------------------------------------
 
-bool FlipRawModifier::configure()
+bool UpendModifier::configure()
 {
     auto dir = new AxisOption;
     auto val = new ValueOption(qApp->tr("Value"));
 
-    State state("flipRaw");
+    State state("upend");
     dir->setSelection(state["dir"]);
     val->setValue(state["value"]);
 
-    return dlg(qApp->tr("Flip"), {dir, val}, "flip", [&]{
+    return dlg(qApp->tr("Upend"), {dir, val}, "flip", [&]{
         state["dir"] = _params.dir = dir->selection();
         state["value"] = _params.value = val->value();
     });
@@ -303,5 +339,52 @@ bool InvertModifier::configure()
     return dlg(qApp->tr("Invert"), {dir, val}, "invert", [&]{
         state["dir"] = _params.dir = dir->selection();
         state["value"] = _params.value = val->value();
+    });
+}
+
+//------------------------------------------------------------------------------
+//                              DecimateModifier
+//------------------------------------------------------------------------------
+
+bool DecimateModifier::configure()
+{
+    auto intv = new IntervalOption(qApp->tr("Interval"));
+
+    State state("decimate");
+    intv->setPoints(state["points"], 2);
+    intv->setStep(state["step"], 1);
+    intv->setUseStep(state["useStep"]);
+
+    return dlg(qApp->tr("Decimate"), {intv}, "decimate", [&]{
+        state["points"] = _params.points = intv->points();
+        state["step"] = _params.step = intv->step();
+        state["useStep"] = _params.useStep = intv->useStep();
+    });
+}
+
+//------------------------------------------------------------------------------
+//                              AverageModifier
+//------------------------------------------------------------------------------
+
+bool AverageModifier::configure()
+{
+    auto intv = new IntervalOption(qApp->tr("Interval"));
+    auto pos = new RadioOptions<Average::PointPos>(qApp->tr("Point Position"), {
+        { Average::POS_BEG, qApp->tr("Begin of interval") },
+        { Average::POS_MID, qApp->tr("Middle of interval") },
+        { Average::POS_END, qApp->tr("End of interval") },
+    });
+
+    State state("average");
+    intv->setPoints(state["points"], 2);
+    intv->setStep(state["step"], 1);
+    intv->setUseStep(state["useStep"]);
+    pos->setSelection(state["pointPos"], Average::POS_MID);
+
+    return dlg(qApp->tr("Average"), {intv, pos}, "average", [&]{
+        state["points"] = _params.points = intv->points();
+        state["step"] = _params.step = intv->step();
+        state["useStep"] = _params.useStep = intv->useStep();
+        state["pointPos"] = _params.pointPos = pos->selection();
     });
 }

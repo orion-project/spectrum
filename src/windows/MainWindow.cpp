@@ -194,18 +194,20 @@ void MainWindow::createActions()
     //---------------------------------------------------------
 
     auto actOffset = A_(tr("Offset (Graph ± Const)..."), _operations, SLOT(modifyOffset()), ":/toolbar/graph_offset", Qt::Key_Plus);
-    auto actFlipRaw = A_(tr("Upend (Const - Graph)..."), _operations, SLOT(modifyFlipRaw()), ":/toolbar/graph_flip");
+    auto actUpend = A_(tr("Upend (Const - Graph)..."), _operations, SLOT(modifyUpend()), ":/toolbar/graph_flip");
     auto actFlip = A_(tr("Flip..."), _operations, SLOT(modifyFlip()), ":/toolbar/graph_flip");
     auto actScale = A_(tr("Scale (Graph × Const)..."), _operations, SLOT(modifyScale()), ":/toolbar/graph_scale", Qt::Key_Asterisk);
     auto actNormalize = A_(tr("Normalize (Graph ÷ Const)..."), _operations, SLOT(modifyNormalize()), ":/toolbar/graph_norm", Qt::Key_Slash);
     auto actInvert = A_(tr("Invert (Const ÷ Graph)..."), _operations, SLOT(modifyInvert()), ":/toolbar/graph_inv");
+    auto actDecimate = A_(tr("Decimate..."), _operations, SLOT(modifyDecimate()), ":/toolbar/graph_decim");
+    auto actAverage = A_(tr("Average..."), _operations, SLOT(modifyAverage()), ":/toolbar/graph_avg");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
-        actOffset, actFlipRaw, actFlip, 0, actScale, actNormalize, actInvert,
+        actOffset, actUpend, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
-        actOffset, actFlip, 0, actScale, actNormalize, actInvert,
+        actOffset, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
     }));
 
     //---------------------------------------------------------

@@ -21,6 +21,8 @@
         <file alias="format_axis">../img/toolbar/format_axis.svg</file>
         <file alias="format_x">../img/toolbar/format_x.svg</file>
         <file alias="format_y">../img/toolbar/format_y.svg</file>
+        <file alias="graph_avg">../img/toolbar/graph_avg.svg</file>
+        <file alias="graph_decim">../img/toolbar/graph_decim.svg</file>
         <file alias="graph_delete">../img/toolbar/graph_delete.svg</file>
         <file alias="graph_inv">../img/toolbar/graph_inv.svg</file>
         <file alias="graph_flip">../img/toolbar/graph_flip.svg</file>

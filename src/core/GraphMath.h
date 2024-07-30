@@ -40,7 +40,7 @@ struct Flip
     GraphPoints calc(const GraphPoints& data) const;
 };
 
-struct FlipRaw
+struct Upend
 {
     Direction dir;
     double value;
@@ -68,6 +68,23 @@ struct Invert
 {
     Direction dir;
     double value;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct Decimate
+{
+    int points;
+    double step;
+    bool useStep;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct Average
+{
+    int points;
+    double step;
+    bool useStep;
+    enum PointPos { POS_MID, POS_BEG, POS_END } pointPos;
     GraphPoints calc(const GraphPoints& data) const;
 };
 

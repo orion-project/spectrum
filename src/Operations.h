@@ -38,10 +38,12 @@ public slots:
     void addRandomSample();
     void modifyOffset();
     void modifyFlip();
-    void modifyFlipRaw();
+    void modifyUpend();
     void modifyScale();
     void modifyNormalize();
     void modifyInvert();
+    void modifyDecimate();
+    void modifyAverage();
     void graphRefresh();
     void graphReopen();
 

@@ -135,10 +135,12 @@ void Operations::addRandomSample()
 
 void Operations::modifyOffset() { modifyGraph(new OffsetModifier); }
 void Operations::modifyFlip() { modifyGraph(new FlipModifier); }
-void Operations::modifyFlipRaw() { modifyGraph(new FlipRawModifier); }
+void Operations::modifyUpend() { modifyGraph(new UpendModifier); }
 void Operations::modifyScale() { modifyGraph(new ScaleModifier); }
 void Operations::modifyNormalize() { modifyGraph(new NormalizeModifier); }
 void Operations::modifyInvert() { modifyGraph(new InvertModifier); }
+void Operations::modifyDecimate() { modifyGraph(new DecimateModifier); }
+void Operations::modifyAverage() { modifyGraph(new AverageModifier); }
 
 void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad)
 {

@@ -1,43 +1,53 @@
 history:
-  - version: 7.0.3
-    date: 2024-03-10
-    changes:
-      - text: Can open several data files (plain and csv)
-      - text: Diagram format dialolgs (graph, title, axes, legend)
-      - text: Copy-paste diagram part formats (graph, title, axes, legend)
-      - text: Decimal axis factors
-      - text: (NEW) Custom axis factor
-      - text: (NEW) Internal help viever
-      - tetx: (NEW) Can use different axes for different graphs
-      - text: Add docs for Scale and Offset functions
-      - text: Switch to cmake
+- version: 7.0.4
+  date: ?
+  changes:
+  - text: 'Function: Modify -> Upend'
+  - text: 'Function: Modify -> Flip'
+  - text: 'Function: Modify -> Normalize'
+  - text: 'Function: Modify -> Invert'
+  - text: '(NEW) Function: Modify -> Decimate'
+  - text: '(NEW) Function: Modify -> Average'
 
-  - version: 7.0.1-alpha1
-    date: 2020-02-16
-    changes:
-      - text: Function: Add -> From CSV file
-      - text: Function: Add -> From clipboard as CSV
-      - text: Optimized performance of the data table
-      - text: Edit -> Copy/Paste commands
-      - text: Full limits menu
-      - text: Cool picture for the About dialog :)
+- version: 7.0.3
+  date: 2024-03-10
+  changes:
+  - text: 'Can open several data files (plain and csv)'
+  - text: 'Diagram format dialolgs (graph, title, axes, legend)'
+  - text: 'Copy-paste diagram part formats (graph, title, axes, legend)'
+  - text: 'Decimal axis factors'
+  - text: '(NEW) Custom axis factor'
+  - text: '(NEW) Internal help viever'
+  - tetx: '(NEW) Can use different axes for different graphs'
+  - text: 'Add docs for Scale and Offset functions'
+  - text: 'Switch to cmake'
 
-  - version: 7.0.0-alpha0
-    date: 2020-02-10
-    changes:
-      - text: Only several functions ported from the old version 5
-      - text: (NEW) - this is a marker for features not existed in version 5
-      - text: Data table
-      - text: (NEW) Multi-windowed plots view
-      - text: Function: Add -> From file
-      - text: Function: Add -> From clipboard
-      - text: Function: Add -> Random sample (without params)
-      - text: Function: Modify -> Scale
-      - text: Function: Modify -> Offset
-      - text: Function: Limits -> Autolimits
-      - text: Function: View -> Title
-      - text: Function: View -> Legend
-      - text: Can edit graph title and limits (via double-click, no menu)
-      - text: Help menu with links and Check for update (no docs)
-      - text: (NEW) Function: Graph -> Refresh. Reread points from the same data source (e.g. file) and apply all transformations
-      - text: (NEW) Function: Graph -> Reopen. Reconfigure data source (e.g. change source file name) and apply all transformations
+- version: 7.0.1-alpha1
+  date: 2020-02-16
+  changes:
+  - text: 'Function: Add -> From CSV file'
+  - text: 'Function: Add -> From clipboard as CSV'
+  - text: 'Optimized performance of the data table'
+  - text: 'Edit -> Copy/Paste commands'
+  - text: 'Full limits menu'
+  - text: 'Cool picture for the About dialog :)'
+
+- version: 7.0.0-alpha0
+  date: 2020-02-10
+  changes:
+  - text: 'Only several functions ported from the old version 5'
+  - text: '(NEW) - this is a marker for features not existed in version 5'
+  - text: 'Data table'
+  - text: '(NEW) Multi-windowed plots view'
+  - text: 'Function: Add -> From file'
+  - text: 'Function: Add -> From clipboard'
+  - text: 'Function: Add -> Random sample (without params)'
+  - text: 'Function: Modify -> Scale'
+  - text: 'Function: Modify -> Offset'
+  - text: 'Function: Limits -> Autolimits'
+  - text: 'Function: View -> Title'
+  - text: 'Function: View -> Legend'
+  - text: 'Can edit graph title and limits (via double-click, no menu)'
+  - text: 'Help menu with links and Check for update (no docs)'
+  - text: '(NEW) Function: Graph -> Refresh. Reread points from the same data source (e.g. file) and apply all transformations'
+  - text: '(NEW) Function: Graph -> Reopen. Reconfigure data source (e.g. change source file name) and apply all transformations'

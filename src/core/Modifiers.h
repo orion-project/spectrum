@@ -23,40 +23,19 @@ protected:
     TParams _params;
 };
 
-class OffsetModifier : public ModifierBase<GraphMath::Offset>
-{
-public:
-    bool configure() override;
-};
+#define MODIFIER(mod) \
+    class mod##Modifier : public ModifierBase<GraphMath::mod> { \
+    public: \
+        bool configure() override; \
+    };
 
-class FlipModifier : public ModifierBase<GraphMath::Flip>
-{
-public:
-    bool configure() override;
-};
-
-class FlipRawModifier : public ModifierBase<GraphMath::FlipRaw>
-{
-public:
-    bool configure() override;
-};
-
-class ScaleModifier : public ModifierBase<GraphMath::Scale>
-{
-public:
-    bool configure() override;
-};
-
-class NormalizeModifier : public ModifierBase<GraphMath::Normalize>
-{
-public:
-    bool configure() override;
-};
-
-class InvertModifier : public ModifierBase<GraphMath::Invert>
-{
-public:
-    bool configure() override;
-};
+MODIFIER(Offset)
+MODIFIER(Flip)
+MODIFIER(Upend)
+MODIFIER(Scale)
+MODIFIER(Normalize)
+MODIFIER(Invert)
+MODIFIER(Decimate)
+MODIFIER(Average)
 
 #endif // MODIFIERS_H
