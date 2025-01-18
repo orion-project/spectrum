@@ -37,3 +37,4 @@ tmp
 out
 __pycache__
 *.drawio.bkp
+build

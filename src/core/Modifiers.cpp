@@ -179,8 +179,8 @@ bool dlg(const QString &title, std::initializer_list<LayoutItem> items, const QS
     auto ok = Ori::Dlg::Dialog(editor)
         .windowModal()
         .withTitle(title)
-        // .withOnHelp([helpTopic]{ Z::HelpSystem::topic(helpTopic); })
-        // .withHelpIcon(":/toolbar/help")
+        .withOnHelp([helpTopic]{ Z::HelpSystem::topic(helpTopic); })
+        .withHelpIcon(":/toolbar/help")
         .withContentToButtonsSpacingFactor(2)
         .exec();
     if (ok)

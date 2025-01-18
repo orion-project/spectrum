@@ -1,10 +1,11 @@
 #include "HelpSystem.h"
 
-#include "windows/HelpWindow.h"
+//#include "windows/HelpWindow.h"
 
 #include "core/OriVersion.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
+#include "tools/OriHelpWindow.h"
 #include "widgets/OriLabels.h"
 
 #include <QApplication>
@@ -55,12 +56,12 @@ QString HelpSystem::appVersion()
 
 void HelpSystem::showContent()
 {
-    HelpWindow::showContent();
+    Ori::HelpWindow::showContent();
 }
 
 void HelpSystem::showTopic(const QString& topic)
 {
-    HelpWindow::showTopic(topic);
+    Ori::HelpWindow::showTopic(topic);
 }
 
 void HelpSystem::visitHomePage()
