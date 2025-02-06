@@ -203,7 +203,7 @@ void MainWindow::createActions()
     auto actDecimate = A0_(tr("Decimate..."), _operations, SLOT(modifyDecimate()), ":/toolbar/graph_decim");
     auto actAverage = A0_(tr("Average..."), _operations, SLOT(modifyAverage()), ":/toolbar/graph_avg");
     auto actFitLimits = A0_(tr("Fit Limits..."), _operations, SLOT(modifyFitLimits()), ":/toolbar/graph_fit");
-    auto actDespike = A0_(tr("Remove Spikes..."), _operations, SLOT(modifyDespike()), ":/toolbar/despike");
+    auto actDespike = A0_(tr("Remove Spikes..."), _operations, SLOT(modifyDespike()), ":/toolbar/graph_despike");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
         actOffset, actUpend, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
