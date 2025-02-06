@@ -10,15 +10,8 @@ struct LineSplitter
     LineSplitter() {}
     LineSplitter(const QString& seps);
 
-    struct SplitPosition
-    {
-        int pos;
-        int len;
-    };
-
     QList<QChar> separators;
     QList<QStringView> parts;
-    QList<SplitPosition> positions;
 
     void splitAuto(QStringView line);
     void split(QStringView line);

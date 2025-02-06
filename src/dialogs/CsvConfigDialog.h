@@ -11,6 +11,7 @@ struct CsvDlgState;
 struct CsvMultiReader;
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QGridLayout;
 class QLabel;
 class QLineEdit;
@@ -56,10 +57,12 @@ private:
     QLineEdit *_valueSeparator;
     QGridLayout *_layoutGraphs;
     QList<CvsGraphItemView> _graphsItems;
+    QCheckBox *_valSepSpace, *_valSepTab;
     QRadioButton *_decSepPoint, *_decSepComma;
     bool _editMode = false;
 
     explicit CsvConfigDialog(bool editMode = false);
+    ~CsvConfigDialog();
 
     bool exec();
 

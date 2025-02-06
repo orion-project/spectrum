@@ -5,11 +5,13 @@
 #include "core/DataSources.h"
 #include "dialogs/OpenFileDlg.h"
 
+#include "tools/OriSettings.h"
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriWidgets.h"
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QClipboard>
 #include <QDebug>
 #include <QFile>
@@ -24,6 +26,7 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QStackedWidget>
+#include <QSyntaxHighlighter>
 #include <QTableView>
 #include <QTextStream>
 #include <QSpinBox>
@@ -50,7 +53,9 @@ struct CsvDlgState
 
     void applyTo(CsvConfigDialog& dlg)
     {
-        dlg._valueSeparator->setText(csv["value_separator"].toString(",;"));
+        dlg._valueSeparator->setText(csv["val_separators"].toString(",;"));
+        dlg._valSepSpace->setChecked(csv["val_sep_space"].toBool(true));
+        dlg._valSepTab->setChecked(csv["val_sep_tab"].toBool(true));
         dlg._skipFirstLines->setValue(csv["skip_first_lines"].toInt(0));
         dlg._previewLinesCount->setValue(csv["preview_lines_count"].toInt(15));
         dlg._decSepPoint->setChecked(csv["dep_sep_point"].toBool(true));
@@ -74,7 +79,9 @@ struct CsvDlgState
             jsonGraphs.append(QJsonObject({{"col_x", item.colX->value()},
                                            {"col_y", item.colY->value()}}));
         csv["graphs"] = jsonGraphs;
-        csv["value_separator"] = dlg.valueSeparators();
+        csv["val_separators"] = dlg._valueSeparator->text().trimmed();
+        csv["val_sep_space"] = dlg._valSepSpace->isChecked();
+        csv["val_sep_tab"] = dlg._valSepTab->isChecked();
         csv["dep_sep_point"] = dlg._decSepPoint->isChecked();
         csv["skip_first_lines"] = dlg._skipFirstLines->value();
         csv["preview_lines_count"] = dlg._previewLinesCount->value();
@@ -203,7 +210,6 @@ public:
     QSize sizeHint() const override { return QSize(9999, 9999); }
 };
 
-
 class PreviewDataModel : public QAbstractItemModel
 {
 public:
@@ -231,13 +237,40 @@ private:
     int _colCount;
     QVector<QStringList> _values;
 };
+
+class WhitespaceHighlighter : public QSyntaxHighlighter
+{
+public:
+    WhitespaceHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {}
+protected:
+    void highlightBlock(const QString& text) override {
+        QTextCharFormat format;
+        // TODO: adjust for dark theme
+        format.setForeground(QColor(190, 190, 190));
+
+        for (int i = 0; i < text.length(); ++i) {
+            if (text[i] == ' ' || text[i] == '\t') {
+                setFormat(i, 1, format);
+            }
+        }
+    }
+};
+
 } // namespace
 
 CsvConfigDialog::CsvConfigDialog(bool editMode) : QWidget(), _editMode(editMode)
 {
+    setObjectName("CsvConfigDialog");
+
     _fileTextPreview = new ExpandingTextEdit;
     _fileTextPreview->setReadOnly(true);
+    _fileTextPreview->setWordWrapMode(QTextOption::NoWrap);
     Ori::Gui::setFontMonospace(_fileTextPreview);
+    auto doc = _fileTextPreview->document();
+    QTextOption option =  doc->defaultTextOption();
+    option.setFlags(option.flags() | QTextOption::ShowTabsAndSpaces);
+    doc->setDefaultTextOption(option);
+    new WhitespaceHighlighter(doc);
 
     _dataTablePreview = new QTableView;
     _dataTablePreview->setModel(new PreviewDataModel(this));
@@ -265,8 +298,16 @@ CsvConfigDialog::CsvConfigDialog(bool editMode) : QWidget(), _editMode(editMode)
     _tabs->addWidget(_dataTablePreview);
     _tabs->setCurrentIndex(1);
 
+    _valSepSpace = new QCheckBox(tr("Space"));
+    connect(_valSepSpace, &QCheckBox::clicked, this, &CsvConfigDialog::updatePreviewData);
+
+    _valSepTab = new QCheckBox(tr("Tab"));
+    connect(_valSepTab, &QCheckBox::clicked, this, &CsvConfigDialog::updatePreviewData);
+
     _valueSeparator = new QLineEdit;
     connect(_valueSeparator, &QLineEdit::textEdited, this, &CsvConfigDialog::updatePreviewData);
+
+    auto layoutValueSeparators = LayoutV({ LayoutH({ _valSepSpace, _valSepTab }), _valueSeparator }).boxLayout();
 
     _decSepPoint = new QRadioButton(tr("Point"));
     connect(_decSepPoint, &QRadioButton::clicked, this, &CsvConfigDialog::updatePreviewData);
@@ -283,7 +324,7 @@ CsvConfigDialog::CsvConfigDialog(bool editMode) : QWidget(), _editMode(editMode)
     auto optionsGroup = new QGroupBox(tr("Options"));
     auto optionsLayout = new QFormLayout(optionsGroup);
     optionsLayout->setHorizontalSpacing(12);
-    optionsLayout->addRow(tr("Value separators"), _valueSeparator);
+    optionsLayout->addRow(tr("Value separators"), layoutValueSeparators);
     optionsLayout->addRow(tr("Decimal separator"), LayoutH({_decSepPoint, _decSepComma}).setMargin(0).boxLayout());
     optionsLayout->addRow(tr("Skip first lines"), _skipFirstLines);
     optionsLayout->addRow(tr("Preview lines"), _previewLinesCount);
@@ -310,6 +351,15 @@ CsvConfigDialog::CsvConfigDialog(bool editMode) : QWidget(), _editMode(editMode)
         LayoutH({ _buttonShowText, _buttonShowData, Stretch(), buttonAddGraph}).setMargin(0),
         _tabs
     }).setMargin(0).useFor(this);
+
+    Ori::Settings s;
+    s.restoreWindowGeometry(this);
+}
+
+CsvConfigDialog::~CsvConfigDialog()
+{
+    Ori::Settings s;
+    s.storeWindowGeometry(this);
 }
 
 bool CsvConfigDialog::exec()
@@ -422,7 +472,6 @@ void CsvConfigDialog::updatePreviewData()
     {
         lineSplitter.split(line);
         QStringList rowValues;
-        qDebug() << "Line" << (++lineNo) << lineSplitter.parts;
         foreach (const auto& part, lineSplitter.parts)
         {
             valueParser.parse(part);
@@ -514,5 +563,10 @@ void CsvConfigDialog::addGraphItem(int colX, int colY)
 
 QString CsvConfigDialog::valueSeparators() const
 {
-    return _valueSeparator->text().trimmed() + QStringLiteral(" \t");
+    QString seps = _valueSeparator->text().trimmed();
+    if (_valSepSpace->isChecked())
+        seps += ' ';
+    if (_valSepTab->isChecked())
+        seps += '\t';
+    return seps;
 }
