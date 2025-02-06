@@ -134,7 +134,7 @@ void Operations::addRandomSample()
 }
 
 void Operations::modifyOffset() { modifyGraph(new OffsetModifier); }
-void Operations::modifyFlip() { modifyGraph(new FlipModifier); }
+void Operations::modifyReflect() { modifyGraph(new ReflectModifier); }
 void Operations::modifyUpend() { modifyGraph(new UpendModifier); }
 void Operations::modifyScale() { modifyGraph(new ScaleModifier); }
 void Operations::modifyNormalize() { modifyGraph(new NormalizeModifier); }

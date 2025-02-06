@@ -225,27 +225,27 @@ bool OffsetModifier::configure()
 }
 
 //------------------------------------------------------------------------------
-//                              FlipModifier
+//                              ReflectModifier
 //------------------------------------------------------------------------------
 
-bool FlipModifier::configure()
+bool ReflectModifier::configure()
 {
     auto dir = new AxisOption;
-    auto mode = new RadioOptions<Flip::Mode>(qApp->tr("Flip Center"),
-        {{ Flip::CENTER_ZERO, qApp->tr("Zero") },
-         { Flip::CENTER_MAX, qApp->tr("Maximum") },
-         { Flip::CENTER_MIN, qApp->tr("Minimum") },
-         { Flip::CENTER_AVG, qApp->tr("Average") },
-         { Flip::CENTER_MID, qApp->tr("Median") },
-         { Flip::CENTER_VAL, qApp->tr("Arbitrary value") }});
-    mode->makeEditor(Flip::CENTER_VAL);
+    auto mode = new RadioOptions<Reflect::Mode>(qApp->tr("Reflection Center"),
+        {{ Reflect::CENTER_ZERO, qApp->tr("Zero") },
+         { Reflect::CENTER_MAX, qApp->tr("Maximum") },
+         { Reflect::CENTER_MIN, qApp->tr("Minimum") },
+         { Reflect::CENTER_AVG, qApp->tr("Average") },
+         { Reflect::CENTER_MID, qApp->tr("Median") },
+         { Reflect::CENTER_VAL, qApp->tr("Arbitrary value") }});
+    mode->makeEditor(Reflect::CENTER_VAL);
 
-    State state("flip");
+    State state("reflect");
     dir->setSelection(state["dir"]);
     mode->setSelection(state["centerMode"]);
     mode->setEditorValue(state["centerValue"], 0);
 
-    return dlg(qApp->tr("Flip"), {dir, mode}, "flip", [&]{
+    return dlg(qApp->tr("Reflect"), {dir, mode}, "reflect", [&]{
         state["dir"] = _params.dir = dir->selection();
         state["centerMode"] = _params.centerMode = mode->selection();
         state["centerValue"] = _params.centerValue = mode->editor()->value();
@@ -253,7 +253,7 @@ bool FlipModifier::configure()
 }
 
 //------------------------------------------------------------------------------
-//                              FlipRawModifier
+//                              UpendModifier
 //------------------------------------------------------------------------------
 
 bool UpendModifier::configure()
@@ -265,7 +265,7 @@ bool UpendModifier::configure()
     dir->setSelection(state["dir"]);
     val->setValue(state["value"]);
 
-    return dlg(qApp->tr("Upend"), {dir, val}, "flip", [&]{
+    return dlg(qApp->tr("Upend"), {dir, val}, "upend", [&]{
         state["dir"] = _params.dir = dir->selection();
         state["value"] = _params.value = val->value();
     });

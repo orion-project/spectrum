@@ -2,7 +2,7 @@ history:
 - version: 7.0.4
   date: ?
   changes:
-  - text: 'Function: Modify -> Upend'
+  - text: 'Function: Modify -> Reflect'
   - text: 'Function: Modify -> Flip'
   - text: 'Function: Modify -> Normalize'
   - text: 'Function: Modify -> Invert'

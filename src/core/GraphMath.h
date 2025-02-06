@@ -32,7 +32,7 @@ struct Offset
     GraphPoints calc(const GraphPoints& data) const;
 };
 
-struct Flip
+struct Reflect
 {
     Direction dir;
     enum Mode {CENTER_ZERO, CENTER_MAX, CENTER_MIN, CENTER_AVG, CENTER_MID, CENTER_VAL} centerMode;

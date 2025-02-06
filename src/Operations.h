@@ -37,7 +37,7 @@ public slots:
     void addFromClipboardCsv();
     void addRandomSample();
     void modifyOffset();
-    void modifyFlip();
+    void modifyReflect();
     void modifyUpend();
     void modifyScale();
     void modifyNormalize();

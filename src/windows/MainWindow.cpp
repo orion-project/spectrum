@@ -196,7 +196,7 @@ void MainWindow::createActions()
 
     auto actOffset = A0_(tr("Offset (Graph ± Const)..."), _operations, SLOT(modifyOffset()), ":/toolbar/graph_offset", Qt::Key_Plus);
     auto actUpend = A0_(tr("Upend (Const - Graph)..."), _operations, SLOT(modifyUpend()), ":/toolbar/graph_flip");
-    auto actFlip = A0_(tr("Flip..."), _operations, SLOT(modifyFlip()), ":/toolbar/graph_flip");
+    auto actReflect = A0_(tr("Reflect..."), _operations, SLOT(modifyReflect()), ":/toolbar/graph_reflect");
     auto actScale = A0_(tr("Scale (Graph × Const)..."), _operations, SLOT(modifyScale()), ":/toolbar/graph_scale", Qt::Key_Asterisk);
     auto actNormalize = A0_(tr("Normalize (Graph ÷ Const)..."), _operations, SLOT(modifyNormalize()), ":/toolbar/graph_norm", Qt::Key_Slash);
     auto actInvert = A0_(tr("Invert (Const ÷ Graph)..."), _operations, SLOT(modifyInvert()), ":/toolbar/graph_inv");
@@ -206,12 +206,12 @@ void MainWindow::createActions()
     auto actDespike = A0_(tr("Remove Spikes..."), _operations, SLOT(modifyDespike()), ":/toolbar/graph_despike");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
-        actOffset, actUpend, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
+        actOffset, actUpend, actReflect, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
         0, actFitLimits, 0, actDespike
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
-        actOffset, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
+        actOffset, actReflect, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
         0, actFitLimits, 0, actDespike
     }));
 

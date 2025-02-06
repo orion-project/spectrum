@@ -31,6 +31,7 @@
         <file alias="graph_format">../img/toolbar/graph_format.svg</file>
         <file alias="graph_norm">../img/toolbar/graph_norm.svg</file>
         <file alias="graph_offset">../img/toolbar/graph_offset.svg</file>
+        <file alias="graph_reflect">../img/toolbar/graph_reflect.svg</file>
         <file alias="graph_scale">../img/toolbar/graph_scale.svg</file>
         <file alias="graph_title">../img/toolbar/graph_title.svg</file>
         <file alias="limits">../img/toolbar/limits.svg</file>

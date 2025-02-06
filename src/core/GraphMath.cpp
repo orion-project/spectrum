@@ -90,7 +90,7 @@ GraphPoints Offset::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-GraphPoints Flip::calc(const GraphPoints& data) const
+GraphPoints Reflect::calc(const GraphPoints& data) const
 {
     bool alongX = dir == DIR_X;
     const QVector<double>& values = alongX ? data.xs : data.ys;

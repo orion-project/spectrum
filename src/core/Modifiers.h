@@ -30,7 +30,7 @@ protected:
     };
 
 MODIFIER(Offset)
-MODIFIER(Flip)
+MODIFIER(Reflect)
 MODIFIER(Upend)
 MODIFIER(Scale)
 MODIFIER(Normalize)
