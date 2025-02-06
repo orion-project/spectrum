@@ -74,7 +74,7 @@ struct CsvDlgState
             jsonGraphs.append(QJsonObject({{"col_x", item.colX->value()},
                                            {"col_y", item.colY->value()}}));
         csv["graphs"] = jsonGraphs;
-        csv["value_separator"] = dlg._valueSeparator->text().trimmed();
+        csv["value_separator"] = dlg.valueSeparators();
         csv["dep_sep_point"] = dlg._decSepPoint->isChecked();
         csv["skip_first_lines"] = dlg._skipFirstLines->value();
         csv["preview_lines_count"] = dlg._previewLinesCount->value();
@@ -347,7 +347,7 @@ void CsvConfigDialog::initReader(CsvMultiReader& reader, QString fileName)
     reader.fileName = fileName;
     reader.decimalPoint = _decSepPoint->isChecked();
     reader.skipFirstLines = _skipFirstLines->value();
-    reader.valueSeparators = _valueSeparator->text().trimmed();
+    reader.valueSeparators = valueSeparators();
 
     foreach (const CvsGraphItemView& item, _graphsItems)
     {
@@ -414,13 +414,15 @@ void CsvConfigDialog::updatePreviewData()
         tableModel->setPreviewData(0, rows);
         return;
     }
-    LineSplitter lineSplitter(_valueSeparator->text().trimmed());
+    LineSplitter lineSplitter(valueSeparators());
     ValueParser valueParser(_decSepPoint->isChecked());
     int maxColCount = 0;
+    int lineNo = 0;
     foreach (const QString& line, _previewLines)
     {
         lineSplitter.split(line);
         QStringList rowValues;
+        qDebug() << "Line" << (++lineNo) << lineSplitter.parts;
         foreach (const auto& part, lineSplitter.parts)
         {
             valueParser.parse(part);
@@ -508,4 +510,9 @@ void CsvConfigDialog::addGraphItem(int colX, int colY)
     _graphsItems.append(item);
 
     item.colX->setFocus();
+}
+
+QString CsvConfigDialog::valueSeparators() const
+{
+    return _valueSeparator->text().trimmed() + QStringLiteral(" \t");
 }

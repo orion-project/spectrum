@@ -70,6 +70,7 @@ private:
     void addNewGraph();
     void addGraphItem(int colX, int colY);
     void initReader(CsvMultiReader& reader, QString fileName = QString());
+    QString valueSeparators() const;
 
     friend struct CsvDlgState;
 };

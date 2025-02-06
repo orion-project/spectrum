@@ -1,59 +1,58 @@
 #include "DataReaders.h"
 
 #include <QApplication>
+#include <QDebug>
 #include <QFile>
 #include <QTextStream>
 
-static const QVector<QString>& valueSeparators()
+static const QVector<QPair<QChar, Qt::SplitBehavior>>& defaultValueSeparators()
 {
-    // TODO: make configurable
-    static QVector<QString> separators({" ", "\t", ",", ";"});
-    return separators;
+    // a line like "1,,3" should issue 3 columns
+    // a line like "1    3" should issue only 2 columns
+    static QVector<QPair<QChar, Qt::SplitBehavior>> def = {
+        qMakePair(',', Qt::KeepEmptyParts),
+        qMakePair(';', Qt::KeepEmptyParts),
+        qMakePair(' ', Qt::SkipEmptyParts),
+        qMakePair('\t', Qt::SkipEmptyParts),
+    };
+    return def;
 }
 
 //------------------------------------------------------------------------------
 //                               LineSplitter
 //------------------------------------------------------------------------------
 
-void LineSplitter::detect(const QString& line)
+LineSplitter::LineSplitter(const QString& seps)
 {
-    // Don't skip empty parts; a line like "1,,3" should issue 3 columns
-    splitBehavior = Qt::KeepEmptyParts;
-    for (auto sep = separators.cbegin(); sep != separators.cend(); sep++)
-    {
-        separator = *sep;
-        parts = QStringView(line).split(separator, splitBehavior);
-        if (parts.size() > 1)
-        {
-            empty = false;
-            return;
-        }
+    for (const auto ch : seps) {
+        separators.append(ch);
     }
-    // Skip empty parts; a line like "1    3" should issue only 2 columns
-    splitBehavior = Qt::SkipEmptyParts;
-    separator = ' ';
-    parts = QStringView(line).split(separator, splitBehavior);
-    if (parts.size() > 1)
-    {
-        empty = false;
-        return;
-    }
-    separator = '\t';
-    parts = QStringView(line).split(separator, splitBehavior);
-    if (parts.size() > 1)
-    {
-        empty = false;
-        return;
-    }
-    return;
 }
 
-void LineSplitter::split(const QString& line)
+void LineSplitter::splitAuto(QStringView line)
 {
-    if (empty)
-        detect(line);
-    else
-        parts = QStringView(line).split(separator, splitBehavior);
+    parts.clear();
+    for (const auto &ch : line) {
+        for (const auto &s : defaultValueSeparators()) {
+            if (ch == s.first) {
+                parts = QStringView(line).split(s.first, s.second);
+                qDebug() << "sep" << s.first << "parts" << parts;
+                if (parts.size() > 1)
+                {
+                    return;
+                }
+            }
+        }
+    }
+}
+
+void LineSplitter::split(QStringView line)
+{
+    if (separators.isEmpty()) {
+        splitAuto(line);
+        return;
+    }
+    // TODO
 }
 
 //------------------------------------------------------------------------------
@@ -259,9 +258,9 @@ QString TextReader::read()
     // 0.403922 0.419608 0.443137 0.458824 0.458824 0.466667 0.482353...
     if (lines.size() == 1)
     {
-        for (const QString& separator : valueSeparators())
+        for (const auto& s : defaultValueSeparators())
         {
-            lines = QStringView(text).split(separator, Qt::SkipEmptyParts);
+            lines = QStringView(text).split(s.first, s.second);
             if (lines.size() >= 2)
                 break;
         }
@@ -280,9 +279,9 @@ QString TextReader::read()
         if (line.isEmpty()) continue;
 
         QList<QStringView> parts;
-        for (const QString& valueSeparator : valueSeparators())
+        for (const auto& s : defaultValueSeparators())
         {
-            parts = line.split(valueSeparator, Qt::SkipEmptyParts);
+            parts = line.split(s.first, s.second);
             if (parts.size() > 1) break;
         }
 

@@ -37,32 +37,36 @@ set(PROJECT_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
     src/app.rc
     src/app.qrc
-    src/CustomPrefs.cpp
+    src/CustomPrefs.h src/CustomPrefs.cpp
     src/main.cpp
-    src/Operations.cpp
-    src/app/AppSettings.cpp
-    src/app/HelpSystem.cpp
-    src/app/PersistentState.cpp
-    src/core/BaseTypes.cpp
-    src/core/DataExporters.cpp
-    src/core/DataReaders.cpp
-    src/core/DataSources.cpp
-    src/core/Graph.cpp
-    src/core/GraphMath.cpp
-    src/core/Modifiers.cpp
-    src/dialogs/CsvConfigDialog.cpp
-    src/dialogs/OpenFileDlg.cpp
-    src/widgets/DataGridPanel.cpp
-    src/widgets/RangeEditor.cpp
-    src/windows/MainWindow.cpp
-    src/windows/PlotWindow.cpp
+    src/Operations.h src/Operations.cpp
+    src/app/AppSettings.h src/app/AppSettings.cpp
+    src/app/HelpSystem.h src/app/HelpSystem.cpp
+    src/app/PersistentState.h src/app/PersistentState.cpp
+    src/core/BaseTypes.h src/core/BaseTypes.cpp
+    src/core/DataExporters.h src/core/DataExporters.cpp
+    src/core/DataReaders.h src/core/DataReaders.cpp
+    src/core/DataSources.h src/core/DataSources.cpp
+    src/core/Graph.h src/core/Graph.cpp
+    src/core/GraphMath.h src/core/GraphMath.cpp
+    src/core/Modifiers.h src/core/Modifiers.cpp
+    src/dialogs/CsvConfigDialog.h src/dialogs/CsvConfigDialog.cpp
+    src/dialogs/OpenFileDlg.h src/dialogs/OpenFileDlg.cpp
+    src/tests/test_DataReaders.cpp
+    src/tests/TestSuite.h
+    src/widgets/DataGridPanel.h src/widgets/DataGridPanel.cpp
+    src/widgets/RangeEditor.h src/widgets/RangeEditor.cpp
+    src/windows/MainWindow.h src/windows/MainWindow.cpp
+    src/windows/PlotWindow.h src/windows/PlotWindow.cpp
 )
 
+set(ORI_WITH_TESTS ON)
 add_subdirectory(libs/orion)
 add_subdirectory(libs/custom-plot-lab)
 
 set(LIB_RESOURCES
     libs/orion/resources.qrc
+    libs/orion/testing/test.qrc
     libs/custom-plot-lab/qcpl_images.qrc
 )
 

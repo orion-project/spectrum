@@ -1,9 +1,11 @@
 #include "app/AppSettings.h"
 #include "app/HelpSystem.h"
+#include "tests/TestSuite.h"
 #include "windows/MainWindow.h"
 
-#include "tools/OriDebug.h"
 #include "helpers/OriTheme.h"
+#include "testing/OriTestManager.h"
+#include "tools/OriDebug.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -30,9 +32,10 @@ int main(int argc, char *argv[])
     auto optionHelp = parser.addHelpOption();
     auto optionVersion = parser.addVersionOption();
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
+    QCommandLineOption optionTest("test", "Run unit-test session.");
     QCommandLineOption optionDevMode("dev"); optionDevMode.setFlags(QCommandLineOption::HiddenFromHelp);
     QCommandLineOption optionConsole("console"); optionConsole.setFlags(QCommandLineOption::HiddenFromHelp);
-    parser.addOptions({optionDevMode, optionConsole});
+    parser.addOptions({optionTest, optionDevMode, optionConsole});
 
     if (!parser.parse(QApplication::arguments()))
     {
@@ -54,6 +57,10 @@ int main(int argc, char *argv[])
     // direct way to use the console for GUI applications.
     if (parser.isSet(optionConsole))
         Ori::Debug::installMessageHandler();
+
+    // Run test session if requested
+    if (parser.isSet(optionTest))
+        return Ori::Testing::run(app, { ADD_SUITE(Z::Tests) });
 
     // Load application settings before any command start
     AppSettings::instance().isDevMode = parser.isSet(optionDevMode);

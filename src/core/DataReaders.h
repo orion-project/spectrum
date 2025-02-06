@@ -7,16 +7,21 @@
 
 struct LineSplitter
 {
-    LineSplitter(const QString& separators) : separators(separators) {}
+    LineSplitter() {}
+    LineSplitter(const QString& seps);
 
-    bool empty = true;
-    QChar separator;
-    QString separators;
+    struct SplitPosition
+    {
+        int pos;
+        int len;
+    };
+
+    QList<QChar> separators;
     QList<QStringView> parts;
-    Qt::SplitBehavior splitBehavior;
+    QList<SplitPosition> positions;
 
-    void detect(const QString& line);
-    void split(const QString& line);
+    void splitAuto(QStringView line);
+    void split(QStringView line);
 };
 
 struct ValueParser
