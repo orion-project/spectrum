@@ -38,7 +38,7 @@ public slots:
     void addRandomSample();
     void modifyOffset();
     void modifyReflect();
-    void modifyUpend();
+    void modifyFlip();
     void modifyScale();
     void modifyNormalize();
     void modifyInvert();

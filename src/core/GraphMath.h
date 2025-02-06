@@ -40,7 +40,7 @@ struct Reflect
     GraphPoints calc(const GraphPoints& data) const;
 };
 
-struct Upend
+struct Flip
 {
     Direction dir;
     double value;

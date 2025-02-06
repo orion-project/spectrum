@@ -253,19 +253,19 @@ bool ReflectModifier::configure()
 }
 
 //------------------------------------------------------------------------------
-//                              UpendModifier
+//                              FlipModifier
 //------------------------------------------------------------------------------
 
-bool UpendModifier::configure()
+bool FlipModifier::configure()
 {
     auto dir = new AxisOption;
     auto val = new ValueOption(qApp->tr("Value"));
 
-    State state("upend");
+    State state("flip");
     dir->setSelection(state["dir"]);
     val->setValue(state["value"]);
 
-    return dlg(qApp->tr("Upend"), {dir, val}, "upend", [&]{
+    return dlg(qApp->tr("Flip"), {dir, val}, "flip", [&]{
         state["dir"] = _params.dir = dir->selection();
         state["value"] = _params.value = val->value();
     });

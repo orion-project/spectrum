@@ -31,7 +31,7 @@ protected:
 
 MODIFIER(Offset)
 MODIFIER(Reflect)
-MODIFIER(Upend)
+MODIFIER(Flip)
 MODIFIER(Scale)
 MODIFIER(Normalize)
 MODIFIER(Invert)
