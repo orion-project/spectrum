@@ -180,7 +180,7 @@ void MainWindow::createActions()
     auto actGraphReopen = A0_(tr("Reopen..."), tr("Reselect or reconfigure data source"), _operations, SLOT(graphReopen()), ":/toolbar/update_params");
     auto actGraphTitle = A1_(tr("Title..."), tr("Edit title of selected graph"), this, IN_ACTIVE_PLOT(renameGraph), ":/toolbar/graph_title", QKeySequence("F2"));
     auto actGraphProps = A1_(tr("Line Format..."), tr("Set line format of selected graph"), this, IN_ACTIVE_PLOT(formatGraph), ":/toolbar/graph_format");
-    auto actGraphDelete = A1_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete");
+    auto actGraphDelete = A1_(tr("Delete"), tr("Delete selected graphs"), this, IN_ACTIVE_PLOT(deleteGraph), ":/toolbar/graph_delete", QKeySequence("Del"));
     auto actGraphAxes = A1_(tr("Change Axes..."), this, IN_ACTIVE_PLOT(changeGraphAxes));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Graph"), this, {
@@ -203,15 +203,16 @@ void MainWindow::createActions()
     auto actDecimate = A0_(tr("Decimate..."), _operations, SLOT(modifyDecimate()), ":/toolbar/graph_decim");
     auto actAverage = A0_(tr("Average..."), _operations, SLOT(modifyAverage()), ":/toolbar/graph_avg");
     auto actFitLimits = A0_(tr("Fit Limits..."), _operations, SLOT(modifyFitLimits()), ":/toolbar/graph_fit");
+    auto actDespike = A0_(tr("Remove Spikes..."), _operations, SLOT(modifyDespike()), ":/toolbar/despike");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
         actOffset, actUpend, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
-        0, actFitLimits,
+        0, actFitLimits, 0, actDespike
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
         actOffset, actFlip, 0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
-        0, actFitLimits,
+        0, actFitLimits, 0, actDespike
     }));
 
     //---------------------------------------------------------

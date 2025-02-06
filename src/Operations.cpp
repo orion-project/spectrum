@@ -142,6 +142,7 @@ void Operations::modifyInvert() { modifyGraph(new InvertModifier); }
 void Operations::modifyDecimate() { modifyGraph(new DecimateModifier); }
 void Operations::modifyAverage() { modifyGraph(new AverageModifier); }
 void Operations::modifyFitLimits() { modifyGraph(new FitLimitsModifier); }
+void Operations::modifyDespike() { modifyGraph(new DespikeModifier); }
 
 void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad)
 {

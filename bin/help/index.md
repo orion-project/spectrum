@@ -9,3 +9,4 @@
 
 - [Offset](offset.md)
 - [Scale](scale.md)
+- [Remove Spikes](despike.md)

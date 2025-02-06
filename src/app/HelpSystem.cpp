@@ -1,7 +1,5 @@
 #include "HelpSystem.h"
 
-//#include "windows/HelpWindow.h"
-
 #include "core/OriVersion.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"

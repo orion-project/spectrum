@@ -425,3 +425,40 @@ bool FitLimitsModifier::configure()
         state["end"] = _params.end = end->value();
     });
 }
+
+//------------------------------------------------------------------------------
+//                            DespikeModifier
+//------------------------------------------------------------------------------
+
+bool DespikeModifier::configure()
+{
+    auto modeRel = new QRadioButton(qApp->tr("Percents"));
+    auto modeAbs = new QRadioButton(qApp->tr("Absolute values"));
+    auto maxLabel = new QLabel;
+    auto minLabel = new QLabel;
+    auto max = new ValueEdit;
+    auto min = new ValueEdit;
+    auto vals = new QFormLayout;
+    vals->addRow(maxLabel, max);
+    vals->addRow(minLabel, min);
+    auto updateLabels = [minLabel, maxLabel, modeRel]{
+        maxLabel->setText(modeRel->isChecked() ? qApp->tr("Plus (%)") : qApp->tr("Max"));
+        minLabel->setText(modeRel->isChecked() ? qApp->tr("Mius (%)") : qApp->tr("Min"));
+    };
+    modeRel->connect(modeRel, &QRadioButton::clicked, updateLabels);
+    modeAbs->connect(modeAbs, &QRadioButton::clicked, updateLabels);
+    auto group = LayoutV({modeRel, modeAbs, SpaceV(), vals}).makeGroupBox(qApp->tr("Interval"));
+
+    State state("despike");
+    modeRel->setChecked(state["mode"].toInt() == _params.MODE_REL);
+    modeAbs->setChecked(state["mode"].toInt() == _params.MODE_ABS);
+    max->setValue(state["max"].toDouble(1));
+    min->setValue(state["min"].toDouble(1));
+    updateLabels();
+
+    return dlg(qApp->tr("Remove Spikes"), {group}, "despike", [&]{
+        state["mode"] = _params.mode = modeRel->isChecked() ? _params.MODE_REL : _params.MODE_ABS;
+        state["max"] = _params.max = max->value();
+        state["min"] = _params.min = min->value();
+    });
+}

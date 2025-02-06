@@ -38,5 +38,6 @@ MODIFIER(Invert)
 MODIFIER(Decimate)
 MODIFIER(Average)
 MODIFIER(FitLimits)
+MODIFIER(Despike)
 
 #endif // MODIFIERS_H

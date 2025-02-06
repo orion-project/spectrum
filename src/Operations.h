@@ -45,6 +45,7 @@ public slots:
     void modifyDecimate();
     void modifyAverage();
     void modifyFitLimits();
+    void modifyDespike();
     void graphRefresh();
     void graphReopen();
 

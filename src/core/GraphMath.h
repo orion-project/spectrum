@@ -95,6 +95,13 @@ struct FitLimits
     GraphPoints calc(const GraphPoints& data) const;
 };
 
+struct Despike
+{
+    enum Mode {MODE_REL, MODE_ABS} mode;
+    double min, max;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
 } // namespace GraphMath
 
 #endif // GRAPH_MATH_H

@@ -5,6 +5,7 @@
 
 #include "helpers/OriTheme.h"
 #include "testing/OriTestManager.h"
+#include "tools/OriHelpWindow.h"
 #include "tools/OriDebug.h"
 
 #include <QApplication>
@@ -64,6 +65,7 @@ int main(int argc, char *argv[])
 
     // Load application settings before any command start
     AppSettings::instance().isDevMode = parser.isSet(optionDevMode);
+    Ori::HelpWindow::isDevMode = AppSettings::instance().isDevMode;
 
     // Call `setStyleSheet` after setting loaded
     // to be able to apply custom colors.

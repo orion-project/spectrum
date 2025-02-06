@@ -6,6 +6,7 @@ history:
   - text: 'Function: Modify -> Flip'
   - text: 'Function: Modify -> Normalize'
   - text: 'Function: Modify -> Invert'
+  - text: 'Function: Modify -> Remove Spikes'
   - text: '(NEW) Function: Modify -> Decimate'
   - text: '(NEW) Function: Modify -> Average'
   - text: '(NEW) Function: Modify -> Fit Limits'

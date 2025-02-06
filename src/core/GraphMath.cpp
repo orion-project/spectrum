@@ -2,6 +2,8 @@
 
 #include <limits>
 
+#include <QDebug>
+
 namespace GraphMath {
 
 MinMax minMax(const GraphPoints& data)
@@ -294,6 +296,50 @@ GraphPoints FitLimits::calc(const GraphPoints& data) const
     for (int i = 0; i < count; i++)
         newValues[i] = (values.at(i) - oldOffset) * scale + newOffset;
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
+}
+
+GraphPoints Despike::calc(const GraphPoints& data) const
+{
+    QVector<double> ys(data.ys.size());
+    QVector<int> indexes;
+    for (int i = 0; i < ys.size(); i++)
+        indexes << i;
+    int i = indexes.takeAt(rand() % indexes.size());
+    double avg = data.ys.at(i);
+    ys[i] = avg;
+    qDebug() << i << avg;
+    if (mode == MODE_REL) {
+        const double min = 1.0 - this->min / 100.0;
+        const double max = 1.0 + this->max / 100.0;
+        while (indexes.size() > 0) {
+            auto i = indexes.takeAt(rand() % indexes.size());
+            auto v = data.ys.at(i);
+            if (v < avg * min || v > avg * max) {
+                ys[i] = avg;
+            } else {
+                ys[i] = v;
+                avg = (avg + v) / 2.0;
+            }
+        }
+    } else {
+        while (indexes.size() > 0) {
+            auto i = indexes.takeAt(rand() % indexes.size());
+            auto v = data.ys.at(i);
+            // Skip cases when min-max are erroneously given
+            // as laying totally outside of the graph trend
+            if (avg >= min && avg <= max) {
+                if (v < min || v > max) {
+                    ys[i] = avg;
+                } else {
+                    ys[i] = v;
+                    avg = (avg + v) / 2.0;
+                }
+            } else {
+                ys[i] = v;
+            }
+        }
+    }
+    return {data.xs, ys};
 }
 
 } // namespace GraphMath
