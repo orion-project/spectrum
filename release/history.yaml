@@ -9,6 +9,7 @@ history:
   - text: '(NEW) Function: Modify -> Decimate'
   - text: '(NEW) Function: Modify -> Average'
   - text: '(NEW) Function: Modify -> Fit Limits'
+  - text: '(FIX) Handle different value separators in Open CSV dialog'
 
 - version: 7.0.3
   date: 2024-03-10

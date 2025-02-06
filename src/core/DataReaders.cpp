@@ -5,17 +5,10 @@
 #include <QFile>
 #include <QTextStream>
 
-static const QVector<QPair<QChar, Qt::SplitBehavior>>& defaultValueSeparators()
+static const QVector<QChar>& defaultValueSeparators()
 {
-    // a line like "1,,3" should issue 3 columns
-    // a line like "1    3" should issue only 2 columns
-    static QVector<QPair<QChar, Qt::SplitBehavior>> def = {
-        qMakePair(',', Qt::KeepEmptyParts),
-        qMakePair(';', Qt::KeepEmptyParts),
-        qMakePair(' ', Qt::SkipEmptyParts),
-        qMakePair('\t', Qt::SkipEmptyParts),
-    };
-    return def;
+    static QVector<QChar> separators = {' ', '\t', ';', ','};
+    return separators;
 }
 
 //------------------------------------------------------------------------------
@@ -31,12 +24,10 @@ LineSplitter::LineSplitter(const QString& seps)
 
 void LineSplitter::splitAuto(QStringView line)
 {
-    parts.clear();
     for (const auto &ch : line) {
         for (const auto &s : defaultValueSeparators()) {
-            if (ch == s.first) {
-                parts = QStringView(line).split(s.first, s.second);
-                qDebug() << "sep" << s.first << "parts" << parts;
+            if (ch == s) {
+                parts = QStringView(line).split(s, Qt::SkipEmptyParts);
                 if (parts.size() > 1)
                 {
                     return;
@@ -44,6 +35,7 @@ void LineSplitter::splitAuto(QStringView line)
             }
         }
     }
+    parts.clear();
 }
 
 void LineSplitter::split(QStringView line)
@@ -52,7 +44,26 @@ void LineSplitter::split(QStringView line)
         splitAuto(line);
         return;
     }
-    // TODO
+
+    parts.clear();
+    int lineLen = line.size();
+    int sepsLen = separators.size();
+    int partPos = 0;
+    for (int i = 0; i < lineLen; i++) {
+        auto ch = line.at(i);
+        for (int j = 0; j < sepsLen; j++) {
+            auto sep = separators.at(j);
+            if (ch == sep) {
+                int partLen = i - partPos;
+                if (partLen > 0)
+                    parts << line.mid(partPos, partLen);
+                partPos = i + 1;
+                break;
+            }
+        }
+    }
+    if (partPos < lineLen)
+        parts << line.mid(partPos);
 }
 
 //------------------------------------------------------------------------------
@@ -260,7 +271,7 @@ QString TextReader::read()
     {
         for (const auto& s : defaultValueSeparators())
         {
-            lines = QStringView(text).split(s.first, s.second);
+            lines = QStringView(text).split(s, Qt::SkipEmptyParts);
             if (lines.size() >= 2)
                 break;
         }
@@ -281,7 +292,7 @@ QString TextReader::read()
         QList<QStringView> parts;
         for (const auto& s : defaultValueSeparators())
         {
-            parts = line.split(s.first, s.second);
+            parts = line.split(s, Qt::SkipEmptyParts);
             if (parts.size() > 1) break;
         }
 
