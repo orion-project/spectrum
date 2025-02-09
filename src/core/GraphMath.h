@@ -88,6 +88,25 @@ struct Average
     GraphPoints calc(const GraphPoints& data) const;
 };
 
+struct MavgSimple
+{
+    int points;
+    double step;
+    bool useStep;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct MavgCumul
+{
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
+struct MavgExp
+{
+    double alpha;
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
 struct FitLimits
 {
     Direction dir;

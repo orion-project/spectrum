@@ -53,6 +53,7 @@ set(PROJECT_SOURCES
     src/dialogs/CsvConfigDialog.h src/dialogs/CsvConfigDialog.cpp
     src/dialogs/OpenFileDlg.h src/dialogs/OpenFileDlg.cpp
     src/tests/test_DataReaders.cpp
+    src/tests/test_GraphMath.cpp
     src/tests/TestSuite.h
     src/widgets/DataGridPanel.h src/widgets/DataGridPanel.cpp
     src/widgets/RangeEditor.h src/widgets/RangeEditor.cpp

@@ -44,6 +44,9 @@ public slots:
     void modifyInvert();
     void modifyDecimate();
     void modifyAverage();
+    void modifyMavgSimple();
+    void modifyMavgCumul();
+    void modifyMavgExp();
     void modifyFitLimits();
     void modifyDespike();
     void graphRefresh();

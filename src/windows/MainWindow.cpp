@@ -201,21 +201,28 @@ void MainWindow::createActions()
     auto actNormalize = A0_(tr("Normalize (Graph ÷ Const)..."), _operations, SLOT(modifyNormalize()), ":/toolbar/graph_norm", Qt::Key_Slash);
     auto actInvert = A0_(tr("Invert (Const ÷ Graph)..."), _operations, SLOT(modifyInvert()), ":/toolbar/graph_inv");
     auto actDecimate = A0_(tr("Decimate..."), _operations, SLOT(modifyDecimate()), ":/toolbar/graph_decim");
-    auto actAverage = A0_(tr("Average..."), _operations, SLOT(modifyAverage()), ":/toolbar/graph_avg");
+    // auto actAverage = A0_(tr("Average..."), _operations, SLOT(modifyAverage()), ":/toolbar/graph_avg");
+    auto actMavgSimple = A0_(tr("Moving Average (simple)..."), _operations, SLOT(modifyMavgSimple()), ":/toolbar/graph_mavg");
+    auto actMavgCumul = A0_(tr("Moving Average (cumulative)"), _operations, SLOT(modifyMavgCumul()));
+    auto actMavgExp = A0_(tr("Moving Average (exponential)..."), _operations, SLOT(modifyMavgExp()));
     auto actFitLimits = A0_(tr("Fit Limits..."), _operations, SLOT(modifyFitLimits()), ":/toolbar/graph_fit");
     auto actDespike = A0_(tr("Remove Spikes..."), _operations, SLOT(modifyDespike()), ":/toolbar/graph_despike");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
         actOffset,
         // actFlip, actReflect,
-        0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
+        0, actScale, actNormalize, actInvert, 0, actDecimate,
+        // actAverage,
+        0, actMavgSimple, actMavgCumul, actMavgExp,
         0, actFitLimits, 0, actDespike
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {
         actOffset,
         // actReflect,
-        0, actScale, actNormalize, actInvert, 0, actDecimate, actAverage,
+        0, actScale, actNormalize, actInvert, 0, actDecimate,
+        // actAverage,
+        0, actMavgSimple,
         0, actFitLimits, 0, actDespike
     }));
 

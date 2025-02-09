@@ -3,6 +3,7 @@
 #include <limits>
 
 #include <QDebug>
+#include <QtMath>
 
 namespace GraphMath {
 
@@ -272,6 +273,60 @@ GraphPoints Average::calc(const GraphPoints& data) const
         }
     }
     return {xs, ys};
+}
+
+GraphPoints MavgSimple::calc(const GraphPoints& data) const
+{
+    if (data.xs.size() < 2 || data.xs.size() != data.ys.size())
+        return {data.xs, data.ys};
+    QVector<double> xs, ys;
+    int cnt = points;
+    if (useStep) {
+        cnt = qFloor(step /  (data.xs[1] - data.xs[0]));
+        qDebug() << "cnt" << step << data.xs[1] << data.xs[0] << cnt;
+    }
+    double avg = 0;
+    double firstI = 0;
+    for (int i = 0; i < data.ys.size(); i++) {
+        const double y = data.ys.at(i);
+        if (i < cnt-1) {
+            avg += y;
+            continue;
+        } else if (i == cnt-1) {
+            avg += y;
+            avg /= double(cnt);
+        } else {
+            avg += (y - data.ys.at(firstI)) / double(cnt);
+            firstI++;
+        }
+        xs << data.xs.at(i);
+        ys << avg;
+    }
+    return {data.xs, ys};
+}
+
+GraphPoints MavgCumul::calc(const GraphPoints& data) const
+{
+    Values ys(data.size());
+    ys[0] = data.ys.at(0);
+    double avg = ys[0];
+    for (int i = 1; i < data.ys.size(); i++) {
+        ys[i] = avg = (data.ys[i] + avg * double(i)) / double(i+1);
+    }
+    return {data.xs, ys};
+}
+
+GraphPoints MavgExp::calc(const GraphPoints& data) const
+{
+    if (data.size() < 2)
+        return {data.xs, data.ys};
+    Values ys(data.size());
+    ys[0] = data.ys.at(0);
+    double avg = ys[0];
+    for (int i = 1; i < data.ys.size(); i++) {
+        ys[i] = data.ys[i] * alpha + ys[i-1] * (1.0 - alpha);
+    }
+    return {data.xs, ys};
 }
 
 GraphPoints FitLimits::calc(const GraphPoints& data) const

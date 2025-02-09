@@ -121,7 +121,7 @@ public:
         auto layout = new QGridLayout;
         setLayout(layout);
         _usePoints = new QRadioButton(tr("Points"));
-        _useStep = new QRadioButton(tr("Value"));
+        _useStep = new QRadioButton(tr("Length"));
         _points = new QSpinBox;
         _points->setRange(1, std::numeric_limits<int>::max());
         _step = makeEditor();
@@ -389,6 +389,52 @@ bool AverageModifier::configure()
         state["step"] = _params.step = intv->step();
         state["useStep"] = _params.useStep = intv->useStep();
         state["pointPos"] = _params.pointPos = pos->selection();
+    });
+}
+
+//------------------------------------------------------------------------------
+//                             MavgSimpleModifier
+//------------------------------------------------------------------------------
+
+bool MavgSimpleModifier::configure()
+{
+    auto intv = new IntervalOption(qApp->tr("Averaging Window"));
+
+    State state("mavg_simple");
+    intv->setPoints(state["points"], 5);
+    intv->setStep(state["step"], 10);
+    intv->setUseStep(state["useStep"]);
+
+    return dlg(qApp->tr("Simple Moving Average"), {intv}, "mavg_simple", [&]{
+        state["points"] = _params.points = intv->points();
+        state["step"] = _params.step = intv->step();
+        state["useStep"] = _params.useStep = intv->useStep();
+    });
+}
+
+//------------------------------------------------------------------------------
+//                             MavgCumulModifier
+//------------------------------------------------------------------------------
+
+bool MavgCumulModifier::configure()
+{
+    return true;
+}
+
+//------------------------------------------------------------------------------
+//                              MavgExpModifier
+//------------------------------------------------------------------------------
+
+bool MavgExpModifier::configure()
+{
+    auto alpha = new ValueEdit;
+    auto group = LayoutV({alpha}).makeGroupBox(qApp->tr("Smoothing Factor"));
+
+    State state("mavg_exp");
+    alpha->setValue(state["alpha"].toDouble(0.5));
+
+    return dlg(qApp->tr("Exponential Moving Average"), {group}, "mavg_exp", [&]{
+        state["alpha"] = _params.alpha = alpha->value();
     });
 }
 

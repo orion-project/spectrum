@@ -141,6 +141,9 @@ void Operations::modifyNormalize() { modifyGraph(new NormalizeModifier); }
 void Operations::modifyInvert() { modifyGraph(new InvertModifier); }
 void Operations::modifyDecimate() { modifyGraph(new DecimateModifier); }
 void Operations::modifyAverage() { modifyGraph(new AverageModifier); }
+void Operations::modifyMavgSimple() { modifyGraph(new MavgSimpleModifier); }
+void Operations::modifyMavgCumul() { modifyGraph(new MavgCumulModifier); }
+void Operations::modifyMavgExp() { modifyGraph(new MavgExpModifier); }
 void Operations::modifyFitLimits() { modifyGraph(new FitLimitsModifier); }
 void Operations::modifyDespike() { modifyGraph(new DespikeModifier); }
 

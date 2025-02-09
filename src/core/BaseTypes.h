@@ -5,10 +5,14 @@
 
 #include <QVector>
 
+using Values = QVector<double>;
+
 struct GraphPoints
 {
-    QVector<double> xs;
-    QVector<double> ys;
+    Values xs;
+    Values ys;
+
+    int size() const { return xs.size(); }
 };
 
 using GraphResult = Ori::Result<GraphPoints>;

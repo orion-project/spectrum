@@ -8,7 +8,8 @@ history:
   - text: 'Function: Modify -> Invert'
   - text: 'Function: Modify -> Remove Spikes'
   - text: '(NEW) Function: Modify -> Decimate'
-  - text: '(NEW) Function: Modify -> Average'
+  #- text: '(NEW) Function: Modify -> Average'
+  - text: '(NEW) Function: Modify -> Moving Average'
   - text: '(NEW) Function: Modify -> Fit Limits'
   - text: '(FIX) Handle different value separators in Open CSV dialog'
 

@@ -29,6 +29,7 @@
         <file alias="graph_fit">../img/toolbar/graph_fit.svg</file>
         <file alias="graph_flip">../img/toolbar/graph_flip.svg</file>
         <file alias="graph_format">../img/toolbar/graph_format.svg</file>
+        <file alias="graph_mavg">../img/toolbar/graph_mavg.svg</file>
         <file alias="graph_norm">../img/toolbar/graph_norm.svg</file>
         <file alias="graph_offset">../img/toolbar/graph_offset.svg</file>
         <file alias="graph_reflect">../img/toolbar/graph_reflect.svg</file>
