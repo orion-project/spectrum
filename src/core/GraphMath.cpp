@@ -5,6 +5,10 @@
 #include <QDebug>
 #include <QtMath>
 
+#define NEED_POINTS(cnt) \
+    if (data.xs.size() != data.ys.size()) return data; \
+    if (data.xs.size() < cnt) return data;
+
 namespace GraphMath {
 
 MinMax minMax(const GraphPoints& data)
@@ -42,7 +46,7 @@ MinMax minMax(const GraphPoints& data)
     return res;
 }
 
-double min(const QVector<double>& data)
+double min(const Values& data)
 {
     double res = std::numeric_limits<double>::max();
     for (const double& v : data)
@@ -50,7 +54,7 @@ double min(const QVector<double>& data)
     return res;
 }
 
-double max(const QVector<double>& data)
+double max(const Values& data)
 {
     double res = -std::numeric_limits<double>::max();
     for (const double& v : data)
@@ -58,7 +62,7 @@ double max(const QVector<double>& data)
     return res;
 }
 
-double avg(const QVector<double>& data)
+double avg(const Values& data)
 {
     double res = 0;
     for (const double& v : data)
@@ -66,17 +70,18 @@ double avg(const QVector<double>& data)
     return res / double(data.size());
 }
 
-double mid(const QVector<double>& data)
+double mid(const Values& data)
 {
     return (min(data) + max(data)) / 2.0;
 }
 
 GraphPoints Offset::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(0)
     bool alongX = dir == DIR_X;
-    const QVector<double>& values = alongX ? data.xs : data.ys;
+    const Values& values = alongX ? data.xs : data.ys;
     int count = values.size();
-    QVector<double> newValues(count);
+    Values newValues(count);
     double offset = 0;
     switch(mode)
     {
@@ -93,10 +98,11 @@ GraphPoints Offset::calc(const GraphPoints& data) const
 
 GraphPoints Reflect::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(0)
     bool alongX = dir == DIR_X;
-    const QVector<double>& values = alongX ? data.xs : data.ys;
+    const Values& values = alongX ? data.xs : data.ys;
     int count = values.size();
-    QVector<double> newValues(count);
+    Values newValues(count);
     double center = 0;
     switch(centerMode)
     {
@@ -115,10 +121,11 @@ GraphPoints Reflect::calc(const GraphPoints& data) const
 
 GraphPoints Flip::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(0)
     bool alongX = dir == DIR_X;
-    const QVector<double>& values = alongX ? data.xs : data.ys;
+    const Values& values = alongX ? data.xs : data.ys;
     int count = values.size();
-    QVector<double> newValues(count);
+    Values newValues(count);
     for (int i = 0; i < count; i++)
         newValues[i] = value - values.at(i);
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
@@ -126,10 +133,11 @@ GraphPoints Flip::calc(const GraphPoints& data) const
 
 GraphPoints Scale::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(0)
     bool alongX = dir == DIR_X;
-    const QVector<double>& values = alongX ? data.xs : data.ys;
+    const Values& values = alongX ? data.xs : data.ys;
     int count = values.size();
-    QVector<double> newValues(count);
+    Values newValues(count);
     double offset = 0;
     switch (centerMode)
     {
@@ -147,10 +155,11 @@ GraphPoints Scale::calc(const GraphPoints& data) const
 
 GraphPoints Normalize::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(0)
     bool alongX = dir == DIR_X;
-    const QVector<double>& values = alongX ? data.xs : data.ys;
+    const Values& values = alongX ? data.xs : data.ys;
     int count = values.size();
-    QVector<double> newValues(count);
+    Values newValues(count);
     double factor = 1;
     switch (mode)
     {
@@ -164,10 +173,11 @@ GraphPoints Normalize::calc(const GraphPoints& data) const
 
 GraphPoints Invert::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(0)
     bool alongX = dir == DIR_X;
-    const QVector<double>& values = alongX ? data.xs : data.ys;
+    const Values& values = alongX ? data.xs : data.ys;
     int count = values.size();
-    QVector<double> newValues(count);
+    Values newValues(count);
     for (int i = 0; i < count; i++)
         newValues[i] = value / values.at(i);
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
@@ -175,9 +185,8 @@ GraphPoints Invert::calc(const GraphPoints& data) const
 
 GraphPoints Decimate::calc(const GraphPoints& data) const
 {
-    QVector<double> xs, ys;
-    if (data.xs.size() < 2 || data.xs.size() != data.ys.size())
-        return {data.xs, data.ys};
+    NEED_POINTS(2)
+    Values xs, ys;
     xs << data.xs.first();
     ys << data.ys.first();
     if ((useStep && step >= data.xs.last() - data.xs.first()) || points >= data.xs.size()) {
@@ -213,9 +222,8 @@ GraphPoints Decimate::calc(const GraphPoints& data) const
 
 GraphPoints Average::calc(const GraphPoints& data) const
 {
-    QVector<double> xs, ys;
-    if (data.xs.size() < 2 || data.xs.size() != data.ys.size())
-        return {data.xs, data.ys};
+    NEED_POINTS(2)
+    Values xs, ys;
     if ((useStep && step >= data.xs.last() - data.xs.first()) || points >= data.xs.size()) {
         double v = avg(data.ys);
         xs << data.xs.first();
@@ -277,13 +285,11 @@ GraphPoints Average::calc(const GraphPoints& data) const
 
 GraphPoints MavgSimple::calc(const GraphPoints& data) const
 {
-    if (data.xs.size() < 2 || data.xs.size() != data.ys.size())
-        return {data.xs, data.ys};
-    QVector<double> xs, ys;
+    NEED_POINTS(2)
+    Values xs, ys;
     int cnt = points;
     if (useStep) {
         cnt = qFloor(step /  (data.xs[1] - data.xs[0]));
-        qDebug() << "cnt" << step << data.xs[1] << data.xs[0] << cnt;
     }
     double avg = 0;
     double firstI = 0;
@@ -307,6 +313,7 @@ GraphPoints MavgSimple::calc(const GraphPoints& data) const
 
 GraphPoints MavgCumul::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(1)
     Values ys(data.size());
     ys[0] = data.ys.at(0);
     double avg = ys[0];
@@ -318,8 +325,7 @@ GraphPoints MavgCumul::calc(const GraphPoints& data) const
 
 GraphPoints MavgExp::calc(const GraphPoints& data) const
 {
-    if (data.size() < 2)
-        return {data.xs, data.ys};
+    NEED_POINTS(2)
     Values ys(data.size());
     ys[0] = data.ys.at(0);
     double avg = ys[0];
@@ -331,12 +337,11 @@ GraphPoints MavgExp::calc(const GraphPoints& data) const
 
 GraphPoints FitLimits::calc(const GraphPoints& data) const
 {
+    NEED_POINTS(2)
     bool alongX = dir == DIR_X;
-    const QVector<double>& values = alongX ? data.xs : data.ys;
+    const Values& values = alongX ? data.xs : data.ys;
     int count = values.size();
-    if (count < 2)
-        return {data.xs, data.ys};
-    QVector<double> newValues(count);
+    Values newValues(count);
     double scale, oldOffset;
     if (alongX) {
         scale = qAbs(end - beg) / qAbs(values.last() - values.first());
@@ -355,14 +360,14 @@ GraphPoints FitLimits::calc(const GraphPoints& data) const
 
 GraphPoints Despike::calc(const GraphPoints& data) const
 {
-    QVector<double> ys(data.ys.size());
+    NEED_POINTS(0)
+    Values ys(data.ys.size());
     QVector<int> indexes;
     for (int i = 0; i < ys.size(); i++)
         indexes << i;
     int i = indexes.takeAt(rand() % indexes.size());
     double avg = data.ys.at(i);
     ys[i] = avg;
-    qDebug() << i << avg;
     if (mode == MODE_REL) {
         const double min = 1.0 - this->min / 100.0;
         const double max = 1.0 + this->max / 100.0;
@@ -395,6 +400,22 @@ GraphPoints Despike::calc(const GraphPoints& data) const
         }
     }
     return {data.xs, ys};
+}
+
+GraphPoints Derivative::calc(const GraphPoints& data) const
+{
+    NEED_POINTS(2)
+    const auto &x = data.xs;
+    const auto &y = data.ys;
+    Values dy(y.size());
+    dy[0] = (y[1] - y[0]) / (x[1] - x[0]);
+    for (int i = 1; i < x.size()-1; i++) {
+        dy[i] = ((y[i+1] - y[i]) / (x[i+1] - x[i]) +
+            (y[i] - y[i-1]) / (x[i] - x[i-1])) / 2.0;
+    }
+    int i = x.size() - 1;
+    dy[i] = (y[i] - y[i-1]) / (x[i] - x[i-1]);
+    return {x, dy};
 }
 
 } // namespace GraphMath

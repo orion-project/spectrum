@@ -42,5 +42,6 @@ MODIFIER(MavgCumul)
 MODIFIER(MavgExp)
 MODIFIER(FitLimits)
 MODIFIER(Despike)
+MODIFIER(Derivative)
 
 #endif // MODIFIERS_H

@@ -146,6 +146,7 @@ void Operations::modifyMavgCumul() { modifyGraph(new MavgCumulModifier); }
 void Operations::modifyMavgExp() { modifyGraph(new MavgExpModifier); }
 void Operations::modifyFitLimits() { modifyGraph(new FitLimitsModifier); }
 void Operations::modifyDespike() { modifyGraph(new DespikeModifier); }
+void Operations::modifyDerivative() { modifyGraph(new DerivativeModifier); }
 
 void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad)
 {

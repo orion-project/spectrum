@@ -508,3 +508,12 @@ bool DespikeModifier::configure()
         state["min"] = _params.min = min->value();
     });
 }
+
+//------------------------------------------------------------------------------
+//                             DerivativeModifier
+//------------------------------------------------------------------------------
+
+bool DerivativeModifier::configure()
+{
+    return true;
+}

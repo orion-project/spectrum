@@ -49,6 +49,7 @@ public slots:
     void modifyMavgExp();
     void modifyFitLimits();
     void modifyDespike();
+    void modifyDerivative();
     void graphRefresh();
     void graphReopen();
 

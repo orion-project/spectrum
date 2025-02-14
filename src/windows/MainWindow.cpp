@@ -207,6 +207,7 @@ void MainWindow::createActions()
     auto actMavgExp = A0_(tr("Moving Average (exponential)..."), _operations, SLOT(modifyMavgExp()));
     auto actFitLimits = A0_(tr("Fit Limits..."), _operations, SLOT(modifyFitLimits()), ":/toolbar/graph_fit");
     auto actDespike = A0_(tr("Remove Spikes..."), _operations, SLOT(modifyDespike()), ":/toolbar/graph_despike");
+    auto actDerivatie = A0_(tr("First Derivative"), _operations, SLOT(modifyDerivative()));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
         actOffset,
@@ -214,7 +215,7 @@ void MainWindow::createActions()
         0, actScale, actNormalize, actInvert, 0, actDecimate,
         // actAverage,
         0, actMavgSimple, actMavgCumul, actMavgExp,
-        0, actFitLimits, 0, actDespike
+        0, actFitLimits, 0, actDespike, 0, actDerivatie
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Modify"), "modify", {

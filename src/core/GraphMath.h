@@ -121,6 +121,11 @@ struct Despike
     GraphPoints calc(const GraphPoints& data) const;
 };
 
+struct Derivative
+{
+    GraphPoints calc(const GraphPoints& data) const;
+};
+
 } // namespace GraphMath
 
 #endif // GRAPH_MATH_H
