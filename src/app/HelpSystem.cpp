@@ -49,7 +49,7 @@ HelpSystem* HelpSystem::instance()
 
 QString HelpSystem::appVersion()
 {
-    return QString("%1.%2.%3-%4").arg(APP_VER_MAJOR).arg(APP_VER_MINOR).arg(APP_VER_PATCH).arg(APP_VER_CODENAME);
+    return QString("%1.%2.%3").arg(APP_VER_MAJOR).arg(APP_VER_MINOR).arg(APP_VER_PATCH);
 }
 
 void HelpSystem::showContent()
@@ -151,11 +151,6 @@ void HelpSystem::showAbout()
     labelVersion->setFont(f);
     labelVersion->setStyleSheet(textColor);
 
-    f.setPixelSize(32);
-    auto labelCodename = new QLabel(APP_VER_CODENAME);
-    labelCodename->setFont(f);
-    labelCodename->setStyleSheet(textColor);
-
     f.setPixelSize(20);
     auto labelDate = new QLabel(BUILD_DATE);
     labelDate->setFont(f);
@@ -189,7 +184,7 @@ void HelpSystem::showAbout()
     const int lineSpacing = 7;
     LayoutV({
         LayoutH({Stretch(), labelVersion, Space(horzMargin)}),
-        LayoutH({Stretch(), labelCodename, Space(horzMargin)}),
+        LayoutH({Stretch(), Space(horzMargin)}),
         Space(lineSpacing),
         LayoutH({Stretch(), labelDate, Space(horzMargin)}),
         Stretch(),
