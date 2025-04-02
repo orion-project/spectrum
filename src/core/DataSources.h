@@ -50,7 +50,7 @@ public:
     ConfigResult configure() override;
     GraphResult read() override;
     QString makeTitle() const override;
-    QString displayStr() const override { return _fileName; }
+    QString displayStr() const override;
 private:
     QString _fileName;
     CsvGraphParams _params;

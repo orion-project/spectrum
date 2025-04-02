@@ -1,8 +1,11 @@
 history:
-- varsion: 7.0.5
+- varsion: 7.0.6
   date:
   changes:
   - text: 'Modes for the First Derivative function'
+  - text: 'Show column numbers of CSV-graph in status bar'
+
+# 7.0.5 is not published, all changes went to 7.0.6
 
 - version: 7.0.4
   date: 2025-02-15

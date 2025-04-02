@@ -126,6 +126,11 @@ QString CsvFileDataSource::makeTitle() const
     return title;
 }
 
+QString CsvFileDataSource::displayStr() const
+{
+    return QStringLiteral("%1 [%2;%3]").arg(_fileName).arg(_params.columnX).arg(_params.columnY);
+}
+
 //------------------------------------------------------------------------------
 //                             RandomSampleDataSource
 //------------------------------------------------------------------------------

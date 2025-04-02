@@ -366,7 +366,6 @@ void MainWindow::createStatusBar()
 
     auto versionLabel = new Ori::Widgets::Label(Z::HelpSystem::appVersion());
     versionLabel->setContentsMargins(3, 0, 3, 0);
-    versionLabel->setForegroundRole(QPalette::Mid);
     connect(versionLabel, &Ori::Widgets::Label::doubleClicked, [](){ Z::HelpSystem::instance()->showAbout(); });
     _statusBar->addPermanentWidget(versionLabel);
 
