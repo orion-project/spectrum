@@ -98,6 +98,7 @@ TEST_METHOD(calc)
     Values xs = {0, 1, 2, 3, 4};
     Values ys = {0, 1, 4, 9, 16};
     Derivative d;
+    d.mode = d.MODE_REFINED;
     auto r = d.calc({xs, ys});
     ASSERT_ARR_SAME(r.xs, xs);
     ASSERT_ARR(r.ys, 1.0, 2.0, 4.0, 6.0, 7.0);

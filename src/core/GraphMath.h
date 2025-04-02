@@ -123,6 +123,8 @@ struct Despike
 
 struct Derivative
 {
+    enum Mode { MODE_SIMPLE, MODE_REFINED, MODE_SIMPLE_TAU, MODE_REFINED_TAU } mode;
+    double tau;
     GraphPoints calc(const GraphPoints& data) const;
 };
 

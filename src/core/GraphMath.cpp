@@ -407,15 +407,48 @@ GraphPoints Derivative::calc(const GraphPoints& data) const
     NEED_POINTS(2)
     const auto &x = data.xs;
     const auto &y = data.ys;
+    Values dx = x;
     Values dy(y.size());
-    dy[0] = (y[1] - y[0]) / (x[1] - x[0]);
-    for (int i = 1; i < x.size()-1; i++) {
-        dy[i] = ((y[i+1] - y[i]) / (x[i+1] - x[i]) +
-            (y[i] - y[i-1]) / (x[i] - x[i-1])) / 2.0;
+    qDebug() << "Derivative mode" << mode;
+    switch (mode) {
+        case MODE_SIMPLE: {
+            for (int i = 1; i < x.size(); i++) {
+                dy[i-1] = (y[i] - y[i-1]) / (x[i] - x[i-1]);
+            }
+            dx.resize(dx.size()-1);
+            dy.resize(dy.size()-1);
+            break;
+        }
+        case MODE_REFINED: {
+            dy[0] = (y[1] - y[0]) / (x[1] - x[0]);
+            for (int i = 1; i < x.size()-1; i++) {
+                dy[i] = ((y[i+1] - y[i]) / (x[i+1] - x[i]) +
+                    (y[i] - y[i-1]) / (x[i] - x[i-1])) / 2.0;
+            }
+            int i = x.size() - 1;
+            dy[i] = (y[i] - y[i-1]) / (x[i] - x[i-1]);
+            break;
+        }
+        case MODE_SIMPLE_TAU: {
+            for (int i = 1; i < x.size(); i++) {
+                dy[i-1] = (y[i] - y[i-1]) / tau;
+            }
+            dx.resize(dx.size()-1);
+            dy.resize(dy.size()-1);
+            break;
+        }
+        case MODE_REFINED_TAU: {
+            dy[0] = (y[1] - y[0]) / tau;
+            for (int i = 1; i < x.size()-1; i++) {
+                dy[i] = ((y[i+1] - y[i]) / tau +
+                    (y[i] - y[i-1]) / tau) / 2.0;
+            }
+            int i = x.size() - 1;
+            dy[i] = (y[i] - y[i-1]) / tau;
+            break;
+        }
     }
-    int i = x.size() - 1;
-    dy[i] = (y[i] - y[i-1]) / (x[i] - x[i-1]);
-    return {x, dy};
+    return {dx, dy};
 }
 
 } // namespace GraphMath

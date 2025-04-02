@@ -207,7 +207,7 @@ void MainWindow::createActions()
     auto actMavgExp = A0_(tr("Moving Average (exponential)..."), _operations, SLOT(modifyMavgExp()));
     auto actFitLimits = A0_(tr("Fit Limits..."), _operations, SLOT(modifyFitLimits()), ":/toolbar/graph_fit");
     auto actDespike = A0_(tr("Remove Spikes..."), _operations, SLOT(modifyDespike()), ":/toolbar/graph_despike");
-    auto actDerivatie = A0_(tr("First Derivative"), _operations, SLOT(modifyDerivative()));
+    auto actDerivatie = A0_(tr("First Derivative..."), _operations, SLOT(modifyDerivative()));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Modify"), this, {
         actOffset,

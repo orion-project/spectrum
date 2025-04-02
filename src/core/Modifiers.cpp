@@ -97,6 +97,18 @@ public:
         layout()->addWidget(_editor);
     }
 
+    void makeEditor(QList<int> options)
+    {
+        _editor = ::makeEditor();
+        _editor->setValue(0);
+        for (int option : options) {
+            connect(_buttons[option], &QRadioButton::clicked, this, [this](bool checked){
+                if (checked) _editor->setFocus();
+            });
+        }
+        layout()->addWidget(_editor);
+    }
+
     Ori::Widgets::ValueEdit* editor() const { return _editor; }
 
 private:
@@ -515,5 +527,19 @@ bool DespikeModifier::configure()
 
 bool DerivativeModifier::configure()
 {
-    return true;
+    auto mode = new RadioOptions<Derivative::Mode>(qApp->tr("Mode"),
+        {{ Derivative::MODE_SIMPLE, qApp->tr("Simple") },
+         { Derivative::MODE_REFINED, qApp->tr("Refined") },
+         { Derivative::MODE_SIMPLE_TAU, qApp->tr("Simple with Tau") },
+         { Derivative::MODE_REFINED_TAU, qApp->tr("Refined with Tau") }});
+    mode->makeEditor({ Derivative::MODE_SIMPLE_TAU, Derivative::MODE_REFINED_TAU });
+
+    State state("derivative");
+    mode->setSelection(state["mode"]);
+    mode->setEditorValue(state["tau"]);
+
+    return dlg(qApp->tr("Derivative"), {mode}, "derivative", [&]{
+        state["mode"] = _params.mode = mode->selection();
+        state["tau"] = _params.tau = mode->editor()->value();
+    });
 }

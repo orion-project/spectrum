@@ -1,4 +1,9 @@
 history:
+- varsion: 7.0.5
+  date:
+  changes:
+  - text: 'Modes for the First Derivative function'
+
 - version: 7.0.4
   date: 2025-02-15
   changes:

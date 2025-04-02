@@ -14,3 +14,5 @@
 - [Moving Average (cumulative)](mavg_cumul.md)
 - [Moving Average (exponential)](mavg_exp.md)
 - [Remove Spikes](despike.md)
+- [First Derivative](derivative.md)
+
