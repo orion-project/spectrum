@@ -2,8 +2,10 @@ history:
 - varsion: 7.0.6
   date:
   changes:
-  - text: 'Modes for the First Derivative function'
-  - text: 'Show column numbers of CSV-graph in status bar'
+  - text: '(NEW) Modes for the First Derivative function'
+  - text: '(NEW) Show column numbers of CSV-graph in status bar'
+  - text: '(NEW) Plot only one column from CSV file'
+  - text: '(FIX) Wrong preview line cound in Open CSV dialog'
 
 # 7.0.5 is not published, all changes went to 7.0.6
 

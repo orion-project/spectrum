@@ -67,7 +67,7 @@ struct CsvDlgState
             auto graphItem = (*it).toObject();
             int colX = graphItem["col_x"].toInt(0);
             int colY = graphItem["col_y"].toInt(0);
-            if (colX > 0 && colY > 0)
+            if (colX >= 0 && colY > 0)
                 dlg.addGraphItem(colX, colY);
         }
     }
@@ -444,13 +444,14 @@ void CsvConfigDialog::updatePreviewText(QTextStream& stream)
     int linesToSkip = _skipFirstLines->value();
     int linesRead = 0;
     int linesSkipped = 0;
-    while (linesRead++ < linesToRead)
+    while (linesRead < linesToRead)
     {
         QString line;
         if (!stream.readLineInto(&line)) break;
         if (linesSkipped++ < linesToSkip) continue;
         if (line.isEmpty()) continue;
         _previewLines << line;
+        linesRead++;
     }
     _fileTextPreview->setPlainText(_previewLines.join('\n'));
 }

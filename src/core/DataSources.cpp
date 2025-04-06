@@ -128,7 +128,9 @@ QString CsvFileDataSource::makeTitle() const
 
 QString CsvFileDataSource::displayStr() const
 {
-    return QStringLiteral("%1 [%2;%3]").arg(_fileName).arg(_params.columnX).arg(_params.columnY);
+    if (_params.columnX >= 0)
+        return QStringLiteral("%1 [%2;%3]").arg(_fileName).arg(_params.columnX).arg(_params.columnY);
+    return QStringLiteral("%1 [%2]").arg(_fileName).arg(_params.columnY);
 }
 
 //------------------------------------------------------------------------------
