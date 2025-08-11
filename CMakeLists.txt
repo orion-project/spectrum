@@ -78,6 +78,7 @@ set(PROJECT_SOURCES
 )
 
 set(ORI_WITH_TESTS ON)
+set(ORI_WITH_ZIP_HELP ON)
 add_subdirectory(libs/orion)
 add_subdirectory(libs/custom-plot-lab)
 
@@ -100,11 +101,14 @@ else()
     )
 endif()
 
+find_package(libzip CONFIG REQUIRED)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     orion
     custom-plot-lab
     Qt::Widgets
     Qt::Network
+    libzip::zip
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

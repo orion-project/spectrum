@@ -34,6 +34,7 @@ vcpkg_installed
 # Output
 bin/spectrum
 bin/*.exe
+bin/help.zip
 tmp
 out
 __pycache__

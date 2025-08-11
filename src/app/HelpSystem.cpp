@@ -18,6 +18,8 @@
 #include <QProcess>
 #include <QUrl>
 
+#include <zip.h>
+
 using namespace Ori::Layouts;
 
 namespace {
