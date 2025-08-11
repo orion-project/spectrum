@@ -29,6 +29,7 @@ Makefile*
 *.qmlproject.user.*
 CMakeLists.txt.user*
 .qtc_clangd
+vcpkg_installed
 
 # Output
 bin/spectrum

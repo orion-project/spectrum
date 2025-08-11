@@ -11,6 +11,16 @@ file(READ "release/version.txt" APP_VER_FULL)
 
 project(spectrum VERSION ${APP_VER_FULL} LANGUAGES CXX)
 
+# Set policies for modern CMake behavior
+# CMP0077: option() honors normal variables - allows parent projects to override options
+# CMP0074: find_package() uses <PackageName>_ROOT variables for finding packages
+if(POLICY CMP0077)
+    cmake_policy(SET CMP0077 NEW)
+endif()
+if(POLICY CMP0074)
+    cmake_policy(SET CMP0074 NEW)
+endif() 
+
 string(TIMESTAMP BUILD_DATE "%Y-%m-%d")
 string(TIMESTAMP APP_VER_YEAR "%Y")
 
@@ -27,8 +37,14 @@ configure_file(
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Disable MSVC warnings about non-standard STL extensions globally
+if(MSVC)
+    add_compile_definitions(_SILENCE_STDEXT_ARR_ITERS_DEPRECATION_WARNING)
+    add_compile_options(/wd4043)  # Disable STL4043 warning about stdext::checked_array_iterator
+endif()  
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport Network)

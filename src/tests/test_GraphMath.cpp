@@ -14,8 +14,8 @@ static bool compareDouble(double value, double expected)
 #define ASSERT_ARR_SAME(arr, expected) \
     ASSERT_EQ_LIST_EX(arr, expected, compareDouble);
 
-#define ASSERT_ARR(arr, expected...) { \
-    Values tmp({ expected }); \
+#define ASSERT_ARR(arr, ...) { \
+    Values tmp({ __VA_ARGS__ }); \
     ASSERT_EQ_LIST_EX(arr, tmp, compareDouble);\
 }
 

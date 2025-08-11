@@ -718,13 +718,15 @@ void PlotWindow::renameGraph()
 QString PlotWindow::displayFactorX() const
 {
     QString s = QCPL::axisFactorStr(_plot->axisFactorX());
-    return s.isEmpty() ? QStringLiteral("X: ×1") : QStringLiteral("X: ") + s;
+    // msvc doesn't undestand "strange" symbols in QStringLiteral
+    return s.isEmpty() ? QString("X: ×1") : QStringLiteral("X: ") + s;
 }
 
 QString PlotWindow::displayFactorY() const
 {
     QString s = QCPL::axisFactorStr(_plot->axisFactorY());
-    return s.isEmpty() ? QStringLiteral("Y: ×1") : QStringLiteral("Y: ") + s;
+    // msvc doesn't undestand "strange" symbols in QStringLiteral
+    return s.isEmpty() ? QString("Y: ×1") : QStringLiteral("Y: ") + s;
 }
 
 void PlotWindow::exportPlotImg()

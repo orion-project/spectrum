@@ -6,6 +6,7 @@ history:
   - text: '(NEW) Show column numbers of CSV-graph in status bar'
   - text: '(NEW) Plot only one column from CSV file'
   - text: '(FIX) Wrong preview line cound in Open CSV dialog'
+  - text: 'Switch to msvc on Windows'
 
 # 7.0.5 is not published, all changes went to 7.0.6
 
