@@ -9,6 +9,7 @@
 #include <QClipboard>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QJsonObject>
 #include <QMimeData>
 
 //------------------------------------------------------------------------------
@@ -80,6 +81,12 @@ QString TextFileDataSource::makeTitle() const
     return QFileInfo(_fileName).fileName();
 }
 
+void TextFileDataSource::save(QJsonObject &root) const
+{
+    root["type"] = type();
+    root["fileName"] = _fileName;
+}
+
 //------------------------------------------------------------------------------
 //                             CsvFileDataSource
 //------------------------------------------------------------------------------
@@ -133,6 +140,13 @@ QString CsvFileDataSource::displayStr() const
     return QStringLiteral("%1 [%2]").arg(_fileName).arg(_params.columnY);
 }
 
+void CsvFileDataSource::save(QJsonObject &root) const
+{
+    root["type"] = type();
+    root["fileName"] = _fileName;
+    _params.save(root);
+}
+
 //------------------------------------------------------------------------------
 //                             RandomSampleDataSource
 //------------------------------------------------------------------------------
@@ -173,6 +187,13 @@ QString RandomSampleDataSource::makeTitle() const
     return QString("random-sample (%1)").arg(_index);
 }
 
+void RandomSampleDataSource::save(QJsonObject &root) const
+{
+    root["type"] = type();
+    root["index"] = _index;
+    _params.save(root);
+}
+
 //------------------------------------------------------------------------------
 //                             ClipboardDataSource
 //------------------------------------------------------------------------------
@@ -210,6 +231,11 @@ QString ClipboardDataSource::makeTitle() const
      return QString("clipboard (%1)").arg(_index);
 }
 
+void ClipboardDataSource::save(QJsonObject &root) const
+{
+    root["type"] = type();
+}
+
 //------------------------------------------------------------------------------
 //                             ClipboardCsvDataSource
 //------------------------------------------------------------------------------
@@ -227,4 +253,10 @@ QString ClipboardCsvDataSource::canRefresh() const
 QString ClipboardCsvDataSource::makeTitle() const
 {
      return _params.title;
+}
+
+void ClipboardCsvDataSource::save(QJsonObject &root) const
+{
+    root["type"] = type();
+    _params.save(root);
 }

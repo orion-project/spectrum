@@ -1,7 +1,9 @@
 #include "PlotWindow.h"
 
 #include "Operations.h"
+#include "core/FileUtils.h"
 #include "core/Project.h"
+#include "core/ProjectFile.h"
 #include "app/PersistentState.h"
 
 #include "helpers/OriLayouts.h"
@@ -731,12 +733,31 @@ void PlotWindow::exportPlotImg()
     props.fromJson(PersistentState::load("export_img"));
     if (QCPL::exportImageDlg(_plot, props)) {
         PersistentState::save("export_img", props.toJson());
-        PopupMessage::affirm(tr("Image has been saved\n%1").arg(props.fileName), Qt::AlignRight|Qt::AlignBottom);
+        PopupMessage::affirm(tr("Image has been saved\n\n%1").arg(props.fileName), Qt::AlignRight|Qt::AlignBottom);
     }
 }
 
 void PlotWindow::exportPlotPrj()
-{
+{   
+    QString fileName = FileUtils::getProjectSaveFileName(this);
+    if (fileName.isEmpty()) return;
+ 
+    Project project(nullptr);
+    ProjectFile::StorableData data;
+    data.fileName = fileName;
+    data.project = &project;
+    data.diagrams << _diagram;
+    data.formats[_diagram] = QCPL::writePlot(_plot, {.onlyPrimaryAxes = false});
+    for (auto it : std::as_const(_items)) {
+        data.formats[it->graph] = QCPL::writeGraph(it->line);
+    }
+    QString err = ProjectFile::saveProject(data);
+    if (!err.isEmpty())
+        Ori::Dlg::error(tr("Failed to export project: %1").arg(err));
+    else QTimer::singleShot(0, this, [fileName]{
+        // Show deferred because a dialog has been opened and app is not yet active
+        PopupMessage::affirm(tr("Project successfully exported\n\n%1").arg(fileName), Qt::AlignRight|Qt::AlignBottom);
+    });
 }
 
 void PlotWindow::changeGraphAxes()

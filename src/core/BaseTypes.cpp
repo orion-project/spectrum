@@ -1,6 +1,25 @@
 #include "BaseTypes.h"
 
 #include <QApplication>
+#include <QJsonObject>
+
+//------------------------------------------------------------------------------
+//                              CsvGraphParams
+//------------------------------------------------------------------------------
+
+void CsvGraphParams::save(QJsonObject &root) const
+{
+    root["title"] = title;
+    root["valueSeparators"] = valueSeparators;
+    root["decimalPoint"] = decimalPoint;
+    root["columnX"] = columnX;
+    root["columnY"] = columnY;
+    root["skipFirstLines"] = skipFirstLines;
+}
+
+//------------------------------------------------------------------------------
+//                               PlottingRange
+//------------------------------------------------------------------------------
 
 QVector<double> PlottingRange::calcValues() const
 {
@@ -50,4 +69,36 @@ QString PlottingRange::verify() const
         return qApp->tr("Too few points");
 
     return QString();
+}
+
+void PlottingRange::save(QJsonObject &root) const
+{
+    root["start"] = start;
+    root["stop"] = stop;
+    root["step"] = step;
+    root["points"] = points;
+    root["useStep"] = useStep;
+}
+
+//------------------------------------------------------------------------------
+//                               MinMax
+//------------------------------------------------------------------------------
+
+void MinMax::save(QJsonObject &root) const
+{
+    root["min"] = min;
+    root["max"] = max;
+}
+
+//------------------------------------------------------------------------------
+//                         RandomSampleParams
+//------------------------------------------------------------------------------
+
+void RandomSampleParams::save(QJsonObject &root) const
+{
+    QJsonObject x, y;
+    rangeX.save(x);
+    rangeY.save(y);
+    root["rangeX"] = x;
+    root["rangeY"] = y;
 }

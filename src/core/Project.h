@@ -6,7 +6,6 @@
 #include <QColor>
 #include <QHash>
 #include <QIcon>
-#include <QObject>
 
 class DataSource;
 class Diagram;
@@ -20,18 +19,15 @@ class Project : public QObject
 public:
     Project(QObject *parent);
     
+    Diagram* diagram(const QString &id);
     void newDiagram();
     void deleteDiagram(const QString &id);
     
     bool modified() const { return _modified; }
     void markModified(const QString &reason);
     
-    Diagram* diagram(const QString &id);
     Graph* graph(const QString &id);
-    
     void updateGraph(Graph *graph);
-    
-    QString getSaveFileName();
     
 private:
     QHash<QString, Diagram*> _diagrams;
@@ -40,6 +36,8 @@ private:
     bool _modified = false;
 
     QColor nextDiagramColor();
+    
+    friend class ProjectFile;
 };
 
 
@@ -72,6 +70,7 @@ private:
     QHash<QString, Graph*> _graphs;
 
     friend class Project;
+    friend class ProjectFile;
 };
 
 
@@ -111,6 +110,8 @@ private:
     QString _title;
     QIcon _icon;
     QColor _color;
+    
+    friend class ProjectFile;
 };
 
 #endif // PROJECT_H

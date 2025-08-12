@@ -124,7 +124,7 @@ void MainWindow::createActions()
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Project"), "project", {
-        actPlotNew, actPlotRename, actPlotDelete, actPlotSaveImg
+        actPlotNew, actPlotRename, actPlotDelete, actPlotSavePrj, actPlotSaveImg,
     }));
 
     //---------------------------------------------------------

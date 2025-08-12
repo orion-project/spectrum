@@ -1,6 +1,9 @@
 #include "FileUtils.h"
 
+#include "tools/OriSettings.h"
+
 #include <QApplication>
+#include <QFileDialog>
 #include <QFileInfo>
 
 namespace FileUtils
@@ -57,5 +60,27 @@ QString extractSuffix(const QString& filter)
 
     return ext;
 }
+
+QString getProjectSaveFileName(QWidget *parent)
+{
+    Ori::Settings s;
+    s.beginGroup("Recent");
+
+    QString recentPath = s.strValue("prjSavePath");
+    QString recentFilter = s.strValue("prjSaveFilter");
+
+    auto fileName = QFileDialog::getSaveFileName(parent,
+                                                 qApp->tr("Save Project", "Dialog title"),
+                                                 recentPath,
+                                                 filtersForSave(),
+                                                 &recentFilter);
+    if (fileName.isEmpty()) return QString();
+
+    s.setValue("prjSavePath", fileName);
+    s.setValue("prjSaveFilter", recentFilter);
+
+    return refineFileName(fileName, recentFilter);
+}
+
 
 } // namespace FileUtils

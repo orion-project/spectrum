@@ -67,6 +67,7 @@ set(PROJECT_SOURCES
     src/core/GraphMath.h src/core/GraphMath.cpp
     src/core/Modifiers.h src/core/Modifiers.cpp
     src/core/Project.h src/core/Project.cpp
+    src/core/ProjectFile.h src/core/ProjectFile.cpp
     src/dialogs/CsvConfigDialog.h src/dialogs/CsvConfigDialog.cpp
     src/dialogs/OpenFileDlg.h src/dialogs/OpenFileDlg.cpp
     src/tests/test_DataReaders.cpp

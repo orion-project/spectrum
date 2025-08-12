@@ -5,6 +5,8 @@
 
 #include <QVector>
 
+class QJsonObject;
+
 using Values = QVector<double>;
 
 struct GraphPoints
@@ -24,6 +26,8 @@ struct CsvGraphParams
     bool decimalPoint;
     int columnX, columnY;
     int skipFirstLines;
+    
+    void save(QJsonObject &root) const;
 };
 
 struct PlottingRange
@@ -36,18 +40,24 @@ struct PlottingRange
 
     QVector<double> calcValues() const;
     QString verify() const;
+    
+    void save(QJsonObject &root) const;
 };
 
 struct MinMax
 {
     double min;
     double max;
+    
+    void save(QJsonObject &root) const;
 };
 
 struct RandomSampleParams
 {
     PlottingRange rangeX;
     MinMax rangeY;
+    
+    void save(QJsonObject &root) const;
 };
 
 enum BusEvent

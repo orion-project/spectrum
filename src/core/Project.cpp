@@ -1,12 +1,10 @@
 #include "Project.h"
 
 #include "BaseTypes.h"
-#include "FileUtils.h"
 #include "DataSources.h"
 #include "Modifiers.h"
 
 #include "tools/OriMessageBus.h"
-#include "tools/OriSettings.h"
 
 #include "qcpl_colors.h"
 
@@ -20,7 +18,6 @@ using Ori::MessageBus;
 //------------------------------------------------------------------------------
 //                                 Project
 //------------------------------------------------------------------------------
-
 
 Project::Project(QObject *parent) : QObject(parent)
 {
@@ -76,27 +73,6 @@ void Project::markModified(const QString &reason)
     _modified = true;
     qDebug() << "Project::modified" << reason;
     MessageBus::send((int)BusEvent::ProjectModified);
-}
-
-QString Project::getSaveFileName()
-{
-    Ori::Settings s;
-    s.beginGroup("Recent");
-
-    QString recentPath = s.strValue("prj_save_path");
-    QString recentFilter = s.strValue("prj_save_filter");
-
-    auto fileName = QFileDialog::getSaveFileName(qobject_cast<QWidget*>(parent()),
-                                                 tr("Save Project", "Dialog title"),
-                                                 recentPath,
-                                                 FileUtils::filtersForSave(),
-                                                 &recentFilter);
-    if (fileName.isEmpty()) return QString();
-
-    s.setValue("prj_save_path", fileName);
-    s.setValue("prj_save_filter", recentFilter);
-
-    return FileUtils::refineFileName(fileName, recentFilter);
 }
 
 void Project::updateGraph(Graph *graph)
@@ -175,7 +151,7 @@ void Diagram::deleteGraphs(const QVector<Graph*> &graphs)
 }
 
 //------------------------------------------------------------------------------
-//                                 Diagram
+//                                 Graph
 //------------------------------------------------------------------------------
 
 Graph::Graph(DataSource* dataSource): _dataSource(dataSource)
