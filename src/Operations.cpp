@@ -4,6 +4,7 @@
 #include "core/Graph.h"
 #include "core/DataSources.h"
 #include "core/Modifiers.h"
+#include "core/Project.h"
 #include "dialogs/CsvConfigDialog.h"
 #include "dialogs/OpenFileDlg.h"
 #include "widgets/RangeEditor.h"
@@ -24,7 +25,7 @@
         return; \
     }
 
-Operations::Operations(QObject *parent) : QObject(parent)
+Operations::Operations(Project *project, QObject *parent) : QObject(parent), _project(project)
 {
     _mruPlotFormats = new Ori::MruFileList(this);
     _mruPlotFormats->load("mruPlotFormats");
@@ -192,7 +193,7 @@ void Operations::modifyGraph(Modifier* mod)
         delete mod;
         return;
     }
-    emit graphUpdated(graph);
+    _project->updateGraph(graph);
 }
 
 void Operations::graphRefresh()
@@ -216,7 +217,7 @@ void Operations::graphRefresh()
         Ori::Dlg::error(res);
         return;
     }
-    emit graphUpdated(graph);
+    _project->updateGraph(graph);
 }
 
 void Operations::graphReopen()
@@ -249,5 +250,5 @@ void Operations::graphReopen()
         Ori::Dlg::error(res);
         return;
     }
-    emit graphUpdated(graph);
+    _project->updateGraph(graph);
 }

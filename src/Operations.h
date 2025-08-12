@@ -10,6 +10,7 @@
 class Graph;
 class DataSource;
 class Modifier;
+class Project;
 
 namespace Ori {
 class MruFileList;
@@ -21,7 +22,7 @@ class Operations : public QObject
     Q_OBJECT
 
 public:
-    explicit Operations(QObject *parent = nullptr);
+    explicit Operations(Project *project, QObject *parent = nullptr);
 
     std::function<Graph*()> getSelectedGraph;
 
@@ -55,11 +56,11 @@ public slots:
 
 signals:
     void graphCreated(Graph* g);
-    void graphUpdated(Graph* g);
-
+    
 private:
+    Project *_project;
     Ori::MruFileList *_mruPlotFormats;
-
+    
     void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
     void modifyGraph(Modifier *mod);
 };

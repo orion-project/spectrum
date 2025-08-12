@@ -22,11 +22,6 @@
 using Ori::Gui::PopupMessage;
 using Ori::MessageBus;
 
-PlotItem::~PlotItem()
-{
-    delete graph;
-}
-
 static QIcon makeGraphIcon(QColor color)
 {
     int H, S, L;
@@ -81,7 +76,7 @@ PlotWindow::PlotWindow(Operations *operations, Diagram *diagram, QWidget *parent
     }).setMargin(0).setSpacing(0).useFor(this);
 
     setWindowIcon(_diagram->icon());
-    updateTitle();
+    handleDiagramRenamed();
 }
 
 PlotWindow::~PlotWindow()
@@ -112,7 +107,7 @@ void PlotWindow::createContextMenus()
     menuAxis->addSeparator();
     menuAxis->addAction(QIcon(":/toolbar/factor_axis"), tr("Factor..."), this, [this]{
         if (_plot->axisFactorDlg(_plot->axisUnderMenu))
-            MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+            _diagram->markModified("PlotWindow::axisFactorChanged");
     });
 
     auto menuLegend = new QMenu(this);
@@ -170,7 +165,16 @@ void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
     switch (event) {
     case BusEvent::DiagramRenamed:
         if (params.value("id") == _diagram->id())
-            updateTitle();
+            handleDiagramRenamed();
+        break;
+    case BusEvent::GraphAdded:
+        handleGraphAdded(params.value("id").toString());
+        break;
+    case BusEvent::GraphUpdated:
+        handleGraphUpdated(params.value("id").toString());
+        break;
+    case BusEvent::GraphDeleting:
+        handleGraphDeleting(params.value("id").toString());
         break;
     }
 }
@@ -182,7 +186,7 @@ void PlotWindow::addAxisVars(QCPAxis* axis)
         auto s = QCPL::axisFactorStr(_plot->axisFactor(axis)); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
 }
 
-void PlotWindow::updateTitle()
+void PlotWindow::handleDiagramRenamed()
 {
     setWindowTitle(_diagram->title());
     if (_plot->title()) {
@@ -196,8 +200,11 @@ int PlotWindow::graphCount() const
     return _plot->graphsCount();
 }
 
-void PlotWindow::addGraph(Graph* g)
+void PlotWindow::handleGraphAdded(const QString &id)
 {
+    auto g = _diagram->graph(id);
+    if (!g) return;
+
     auto item = new PlotItem;
     item->graph = g;
 
@@ -217,6 +224,48 @@ void PlotWindow::addGraph(Graph* g)
 
     _plot->replot();
     _items.append(item);
+
+    if (AppSettings::instance().selectNewGraph)
+        emit graphSelected(g);
+}
+
+void PlotWindow::handleGraphUpdated(const QString &id)
+{
+    auto graph = _diagram->graph(id);
+    if (!graph) return;
+
+    auto item = itemForGraph(graph);
+    if (!item) return;
+
+    item->line->setName(graph->title());
+    _plot->updateGraph(item->line, {graph->data().xs, graph->data().ys});
+}
+
+void PlotWindow::handleGraphRenamed(const QString &id)
+{
+    auto graph = _diagram->graph(id);
+    if (!graph) return;
+
+    auto item = itemForGraph(graph);
+    if (!item) return;
+
+    item->line->setName(graph->title());
+    _plot->replot();
+}
+
+void PlotWindow::handleGraphDeleting(const QString &id)
+{
+    auto graph = _diagram->graph(id);
+    if (!graph) return;
+
+    auto item = itemForGraph(graph);
+    if (!item) return;
+
+    _plot->removeGraph(item->line);
+    _items.removeAll(item);
+    delete item;
+
+    _plot->replot();
 }
 
 void PlotWindow::deleteGraph()
@@ -231,22 +280,7 @@ void PlotWindow::deleteGraph()
     msg << "<br>" << tr("Confirm?");
 
     if (Ori::Dlg::yes(msg.join("")))
-        deleteGraphs(graphs);
-}
-
-void PlotWindow::deleteGraphs(const QVector<Graph*>& graphs)
-{
-    for (auto g : graphs)
-    {
-        auto item = itemForGraph(g);
-        if (!item) continue;
-        _plot->removeGraph(item->line);
-        _items.removeAll(item);
-        delete item;
-    }
-    _plot->replot();
-    _diagram->markModified("PlotWindow::deleteGraphs");
-    MessageBus::send(MSG_GRAPH_DELETED);
+        _diagram->deleteGraphs(graphs);
 }
 
 void PlotWindow::limitsDlg()
@@ -399,14 +433,6 @@ QCPGraph* PlotWindow::selectedGraphLine(bool warn) const
     return lines.first();
 }
 
-Graph* PlotWindow::findGraphById(const QString& id) const
-{
-    for (auto& item : _items)
-        if (item->graph->id() == id)
-            return item->graph;
-    return nullptr;
-}
-
 void PlotWindow::selectGraph(Graph* graph)
 {
     auto item = itemForGraph(graph);
@@ -418,16 +444,6 @@ void PlotWindow::selectGraphLine(QCPGraph* line, bool replot)
     _plot->deselectAll();
     line->setSelection(QCPDataSelection(line->data()->dataRange()));
     if (replot) _plot->replot();
-}
-
-bool PlotWindow::updateGraph(Graph* graph)
-{
-    auto item = itemForGraph(graph);
-    if (!item) return false;
-
-    item->line->setName(graph->title());
-    _plot->updateGraph(item->line, {graph->data().xs, graph->data().ys});
-    return true;
 }
 
 bool PlotWindow::isLegendVisible() const
@@ -460,20 +476,20 @@ void PlotWindow::toggleTitle()
 void PlotWindow::axisFactorDlgX()
 {
     if (_plot->axisFactorDlgX())
-        MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+        _diagram->markModified("PlotWindow::axisFactorChanged");
 }
 
 void PlotWindow::axisFactorDlgY()
 {
     if (_plot->axisFactorDlgY())
-        MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+        _diagram->markModified("PlotWindow::axisFactorChanged");
 }
 
 void PlotWindow::axisFactorDlg()
 {
     auto axis = QCPL::chooseAxis(_plot);
     if (axis && _plot->axisFactorDlg(axis))
-        MessageBus::send(MSG_AXIS_FACTOR_CHANGED);
+        _diagram->markModified("PlotWindow::axisFactorChanged");
 }
 
 void PlotWindow::formatX()
@@ -676,21 +692,24 @@ void PlotWindow::copyPlotImage()
     PopupMessage::affirm(tr("Image has been copied to Clipboard"), Qt::AlignRight|Qt::AlignBottom);
 }
 
+void PlotWindow::renamePlot()
+{
+    QString newTitle = Ori::Dlg::inputText(tr("Diagram title:"), _diagram->title());
+    if (newTitle.isEmpty() || newTitle == _diagram->title()) return;
+    _diagram->setTitle(newTitle);
+    MessageBus::send((int)BusEvent::DiagramRenamed, {{"id", _diagram->id()}});
+    _diagram->markModified("PlotWindow::renamePlot");
+}
+
 void PlotWindow::renameGraph()
 {
     auto graph = selectedGraph();
     if (!graph) return;
-
     QString newTitle = Ori::Dlg::inputText(tr("Graph title:"), graph->title());
-    if (newTitle.isEmpty()) return;
+    if (newTitle.isEmpty() || newTitle == graph->title()) return;
     graph->setTitle(newTitle);
+    MessageBus::send((int)BusEvent::GraphRenamed, {{"id", graph->id()}});
     _diagram->markModified("PlotWindow::renameGraph");
-    if (auto item = itemForGraph(graph); item)
-    {
-        item->line->setName(graph->title());
-        _plot->replot();
-    }
-    MessageBus::send(MSG_GRAPH_RENAMED, {{"id", graph->id()}});
 }
 
 QString PlotWindow::displayFactorX() const

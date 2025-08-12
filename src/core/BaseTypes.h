@@ -50,16 +50,17 @@ struct RandomSampleParams
     MinMax rangeY;
 };
 
-#define MSG_GRAPH_RENAMED 200
-#define MSG_GRAPH_DELETED 300
-#define MSG_AXIS_FACTOR_CHANGED 400
-
 enum BusEvent
 {
     ProjectModified,
     DiagramAdded,
     DiagramDeleted,
     DiagramRenamed,
+    GraphAdded,
+    GraphDeleting,
+    GraphDeleted,
+    GraphUpdated,
+    GraphRenamed,
 };
 
 #endif // BASE_TYPES_H

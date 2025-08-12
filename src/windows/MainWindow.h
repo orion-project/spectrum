@@ -52,12 +52,9 @@ private:
     void restoreState();
 
     PlotWindow* activePlot(bool warn = true) const;
-    //PlotObj* findPlotById(const QString& id) const;
-    Graph* findGraphById(const QString& id) const;
     Graph* selectedGraph(bool warn = true) const;
     void graphSelected(Graph* graph);
     void graphCreated(Graph* graph);
-    void graphUpdated(Graph* graph);
     void mdiSubWindowActivated(QMdiSubWindow* window);
     void viewMenuShown();
     void updateDataGrid();

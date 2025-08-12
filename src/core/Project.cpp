@@ -1,9 +1,9 @@
 #include "Project.h"
 
 #include "BaseTypes.h"
+#include "Graph.h"
 #include "FileUtils.h"
 
-#include "helpers/OriDialogs.h"
 #include "tools/OriMessageBus.h"
 #include "tools/OriSettings.h"
 
@@ -31,22 +31,20 @@ void Project::newDiagram()
     dia->_id = QUuid::createUuid().toString(QUuid::Id128);
     dia->_title = tr("Diagram %1").arg(++_nextDiagramIndex);
     dia->_color = nextDiagramColor();
-    _items.insert(dia->id(), dia);
+    _diagrams.insert(dia->id(), dia);
     qDebug() << "Project::newDiagram" << dia->id();
     MessageBus::send((int)BusEvent::DiagramAdded, {{"id", dia->id()}});
-    // The first empty diagram doesn't modify the project
-    if (_items.size() > 1)
-        markModified("Project::newDiagram");
+    markModified("Project::newDiagram");
 }
 
 void Project::deleteDiagram(const QString &id)
 {
-    auto dia = _items.value(id);
+    auto dia = _diagrams.value(id);
     if (!dia) {
         qWarning() << "Project::deleteDiagram: diagram not found" << id;
         return;
     }
-    _items.remove(id);
+    _diagrams.remove(id);
     delete dia;
     MessageBus::send((int)BusEvent::DiagramDeleted, {{"id", id}});
     markModified("Project::deleteDiagram " + id);
@@ -54,7 +52,15 @@ void Project::deleteDiagram(const QString &id)
 
 Diagram* Project::diagram(const QString &id)
 {
-    return _items.value(id);
+    return _diagrams.value(id);
+}
+
+Graph* Project::graph(const QString &id)
+{
+    for (auto it = _diagrams.cbegin(); it != _diagrams.cend(); it++)
+        if (auto g = it.value()->graph(id); g)
+            return g;
+    return nullptr;
 }
 
 QColor Project::nextDiagramColor()
@@ -90,6 +96,12 @@ QString Project::getSaveFileName()
     s.setValue("prj_save_filter", recentFilter);
 
     return FileUtils::refineFileName(fileName, recentFilter);
+}
+
+void Project::updateGraph(Graph *graph)
+{
+    MessageBus::send((int)BusEvent::GraphUpdated, {{"id", graph->id()}});
+    markModified("Project::updateGraph");
 }
 
 //------------------------------------------------------------------------------
@@ -137,11 +149,26 @@ void Diagram::markModified(const QString &reason)
     _prj->markModified(reason);
 }
 
-void Diagram::doRename()
+Graph* Diagram::graph(const QString &id)
 {
-    QString newTitle = Ori::Dlg::inputText(tr("Diagram title:"), _title);
-    if (newTitle.isEmpty() || newTitle == _title) return;
-    _title = newTitle;
-    MessageBus::send((int)BusEvent::DiagramRenamed, {{"id", _id}});
-    _prj->markModified("Diagram::doRename");
+    return _graphs.value(id);
+}
+
+void Diagram::addGraph(Graph *g)
+{
+    _graphs.insert(g->id(), g);
+    MessageBus::send((int)BusEvent::GraphAdded, {{"id", g->id()}});
+    markModified("Diagram::addGraph");
+}
+
+void Diagram::deleteGraphs(const QVector<Graph*> &graphs)
+{
+    for (auto g : std::as_const(graphs)) {
+        QString id = g->id();
+        MessageBus::send((int)BusEvent::GraphDeleting, {{"id", id}});
+        _graphs.remove(id);
+        delete g;
+        MessageBus::send((int)BusEvent::GraphDeleted, {{"id", id}});
+    }
+    markModified("Diagram::deleteGraphs");
 }

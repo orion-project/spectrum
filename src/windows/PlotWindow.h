@@ -22,8 +22,6 @@ class QCPGraph;
 class PlotItem
 {
 public:
-    ~PlotItem();
-
     Graph* graph;
     QCPGraph* line;
 };
@@ -45,7 +43,6 @@ public:
     void messageBusEvent(int event, const QMap<QString, QVariant>& params) override;
 
     int graphCount() const;
-    void addGraph(Graph* g);
 
     void limitsDlg();
     void limitsDlgX();
@@ -83,6 +80,7 @@ public:
     void savePlotFormatDlg();
     void loadPlotFormatDlg();
     void loadPlotFormat(const QString& fileName);
+    void renamePlot();
     void renameGraph();
     void deleteGraph();
     void toggleLegend();
@@ -99,10 +97,8 @@ public:
     Graph* selectedGraph(bool warn = true) const;
     QVector<Graph*> selectedGraphs(bool warn = true) const;
     QCPGraph* selectedGraphLine(bool warn = true) const;
-    Graph* findGraphById(const QString& id) const;
     void selectGraph(Graph* graph);
     void selectGraphLine(QCPGraph* line, bool replot = true);
-    bool updateGraph(Graph* graph);
 
     QSize sizeHint() const override { return QSize(600, 400); }
 
@@ -132,10 +128,13 @@ private:
     PlotItem* itemForGraph(Graph* graph) const;
 
     void createContextMenus();
-    void updateTitle();
-    void deleteGraphs(const QVector<Graph*>& graphs);
     void addAxisVars(QCPAxis* axis);
-    
+
+    void handleDiagramRenamed();
+    void handleGraphAdded(const QString &id);
+    void handleGraphUpdated(const QString &id);
+    void handleGraphRenamed(const QString &id);
+    void handleGraphDeleting(const QString &id);
 };
 
 #endif // PLOT_WINDOW_H

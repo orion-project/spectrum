@@ -38,6 +38,11 @@ void DataGridPanel::messageBusEvent(int event, const QMap<QString, QVariant>& pa
         if (isVisible() && params.value("id") == _plotId)
             showData(_project->diagram(_plotId), nullptr);
         break;
+    case BusEvent::GraphUpdated:
+    case BusEvent::GraphRenamed:
+        if (isVisible() && params.value("id") == _graphId)
+            showData(nullptr, _project->graph(_graphId));
+        break;
     }
 }
 

@@ -7,6 +7,7 @@
 #include <QObject>
 
 class Diagram;
+class Graph;
 
 class Project : public QObject
 {
@@ -22,11 +23,14 @@ public:
     void markModified(const QString &reason);
     
     Diagram* diagram(const QString &id);
+    Graph* graph(const QString &id);
+    
+    void updateGraph(Graph *graph);
     
     QString getSaveFileName();
     
 private:
-    QHash<QString, Diagram*> _items;
+    QHash<QString, Diagram*> _diagrams;
     int _nextDiagramIndex = 0;
     int _nextDiagramColorIndex = 0;
     bool _modified = false;
@@ -43,14 +47,16 @@ public:
     Project* project() const { return _prj; }
     QString id() const { return _id; }
     const QString& title() const { return _title; }
+    void setTitle(const QString &s) { _title = s; }
     const QColor& color() const { return _color; }
     const QIcon& icon();
 
     void markModified(const QString &reason);
     
-    void doRename();
-    void doDelete();
-
+    Graph* graph(const QString &id);
+    void addGraph(Graph *g);
+    void deleteGraphs(const QVector<Graph*> &graphs);
+    
 private:
     Diagram(Project *project);
 
@@ -59,8 +65,8 @@ private:
     QString _title;
     QColor _color;
     QIcon _icon;
+    QHash<QString, Graph*> _graphs;
 
-    friend class PlotWindow;
     friend class Project;
 };
 
