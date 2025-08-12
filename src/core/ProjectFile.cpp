@@ -1,11 +1,13 @@
 #include "ProjectFile.h"
 
 #include "DataSources.h"
+#include "Modifiers.h"
 #include "Project.h"
 
 #include <zip.h>
 
 #include <QBuffer>
+#include <QJsonArray>
 #include <QJsonDocument>
 
 QJsonObject ProjectFile::writeProject(const Project *p)
@@ -30,12 +32,20 @@ QJsonObject ProjectFile::writeGraph(const Graph *g)
     QJsonObject dataSourceJson;
     g->dataSource()->save(dataSourceJson);
 
+    QJsonArray modifiersJson;
+    for (auto m : std::as_const(g->_modifiers)) {
+        QJsonObject modifierJson;
+        m->save(modifierJson);
+        modifiersJson.append(modifierJson);
+    }
+    
     return QJsonObject({
         { "title", g->title() },
         { "autoTitle", g->_autoTitle },
         { "color", g->color().name() },
         { "pointsCount", g->pointsCount() },
         { "dataSource", dataSourceJson },
+        { "modifiers", modifiersJson },
     });
 }
 

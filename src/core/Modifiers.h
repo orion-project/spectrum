@@ -4,12 +4,15 @@
 #include "BaseTypes.h"
 #include "GraphMath.h"
 
+#include <QJsonObject>
+
 class Modifier
 {
 public:
     virtual ~Modifier() {}
     virtual GraphResult modify(const GraphPoints& data) const = 0;
     virtual bool configure() { return true; }
+    virtual void save(QJsonObject &root) const = 0;
 };
 
 template <typename TParams>
@@ -27,6 +30,10 @@ protected:
     class mod##Modifier : public ModifierBase<GraphMath::mod> { \
     public: \
         bool configure() override; \
+        void save(QJsonObject &root) const override { \
+            root["type"] = QString::fromLatin1(#mod); \
+            _params.save(root); \
+        } \
     };
 
 MODIFIER(Offset)
