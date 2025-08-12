@@ -62,6 +62,7 @@
         <file alias="plot_delete">../img/toolbar/plot_delete.svg</file>
         <file alias="plot_new">../img/toolbar/plot_new.svg</file>
         <file alias="plot_rename">../img/toolbar/plot_rename.svg</file>
+        <file alias="plot_save">../img/toolbar/plot_save.svg</file>
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
         <file alias="protocol">../img/toolbar/protocol.svg</file>
         <file alias="save_format">../img/toolbar/save_format.svg</file>

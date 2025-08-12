@@ -1,6 +1,7 @@
 #include "DataGridPanel.h"
 
 #include "core/Graph.h"
+#include "core/Project.h"
 
 #include "helpers/OriLayouts.h"
 
@@ -11,7 +12,8 @@
 
 using namespace Ori::Layouts;
 
-DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
+DataGridPanel::DataGridPanel(Project *project, QWidget *parent)
+    : QWidget(parent), Ori::IMessageBusListener(), _project(project)
 {
     _dataGrid = new QCPL::GraphDataGrid;
     _iconPlot = new QLabel;
@@ -29,13 +31,23 @@ DataGridPanel::DataGridPanel(QWidget *parent) : QWidget(parent)
             .useFor(this);
 }
 
-void DataGridPanel::showData(PlotObj *plot, Graph *graph)
+void DataGridPanel::messageBusEvent(int event, const QMap<QString, QVariant>& params)
 {
-    if (plot)
+    switch (event) {
+    case BusEvent::DiagramRenamed:
+        if (isVisible() && params.value("id") == _plotId)
+            showData(_project->diagram(_plotId), nullptr);
+        break;
+    }
+}
+
+void DataGridPanel::showData(Diagram *dia, Graph *graph)
+{
+    if (dia)
     {
-        _plotId = plot->id();
-        _iconPlot->setPixmap(plot->icon().pixmap(16, 16));
-        _titlePlot->setText(plot->title());
+        _plotId = dia->id();
+        _iconPlot->setPixmap(dia->icon().pixmap(16, 16));
+        _titlePlot->setText(dia->title());
     }
     if (graph)
     {

@@ -1,18 +1,21 @@
 #ifndef PLOT_WINDOW_H
 #define PLOT_WINDOW_H
 
-#include <QMdiSubWindow>
-
 #include "app/AppSettings.h"
+
+#include "tools/OriMessageBus.h"
+
+#include <QMdiSubWindow>
 
 namespace QCPL {
 //class Cursor;
 //class CursorPanel;
 class Plot;
 }
+class Diagram;
 class Graph;
 class Operations;
-class PlotObj;
+class Project;
 class QCPAxis;
 class QCPGraph;
 
@@ -25,18 +28,21 @@ public:
     QCPGraph* line;
 };
 
-class PlotWindow : public QWidget, public IAppSettingsListener
+class PlotWindow : public QWidget, public IAppSettingsListener, public Ori::IMessageBusListener
 {
     Q_OBJECT
 
 public:
-    explicit PlotWindow(Operations *operations, QWidget *parent = nullptr);
+    explicit PlotWindow(Operations *operations, Diagram *_diagram, QWidget *parent = nullptr);
     ~PlotWindow() override;
 
-    PlotObj* plotObj() const { return _plotObj; }
+    Diagram* diagram() const { return _diagram; }
 
     // Implements IAppSettingsListener
     void settingsChanged() override;
+
+    // Ori::IMessageBusListener
+    void messageBusEvent(int event, const QMap<QString, QVariant>& params) override;
 
     int graphCount() const;
     void addGraph(Graph* g);
@@ -77,7 +83,6 @@ public:
     void savePlotFormatDlg();
     void loadPlotFormatDlg();
     void loadPlotFormat(const QString& fileName);
-    void rename();
     void renameGraph();
     void deleteGraph();
     void toggleLegend();
@@ -88,6 +93,7 @@ public:
     void copyGraphFormat();
     void pasteGraphFormat();
     void exportPlotImg();
+    void exportPlotPrj();
     void changeGraphAxes();
 
     Graph* selectedGraph(bool warn = true) const;
@@ -115,21 +121,21 @@ private slots:
     void graphLineSelected(bool selected);
 
 private:
-    PlotObj* _plotObj;
+    Diagram* _diagram;
     QCPL::Plot* _plot;
     //QCPL::Cursor* _cursor;
     //QCPL::CursorPanel* _cursorPanel;
     QList<PlotItem*> _items;
-    Operations* _operations;
+    Operations *_operations;
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;
 
     void createContextMenus();
-    void markModified(const QString& reason);
-    void updateTitle(const QString& title);
+    void updateTitle();
     void deleteGraphs(const QVector<Graph*>& graphs);
     void addAxisVars(QCPAxis* axis);
+    
 };
 
 #endif // PLOT_WINDOW_H

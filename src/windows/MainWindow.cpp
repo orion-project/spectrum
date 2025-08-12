@@ -6,6 +6,7 @@
 #include "core/Graph.h"
 #include "core/DataExporters.h"
 #include "core/DataSources.h"
+#include "core/Project.h"
 #include "widgets/DataGridPanel.h"
 #include "windows/PlotWindow.h"
 
@@ -49,13 +50,18 @@ enum StatusPanels
 
 #define IN_ACTIVE_PLOT(do_func) \
     [this]{ auto plot = activePlot(); if (plot) plot->do_func(); }
+    
+#define IN_ACTIVE_DIAGRAM(do_func) \
+    [this]{ auto plot = activePlot(); if (plot) plot->diagram()->do_func(); }
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Ori::IMessageBusListener()
 {
     setObjectName("mainWindow");
     Ori::Wnd::setWindowIcon(this, ":/window_icons/main");
+    
+    _project = new Project(this);
 
-    _panelDataGrid = new DataGridPanel(this);
+    _panelDataGrid = new DataGridPanel(_project, this);
 
     _operations = new Operations(this);
     _operations->getSelectedGraph = [this](){ return selectedGraph(); };
@@ -77,9 +83,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     restoreState();
 
-    Ori::MessageBus::instance().registerListener(this);
-
-    QTimer::singleShot(200, this, [this](){ newPlot(); });
+    QTimer::singleShot(200, this, [this](){ _project->newDiagram(); });
 }
 
 MainWindow::~MainWindow()
@@ -112,19 +116,20 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actPrjNewPlot = A0_(tr("New Diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
-    auto actPrjRenamePlot = A1_(tr("Rename Diagram..."), this, IN_ACTIVE_PLOT(rename), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
-    auto actPrjDeletePlot = A0_(tr("Delete Diagram"), this, SLOT(deletePlot()), ":/toolbar/plot_delete");
+    auto actDiagramNew = A1_(tr("New Diagram"), _project, &Project::newDiagram, ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
+    auto actDiagramRename = A1_(tr("Rename Diagram..."), this, IN_ACTIVE_DIAGRAM(doRename), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
+    auto actDiagramDelete = A1_(tr("Delete Diagram"), this, &MainWindow::deletePlot, ":/toolbar/plot_delete");
     auto actSavePlotImg = A1_(tr("Save Diagram as Image..."), this, IN_ACTIVE_PLOT(exportPlotImg), ":/toolbar/save_img");
+    auto actSavePlotPrj = A1_(tr("Save Diagram as Project..."), this, IN_ACTIVE_PLOT(exportPlotPrj), ":/toolbar/plot_save");
     auto actExit = A0_(tr("Exit"), this, SLOT(close()));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Project"), this, {
-        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePlot, actSavePlotImg,
+        actDiagramNew, actDiagramRename, actDiagramDelete, actSavePlotPrj, actSavePlotImg,
         0, actExit
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Project"), "project", {
-        actPrjNewPlot, actPrjRenamePlot, actPrjDeletePlot, actSavePlotImg
+        actDiagramNew, actDiagramRename, actDiagramDelete, actSavePlotImg
     }));
 
     //---------------------------------------------------------
@@ -342,7 +347,7 @@ void MainWindow::createActions()
         A1_(tr("Close"), this, [this]{ _mdiToolbar->windowUnderMenu->close(); }, ":/toolbar/plot_delete"),
     });
     _mdiToolbar->menuForSpace = Ori::Gui::menu({
-        A0_(tr("New Diagram"), this, SLOT(newPlot()), ":/toolbar/plot_new"),
+        A1_(tr("New Diagram"), _project, &Project::newDiagram, ":/toolbar/plot_new"),
     });
     addToolBar(Qt::BottomToolBarArea, _mdiToolbar);
 
@@ -376,24 +381,20 @@ void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
 {
     switch (event)
     {
-    case MSG_PLOT_RENAMED:
-    {
-        QString plotId = params.value("id").toString();
-        if (_panelDataGrid->isVisible() && _panelDataGrid->plotId() == plotId)
-            _panelDataGrid->showData(findPlotById(plotId), nullptr);
-        break;
-    }
     case MSG_GRAPH_RENAMED:
     {
-        QString graphId = params.value("id").toString();
-        if (_panelDataGrid->isVisible() && _panelDataGrid->graphId() == graphId)
-            _panelDataGrid->showData(nullptr, findGraphById(graphId));
+        // QString graphId = params.value("id").toString();
+        // if (_panelDataGrid->isVisible() && _panelDataGrid->graphId() == graphId)
+        //     _panelDataGrid->showData(nullptr, findGraphById(graphId));
         break;
     }
     case MSG_GRAPH_DELETED:
     case MSG_AXIS_FACTOR_CHANGED:
-    case MSG_PLOT_DELETED:
+    case BusEvent::ProjectModified:
         updateStatusBar();
+        break;
+    case BusEvent::DiagramAdded:
+        handleDiagramAdded(params.value("id").toString());
         break;
     }
 }
@@ -417,6 +418,9 @@ void MainWindow::updateStatusBar()
         _statusBar->clear(STATUS_POINTS);
         _statusBar->clear(STATUS_DATA_SOURCE);
     }
+    if (_project->modified())
+        _statusBar->setText(STATUS_MODIF, tr("Modified"));
+    else _statusBar->clear(STATUS_MODIF);
 }
 
 void MainWindow::updateDataGrid()
@@ -424,7 +428,7 @@ void MainWindow::updateDataGrid()
     if (_panelDataGrid->isVisible())
         if (auto plot = qobject_cast<PlotWindow*>(sender()); plot)
             if (auto graph = selectedGraph(false); graph)
-                _panelDataGrid->showData(plot->plotObj(), graph);
+                _panelDataGrid->showData(plot->diagram(), graph);
 }
 
 PlotWindow* MainWindow::activePlot(bool warn) const
@@ -436,16 +440,16 @@ PlotWindow* MainWindow::activePlot(bool warn) const
     return plotWnd;
 }
 
-PlotObj* MainWindow::findPlotById(const QString& id) const
-{
-    foreach (auto wnd, _mdiArea->subWindowList())
-    {
-        auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
-        if (plotWnd && plotWnd->plotObj()->id() == id)
-            return plotWnd->plotObj();
-    }
-    return nullptr;
-}
+// PlotObj* MainWindow::findPlotById(const QString& id) const
+// {
+//     foreach (auto wnd, _mdiArea->subWindowList())
+//     {
+//         auto plotWnd = qobject_cast<PlotWindow*>(wnd->widget());
+//         if (plotWnd && plotWnd->plotObj()->id() == id)
+//             return plotWnd->plotObj();
+//     }
+//     return nullptr;
+// }
 
 Graph* MainWindow::findGraphById(const QString& id) const
 {
@@ -465,15 +469,21 @@ Graph* MainWindow::selectedGraph(bool warn) const
     return plot ? plot->selectedGraph(warn) : nullptr;
 }
 
-void MainWindow::newPlot()
+void MainWindow::handleDiagramAdded(const QString& id)
 {
-    auto plotWindow = new PlotWindow(_operations);
+    auto dia = _project->diagram(id);
+    if (!dia) {
+        qWarning() << "MainWindow::handleDiagramAdded: Diagram not found" << id;
+        return;
+    }
+    auto plotWindow = new PlotWindow(_operations, dia);
     connect(plotWindow, &PlotWindow::graphSelected, this, &MainWindow::graphSelected);
 
     auto mdiChild = _mdiArea->addSubWindow(plotWindow);
     mdiChild->setWindowTitle(plotWindow->windowTitle());
     mdiChild->setWindowIcon(plotWindow->windowIcon());
     mdiChild->show();
+
 }
 
 void MainWindow::deletePlot()
@@ -488,7 +498,7 @@ void MainWindow::graphCreated(Graph* graph)
     auto plot = activePlot(false);
     if (!plot)
     {
-        newPlot();
+        _project->newDiagram();
         plot = activePlot(false);
         if (!plot)
         {
@@ -568,5 +578,5 @@ void MainWindow::editCopy()
 void MainWindow::renameDiagramFromMdiToolbar()
 {
     auto plot = qobject_cast<PlotWindow*>(_mdiToolbar->windowUnderMenu->widget());
-    if (plot) plot->rename();
+    if (plot) plot->diagram()->doRename();
 }

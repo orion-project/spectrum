@@ -47,25 +47,4 @@ private:
     QColor _color;
 };
 
-
-class PlotObj
-{
-public:
-    PlotObj();
-
-    QString id() const { return _id; }
-
-    const QString& title() const { return _title; }
-    void setTitle(const QString& title) { _title = title; }
-
-    const QIcon& icon() const { return _icon; }
-
-private:
-    QString _id;
-    QString _title;
-    QIcon _icon;
-
-    friend class PlotWindow;
-};
-
 #endif // GRAPH_H

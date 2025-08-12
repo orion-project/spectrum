@@ -17,6 +17,7 @@ class PlotObj;
 class DataGridPanel;
 class Operations;
 class PlotWindow;
+class Project;
 
 namespace Ori::Widgets {
 class StatusBar;
@@ -36,6 +37,7 @@ public:
 
 private:
     QMdiArea* _mdiArea;
+    Project* _project;
     Operations* _operations;
     QDockWidget *_dockDataGrid;
     DataGridPanel *_panelDataGrid;
@@ -50,7 +52,7 @@ private:
     void restoreState();
 
     PlotWindow* activePlot(bool warn = true) const;
-    PlotObj* findPlotById(const QString& id) const;
+    //PlotObj* findPlotById(const QString& id) const;
     Graph* findGraphById(const QString& id) const;
     Graph* selectedGraph(bool warn = true) const;
     void graphSelected(Graph* graph);
@@ -61,9 +63,11 @@ private:
     void updateDataGrid();
     void updateStatusBar();
 
-private slots:
-    void newPlot();
     void deletePlot();
+    
+    void handleDiagramAdded(const QString& id);
+
+private slots:
     void editCopy();
     void toggleDataGrid();
     void renameDiagramFromMdiToolbar();

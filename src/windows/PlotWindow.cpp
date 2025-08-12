@@ -2,7 +2,7 @@
 
 #include "Operations.h"
 #include "core/Graph.h"
-//#include "core/GraphMath.h"
+#include "core/Project.h"
 #include "app/PersistentState.h"
 
 #include "helpers/OriLayouts.h"
@@ -14,7 +14,6 @@
 #include "qcpl_axis.h"
 //#include "qcpl_cursor.h"
 //#include "qcpl_cursor_panel.h"
-#include "qcpl_colors.h"
 #include "qcpl_export.h"
 #include "qcpl_format.h"
 #include "qcpl_io_json.h"
@@ -53,23 +52,9 @@ static QIcon makeGraphIcon(QColor color)
     return QIcon(px);
 }
 
-static QIcon nextPlotIcon()
+PlotWindow::PlotWindow(Operations *operations, Diagram *diagram, QWidget *parent)
+    : QWidget(parent), Ori::IMessageBusListener(), _diagram(diagram), _operations(operations)
 {
-    static int nextColorIndex = 0;
-    if (nextColorIndex == QCPL::defaultColorSet().size())
-        nextColorIndex = 0;
-
-    QColor c = QCPL::defaultColorSet().at(nextColorIndex++);
-    return makeGraphIcon(c);
-}
-
-PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent), _operations(operations)
-{
-    static int plotIndex = 0;
-
-    _plotObj = new PlotObj;
-    _plotObj->_icon = nextPlotIcon();
-
     _plot = new QCPL::Plot({.replaceDefaultAxes=true});
     _plot->formatAxisTitleAfterFactorSet = true;
     _plot->highlightAxesOfSelectedGraphs = AppSettings::instance().highlightAxesOfSelectedGraphs;;
@@ -77,7 +62,7 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
         addAxisVars(axis);
     _plot->setPlottingHint(QCP::phFastPolylines, true);
     _plot->setInteraction(QCP::iMultiSelect, true);
-    connect(_plot, &QCPL::Plot::modified, this, &PlotWindow::markModified);
+    connect(_plot, &QCPL::Plot::modified, _diagram, &Diagram::markModified);
 
     //_cursor = new QCPL::Cursor(_plot);
     //_plot->serviceGraphs().append(_cursor);
@@ -95,14 +80,13 @@ PlotWindow::PlotWindow(Operations *operations, QWidget *parent) : QWidget(parent
         _plot,
     }).setMargin(0).setSpacing(0).useFor(this);
 
-    setWindowIcon(_plotObj->icon());
-    updateTitle(tr("Diagram %1").arg(++plotIndex));
+    setWindowIcon(_diagram->icon());
+    updateTitle();
 }
 
 PlotWindow::~PlotWindow()
 {
     qDeleteAll(_items);
-    delete _plotObj;
 }
 
 void PlotWindow::createContextMenus()
@@ -175,10 +159,20 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
         Ori::Dlg::yes(tr("Delete diagram <b>%1</b> and all its graphs?").arg(windowTitle())))
     {
         ce->accept();
-        MessageBus::send(MSG_PLOT_DELETED);
+        _diagram->project()->deleteDiagram(_diagram->id());
     }
     else
         ce->ignore();
+}
+
+void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& params)
+{
+    switch (event) {
+    case BusEvent::DiagramRenamed:
+        if (params.value("id") == _diagram->id())
+            updateTitle();
+        break;
+    }
 }
 
 void PlotWindow::addAxisVars(QCPAxis* axis)
@@ -188,19 +182,13 @@ void PlotWindow::addAxisVars(QCPAxis* axis)
         auto s = QCPL::axisFactorStr(_plot->axisFactor(axis)); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
 }
 
-void PlotWindow::updateTitle(const QString& title)
+void PlotWindow::updateTitle()
 {
-    QString oldTitle = _plotObj->_title;
-    _plotObj->_title = title;
-    setWindowTitle(title);
-    if (_plot->title() and _plot->title()->text() == oldTitle)
-        _plot->title()->setText(title);
-}
-
-void PlotWindow::markModified(const QString &reason)
-{
-    // TODO
-    qDebug() << "Modified" << reason;
+    setWindowTitle(_diagram->title());
+    if (_plot->title()) {
+        _plot->title()->setText(_diagram->title());
+        _plot->replot();
+    }
 }
 
 int PlotWindow::graphCount() const
@@ -238,7 +226,7 @@ void PlotWindow::deleteGraph()
 
     QStringList msg;
     msg << tr("These graphs will be deleted:") << "<br><br>";
-    for (auto g : graphs)
+    for (auto g : std::as_const(graphs))
         msg << "<b>" << g->title() << "</b><br>";
     msg << "<br>" << tr("Confirm?");
 
@@ -257,7 +245,7 @@ void PlotWindow::deleteGraphs(const QVector<Graph*>& graphs)
         delete item;
     }
     _plot->replot();
-    markModified("PlotWindow::deleteGraphs");
+    _diagram->markModified("PlotWindow::deleteGraphs");
     MessageBus::send(MSG_GRAPH_DELETED);
 }
 
@@ -265,42 +253,42 @@ void PlotWindow::limitsDlg()
 {
     if (_plot->limitsDlgXY())
         // TODO if limits changed
-        markModified("PlotWindow::limitsDlg");
+        _diagram->markModified("PlotWindow::limitsDlg");
 }
 
 void PlotWindow::limitsDlgX()
 {
     if (_plot->limitsDlgX())
         // TODO if limits changed
-        markModified("PlotWindow::limitsDlgX");
+        _diagram->markModified("PlotWindow::limitsDlgX");
 }
 
 void PlotWindow::limitsDlgY()
 {
     if (_plot->limitsDlgY())
         // TODO if limits changed
-        markModified("PlotWindow::limitsDlgY");
+        _diagram->markModified("PlotWindow::limitsDlgY");
 }
 
 void PlotWindow::autolimits()
 {
     _plot->autolimits();
     // TODO if limits changed
-    markModified("PlotWindow::autolimits");
+    _diagram->markModified("PlotWindow::autolimits");
 }
 
 void PlotWindow::autolimitsX()
 {
     _plot->autolimitsX();
     // TODO if limits changed
-    markModified("PlotWindow::autolimitsX");
+    _diagram->markModified("PlotWindow::autolimitsX");
 }
 
 void PlotWindow::autolimitsY()
 {
     _plot->autolimitsY();
     // TODO if limits changed
-    markModified("PlotWindow::autolimitsY");
+    _diagram->markModified("PlotWindow::autolimitsY");
 }
 /*
 void PlotWindow::limitsToSelection()
@@ -451,7 +439,7 @@ void PlotWindow::toggleLegend()
 {
     _plot->legend->setVisible(!_plot->legend->visible());
     _plot->replot();
-    markModified("PlotWindow::setLegendVisible");
+    _diagram->markModified("PlotWindow::setLegendVisible");
 }
 
 bool PlotWindow::isTitleVisible() const
@@ -463,10 +451,10 @@ void PlotWindow::toggleTitle()
 {
     _plot->title()->setVisible(!_plot->title()->visible());
     if (_plot->title()->visible() && _plot->title()->text().isEmpty())
-        _plot->title()->setText(_plotObj->title());
+        _plot->title()->setText(_diagram->title());
     _plot->updateTitleVisibility();
     _plot->replot();
-    markModified("PlotWindow::setTitleVisible");
+    _diagram->markModified("PlotWindow::setTitleVisible");
 }
 
 void PlotWindow::axisFactorDlgX()
@@ -532,7 +520,7 @@ void PlotWindow::formatGraph()
     QCPL::GraphFormatDlgProps props;
     props.title = tr("Format %1").arg(line->name());
     if (QCPL::graphFormatDlg(line, props))
-        markModified("PlotWindow::formatGraph");
+        _diagram->markModified("PlotWindow::formatGraph");
 }
 
 void PlotWindow::addAxisBottom()
@@ -575,7 +563,7 @@ void PlotWindow::pastePlotFormat()
     {
         _plot->updateTitleVisibility();
         _plot->replot();
-        markModified("PlotWindow::pastePlotFormat");
+        _diagram->markModified("PlotWindow::pastePlotFormat");
     }
     else PopupMessage::warning(err);
 }
@@ -586,7 +574,7 @@ void PlotWindow::pasteTitleFormat()
     if (err.isEmpty())
     {
         _plot->replot();
-        markModified("PlotWindow::pasteTitleFormat");
+        _diagram->markModified("PlotWindow::pasteTitleFormat");
     }
     else PopupMessage::warning(err);
 }
@@ -597,7 +585,7 @@ void PlotWindow::pasteLegendFormat()
     if (err.isEmpty())
     {
         _plot->replot();
-        markModified("PlotWindow::pasteLegendFormat");
+        _diagram->markModified("PlotWindow::pasteLegendFormat");
     }
     else PopupMessage::warning(err);
 }
@@ -608,7 +596,7 @@ void PlotWindow::pasteAxisFormat(QCPAxis *axis)
     if (err.isEmpty())
     {
         _plot->replot();
-        markModified("PlotWindow::pasteAxisFormat");
+        _diagram->markModified("PlotWindow::pasteAxisFormat");
     }
     else PopupMessage::warning(err);
 }
@@ -628,7 +616,7 @@ void PlotWindow::pasteGraphFormat()
     if (err.isEmpty())
     {
         _plot->replot();
-        markModified("PlotWindow::pasteGraphFormat");
+        _diagram->markModified("PlotWindow::pasteGraphFormat");
     }
     else PopupMessage::warning(err);
 }
@@ -661,7 +649,7 @@ void PlotWindow::loadPlotFormat(const QString& fileName)
 {
     QCPL::JsonReport report;
     auto err = QCPL::loadFormatFromFile(fileName, _plot, &report, {.autoCreateAxes=true});
-    markModified("PlotWindow::loadPlotFormat");
+    _diagram->markModified("PlotWindow::loadPlotFormat");
     if (!err.isEmpty())
     {
         Ori::Dlg::error(err);
@@ -688,16 +676,6 @@ void PlotWindow::copyPlotImage()
     PopupMessage::affirm(tr("Image has been copied to Clipboard"), Qt::AlignRight|Qt::AlignBottom);
 }
 
-void PlotWindow::rename()
-{
-    QString newTitle = Ori::Dlg::inputText(tr("Diagram title:"), _plotObj->title());
-    if (newTitle.isEmpty()) return;
-    updateTitle(newTitle);
-    markModified("PlotWindow::rename");
-    _plot->replot(); // Update title in QCPL::Plot
-    MessageBus::send(MSG_PLOT_RENAMED, {{"id", _plotObj->id()}});
-}
-
 void PlotWindow::renameGraph()
 {
     auto graph = selectedGraph();
@@ -706,7 +684,7 @@ void PlotWindow::renameGraph()
     QString newTitle = Ori::Dlg::inputText(tr("Graph title:"), graph->title());
     if (newTitle.isEmpty()) return;
     graph->setTitle(newTitle);
-    markModified("PlotWindow::renameGraph");
+    _diagram->markModified("PlotWindow::renameGraph");
     if (auto item = itemForGraph(graph); item)
     {
         item->line->setName(graph->title());
@@ -739,6 +717,10 @@ void PlotWindow::exportPlotImg()
     }
 }
 
+void PlotWindow::exportPlotPrj()
+{
+}
+
 void PlotWindow::changeGraphAxes()
 {
     auto graph = selectedGraphLine();
@@ -762,7 +744,7 @@ void PlotWindow::changeGraphAxes()
     }
     if (changed) {
         _plot->replot();
-        markModified("PlotWindow::changeGraphAxes");
+        _diagram->markModified("PlotWindow::changeGraphAxes");
     }
 }
 

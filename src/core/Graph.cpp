@@ -66,12 +66,3 @@ QString Graph::modify(Modifier* mod)
     _data = res.result();
     return QString();
 }
-
-//------------------------------------------------------------------------------
-//                                 PlotObj
-//------------------------------------------------------------------------------
-
-PlotObj::PlotObj()
-{
-    _id = QUuid::createUuid().toString(QUuid::Id128);
-}
