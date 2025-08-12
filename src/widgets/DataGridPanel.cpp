@@ -1,6 +1,5 @@
 #include "DataGridPanel.h"
 
-#include "core/Graph.h"
 #include "core/Project.h"
 
 #include "helpers/OriLayouts.h"

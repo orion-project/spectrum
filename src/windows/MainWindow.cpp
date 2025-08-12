@@ -3,7 +3,6 @@
 #include "Operations.h"
 #include "app/AppSettings.h"
 #include "app/HelpSystem.h"
-#include "core/Graph.h"
 #include "core/DataExporters.h"
 #include "core/DataSources.h"
 #include "core/Project.h"

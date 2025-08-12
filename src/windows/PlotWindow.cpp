@@ -1,7 +1,6 @@
 #include "PlotWindow.h"
 
 #include "Operations.h"
-#include "core/Graph.h"
 #include "core/Project.h"
 #include "app/PersistentState.h"
 

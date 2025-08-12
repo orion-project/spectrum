@@ -64,7 +64,6 @@ set(PROJECT_SOURCES
     src/core/DataReaders.h src/core/DataReaders.cpp
     src/core/DataSources.h src/core/DataSources.cpp
     src/core/FileUtils.h src/core/FileUtils.cpp
-    src/core/Graph.h src/core/Graph.cpp
     src/core/GraphMath.h src/core/GraphMath.cpp
     src/core/Modifiers.h src/core/Modifiers.cpp
     src/core/Project.h src/core/Project.cpp

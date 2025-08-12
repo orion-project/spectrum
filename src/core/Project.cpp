@@ -1,8 +1,9 @@
 #include "Project.h"
 
 #include "BaseTypes.h"
-#include "Graph.h"
 #include "FileUtils.h"
+#include "DataSources.h"
+#include "Modifiers.h"
 
 #include "tools/OriMessageBus.h"
 #include "tools/OriSettings.h"
@@ -171,4 +172,66 @@ void Diagram::deleteGraphs(const QVector<Graph*> &graphs)
         MessageBus::send((int)BusEvent::GraphDeleted, {{"id", id}});
     }
     markModified("Diagram::deleteGraphs");
+}
+
+//------------------------------------------------------------------------------
+//                                 Diagram
+//------------------------------------------------------------------------------
+
+Graph::Graph(DataSource* dataSource): _dataSource(dataSource)
+{
+    _id = QUuid::createUuid().toString(QUuid::Id128);
+    _data = _dataSource->data();
+    _title = _dataSource->makeTitle();
+}
+
+Graph::~Graph()
+{
+    delete _dataSource;
+    qDeleteAll(_modifiers);
+}
+
+QString Graph::canRefreshData() const
+{
+    return _dataSource->canRefresh();
+}
+
+QString Graph::refreshData(bool reread)
+{
+    if (reread)
+    {
+        auto res = _dataSource->read();
+        if (!res.ok())
+            return res.error();
+
+        _data = res.result();
+    }
+    else
+        _data = _dataSource->data();
+
+    if (_autoTitle)
+        _title = _dataSource->makeTitle();
+
+    foreach (auto mod, _modifiers)
+    {
+        auto res = mod->modify(_data);
+        if (!res.ok())
+            return res.error();
+
+        _data = res.result();
+    }
+
+    return QString();
+}
+
+QString Graph::modify(Modifier* mod)
+{
+    auto res = mod->modify(_data);
+    if (!res.ok())
+        return res.error();
+
+    _modifiers.append(mod);
+
+    _data = res.result();
+    return QString();
 }

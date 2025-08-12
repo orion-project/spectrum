@@ -1,7 +1,6 @@
 #include "Operations.h"
 
 #include "CustomPrefs.h"
-#include "core/Graph.h"
 #include "core/DataSources.h"
 #include "core/Modifiers.h"
 #include "core/Project.h"
