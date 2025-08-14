@@ -178,6 +178,13 @@ Graph::~Graph()
     qDeleteAll(_modifiers);
 }
 
+const QIcon& Graph::icon()
+{
+    if (_icon.isNull())
+        _icon = makeGraphIcon(_color);
+    return _icon;
+}
+
 QString Graph::canRefreshData() const
 {
     return _dataSource->canRefresh();

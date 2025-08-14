@@ -37,6 +37,9 @@ public:
     
     bool canClose();
 
+    bool openPrjFile(const QString& fileName);
+    bool savePrjFile(const QString& fileName);
+
 public slots:
     void prjNew();
     void prjOpen();
@@ -74,9 +77,6 @@ private:
     
     void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
     void modifyGraph(Modifier *mod);
-
-    bool openPrjFile(const QString& fileName);
-    bool savePrjFile(const QString& fileName);
 };
 
 #endif // OPERATIONS_H

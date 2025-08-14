@@ -6,14 +6,25 @@
 
 #include <zip.h>
 
-#include <QBuffer>
 #include <QJsonArray>
 #include <QJsonDocument>
+
+#define PROJECT_VERSION "7.0"
+#define FILE_PROPS QStringLiteral("props.json")
+#define FILE_FORMAT QStringLiteral("format.json")
+#define FILE_DATA QStringLiteral("data.bin")
+
+static QColor jsonToColor(const QJsonValue& val, const QColor& def)
+{
+    QColor color(val.toString());
+    return color.isValid() ? color : def;
+}
 
 QJsonObject ProjectFile::writeProject(const Project *p)
 {
     return QJsonObject({
-        { "version", "7.0" },
+        { "version", PROJECT_VERSION },
+        { "zipVersion", zip_libzip_version() },
         { "nextDiagramIndex", p->_nextDiagramIndex },
         { "nextDiagramColorIndex", p->_nextDiagramColorIndex },
     });
@@ -43,7 +54,6 @@ QJsonObject ProjectFile::writeGraph(const Graph *g)
         { "title", g->title() },
         { "autoTitle", g->_autoTitle },
         { "color", g->color().name() },
-        { "pointsCount", g->pointsCount() },
         { "dataSource", dataSourceJson },
         { "modifiers", modifiersJson },
     });
@@ -52,10 +62,9 @@ QJsonObject ProjectFile::writeGraph(const Graph *g)
 QByteArray ProjectFile::writeGraphData(const Graph *g)
 {
     QByteArray data;
-    QBuffer buf(&data);
-    buf.open(QIODevice::WriteOnly);
-    QDataStream stream(&buf);
+    QDataStream stream(&data, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_5_12);
+    stream << quint32(g->pointsCount());
     for (const auto &v : g->data().xs)
         stream << v;
     for (const auto &v : g->data().ys)
@@ -63,16 +72,67 @@ QByteArray ProjectFile::writeGraphData(const Graph *g)
     return data;
 }
 
+QString ProjectFile::readProject(const QJsonObject &obj, Project *p)
+{
+    if (obj["version"] != PROJECT_VERSION)
+        return "Unsupported project version";
+    p->_nextDiagramIndex = obj["nextDiagramIndex"].toInt();
+    p->_nextDiagramColorIndex = obj["nextDiagramColorIndex"].toInt();
+    return {};
+}
+
+QString ProjectFile::readDiagram(const QJsonObject &obj, Diagram *d)
+{
+    d->_title = obj["title"].toString();
+    d->_color = jsonToColor(obj["color"], Qt::red);
+    return {};
+}
+
+QString ProjectFile::readGraph(const QJsonObject &obj, Graph *g)
+{
+    g->_title = obj["title"].toString();
+    g->_autoTitle = obj["autoTitle"].toBool();
+    g->_color = jsonToColor(obj["color"], Qt::red);
+    g->_dataSource = new ClipboardDataSource;
+    // TODO: read datasource
+    // TODO: read modifiers
+    return {};
+}
+
+QString ProjectFile::readGraphData(const QByteArray &data, Graph *g)
+{
+    QDataStream stream(data);
+    quint32 pointCount;
+    stream >> pointCount;
+    double v;
+    Values xs;
+    for (quint32 i = 0; i < pointCount && !stream.atEnd(); i++) {
+        stream >> v;
+        xs << v;
+    }
+    if (xs.size() < (int)pointCount)
+        return QString("Not all X values read %1 / %2.").arg(xs.size()).arg(pointCount);
+    Values ys;
+    for (quint32 i = 0; i < pointCount && !stream.atEnd(); i++) {
+        stream >> v;
+        ys << v;
+    }
+    if (ys.size() < (int)pointCount)
+        return QString("Not all Y values read %1 / %2.").arg(ys.size()).arg(pointCount);
+    g->_data = { xs, ys };
+    return {};
+}
+
 namespace {
 
-struct ZipPrj
+struct ZipWriter
 {
-    ZipPrj(const QString &fileName)
+    ZipWriter(const QString &fileName)
     {
         auto fn = fileName.toStdString();
         int errCode;
-        zp = zip_open(fn.c_str(), ZIP_CREATE | ZIP_TRUNCATE, &errCode);
-        if (!zp) {
+        zip = zip_open(fn.c_str(), ZIP_CREATE | ZIP_TRUNCATE, &errCode);
+        if (!zip) {
             zip_error_t err;
             zip_error_init_with_code(&err, errCode);
             error = QString("Failed to create target file: %1").arg(zip_error_strerror(&err));
@@ -81,10 +141,10 @@ struct ZipPrj
         }
     }
     
-    ~ZipPrj()
+    ~ZipWriter()
     {
-        if (zp)
-            zip_discard(zp);
+        if (zip)
+            zip_discard(zip);
     }
     
     bool addFile(const QString &fileName, const QJsonObject &json)
@@ -94,17 +154,17 @@ struct ZipPrj
     
     bool addFile(const QString &fileName, const QByteArray &data)
     {
-        if (!zp)
+        if (!zip)
             return false;
         QString path = curDir.isEmpty() ? fileName : (curDir % '/' % fileName);
-        zip_source_t *src = zip_source_buffer(zp, data.constData(), data.size(), 0);
+        zip_source_t *src = zip_source_buffer(zip, data.constData(), data.size(), 0);
         if (!src) {
-            error = QString("Failed to prepare project data %1: %2").arg(path).arg(zip_error_strerror(zip_get_error(zp)));
+            error = QString("Failed to prepare project data %1: %2").arg(path).arg(zip_error_strerror(zip_get_error(zip)));
             return false;
         }
         auto fn = path.toStdString();
-        if (zip_file_add(zp, fn.c_str(), src, ZIP_FL_ENC_UTF_8) < 0) {
-            error = QString("Failed to save project data %1: %2").arg(path).arg(zip_error_strerror(zip_get_error(zp)));
+        if (zip_file_add(zip, fn.c_str(), src, ZIP_FL_ENC_UTF_8) < 0) {
+            error = QString("Failed to save project data %1: %2").arg(path).arg(zip_error_strerror(zip_get_error(zip)));
             return false;
         }
         return true;
@@ -112,69 +172,257 @@ struct ZipPrj
     
     bool save()
     {
-        if (!zp)
+        if (!zip)
             return false;
-        if (zip_close(zp) < 0) {
-            error = QString("Failed to save target file: %1").arg(zip_error_strerror(zip_get_error(zp)));
+        if (zip_close(zip) < 0) {
+            error = QString("Failed to save target file: %1").arg(zip_error_strerror(zip_get_error(zip)));
             return false;
         }
-        zp = nullptr;
+        zip = nullptr;
         return true;
     }
     
     QString error;
     QString curDir;
-    zip_t *zp = nullptr;
+    zip_t *zip = nullptr;
 };
 
 } // namespace
 
-#define FILE_PROPS QStringLiteral("props.json")
-#define FILE_FORMAT QStringLiteral("format.json")
-#define FILE_DATA QStringLiteral("data.bin")
-
 QString ProjectFile::saveProject(const StorableData &data)
 {
-    ZipPrj zp(data.fileName);
-    if (!zp.error.isEmpty())
-        return zp.error;
+    ZipWriter zw(data.fileName);
+    if (!zw.error.isEmpty())
+        return zw.error;
         
-    if (!zp.addFile(FILE_PROPS, writeProject(data.project)))
-        return zp.error;
+    if (!zw.addFile(FILE_PROPS, writeProject(data.project)))
+        return zw.error;
         
     auto diagrams = data.diagrams.isEmpty() ? data.project->diagrams() : data.diagrams;
 
     for (auto d : std::as_const(diagrams)) {
-        zp.curDir = d->id();
+        zw.curDir = d->id();
 
-        if (!zp.addFile(FILE_PROPS, writeDiagram(d)))
-            return zp.error;
+        if (!zw.addFile(FILE_PROPS, writeDiagram(d)))
+            return zw.error;
         
         if (data.formats.contains(d)) {
-            if (!zp.addFile(FILE_FORMAT, data.formats[d]))
-                return zp.error;
+            if (!zw.addFile(FILE_FORMAT, data.formats[d]))
+                return zw.error;
         }
         
         for (auto it = d->_graphs.cbegin(); it != d->_graphs.cend(); it++) {
             const Graph *g = it.value();
 
-            zp.curDir = d->id() + '/' + g->id();
+            zw.curDir = d->id() + '/' + g->id();
 
-            if (!zp.addFile(FILE_PROPS, writeGraph(g)))
-                return zp.error;
+            if (!zw.addFile(FILE_PROPS, writeGraph(g)))
+                return zw.error;
             
             if (data.formats.contains(g)) {
-                if (!zp.addFile(FILE_FORMAT, data.formats[g]))
-                    return zp.error;
+                if (!zw.addFile(FILE_FORMAT, data.formats[g]))
+                    return zw.error;
             }
 
-            if (!zp.addFile(FILE_DATA, writeGraphData(g)))
-                return zp.error;
+            if (!zw.addFile(FILE_DATA, writeGraphData(g)))
+                return zw.error;
         }
     }
 
-    if (!zp.save())
-        return zp.error;
+    if (!zw.save())
+        return zw.error;
 
+    return {};
+}
+
+namespace {
+
+struct ZipReader
+{
+    ZipReader(const QString &fileName)
+    {
+        auto fn = fileName.toStdString();
+        int errCode;
+        zip = zip_open(fn.c_str(), ZIP_RDONLY, &errCode);
+        if (!zip) {
+            zip_error_t err;
+            zip_error_init_with_code(&err, errCode);
+            error = QString("Failed to open file: %1").arg(zip_error_strerror(&err));
+            zip_error_fini(&err);
+            return;
+        }
+
+        auto num = zip_get_num_entries(zip, ZIP_FL_UNCHANGED);
+        for (int i = 0; i < num; i++) {
+            struct zip_stat fi;
+            zip_stat_init(&fi);
+            if (zip_stat_index(zip, i, ZIP_FL_UNCHANGED, &fi) < 0) {
+               error = QString("Failed to get info for #%1: %2").arg(i).arg(zip_error_strerror(zip_get_error(zip)));
+               return;
+            }
+            if (!(fi.valid & ZIP_STAT_NAME)) {
+               error = QString("Failed to get name for #%1: %2").arg(i).arg(zip_error_strerror(zip_get_error(zip)));
+               return;
+            }
+            auto path = QString::fromUtf8(fi.name).split('/');
+            if (path.length() >= 2) {
+                // e.g. a58b3d3617c94d37a0823fe622b0cacf/props.json
+                // e.g. a58b3d3617c94d37a0823fe622b0cacf/0eb5369d853b4a52909648e4e2a99f19/props.json
+                QString diagramId = path.at(0);
+                if (!ids.contains(diagramId))
+                    ids.insert(diagramId, {});
+                if (path.length() > 2) {
+                    QString graphId = path.at(1);
+                    if (!ids[diagramId].contains(graphId))
+                        ids[diagramId].insert(graphId);
+                }
+            }
+        }
+    }
+    
+    ~ZipReader()
+    {
+        zip_discard(zip);
+    }
+    
+    QString error;
+    QHash<QString, QSet<QString>> ids;
+    zip_t *zip = nullptr;
+};
+
+struct ZipFile
+{
+    ZipFile(zip *z, const QString &name): name(name)
+    {
+        struct zip_stat fi;
+        zip_stat_init(&fi);
+        auto fn = name.toStdString();
+        if (zip_stat(z, fn.c_str(), ZIP_FL_UNCHANGED, &fi) < 0) {
+            error = QString("Failed to get info for %1: %2").arg(name).arg(zip_error_strerror(zip_get_error(z)));
+            return;
+        }
+        if (!(fi.valid & ZIP_STAT_SIZE)) {
+            error = QString("Unable to get size of %1").arg(name);
+        }
+        zf = zip_fopen(z, fn.c_str(), ZIP_FL_UNCHANGED);
+        if (!zf) {
+            error = QString("Failed to open %1: %2").arg(name).arg(zip_error_strerror(zip_get_error(z)));
+            return;
+        }
+        data = QByteArray(fi.size, 0);
+        auto bytesRead = zip_fread(zf, data.data(), fi.size);
+        if (bytesRead < 0) {
+            error = QString("Failed to read %1: %2").arg(name).arg(zip_error_strerror(zip_file_get_error(zf)));
+            return;
+        }
+        if (bytesRead != fi.size) {
+            error = QString("Failed to read %1: expected %2 bytes but read %3 bytes").arg(name).arg(fi.size).arg(bytesRead);
+            return;
+        }
+    }
+    
+    bool asJson()
+    {
+        QJsonParseError err;
+        auto doc = QJsonDocument::fromJson(data, &err);
+        if (doc.isNull()) {
+            error = QString("Failed to parse %1: %2").arg(name).arg(err.errorString());
+            return false;
+        }
+        if (!doc.isObject()) {
+            error = QString("Unsupported json type of %1: is not an object").arg(name);
+            return false;
+        }
+        json = doc.object();
+        return true;
+    }
+
+    ~ZipFile()
+    {
+        if (zf)
+            zip_fclose(zf);
+    }
+    
+    QString error;
+    QByteArray data;
+    QJsonObject json;
+    QString name;
+    zip_file *zf = nullptr;
+};
+
+} // namespace
+
+QString ProjectFile::loadProject(const QString &fileName, Project *project)
+{
+    // Loading is called on empty projects
+    // Empty project contains one empty dialgram 
+    // that is automatically created after app started
+    for (auto it = project->_diagrams.cbegin(); it != project->_diagrams.cend(); it++)
+        BusEvent::DiagramDeleted::send({{"id", it.key()}});
+    qDeleteAll(project->_diagrams);
+    project->_diagrams.clear();
+
+    ZipReader zr(fileName);
+    if (!zr.error.isEmpty())
+        return zr.error;
+        
+    {
+        ZipFile zf(zr.zip, FILE_PROPS);
+        if (!zf.error.isEmpty())
+            return zf.error;
+        if (!zf.asJson())
+            return zf.error;
+        QString err = readProject(zf.json, project);
+        if (!err.isEmpty())
+            return err;
+    }
+    
+    for (auto it = zr.ids.cbegin(); it != zr.ids.cend(); it++) {
+        QString diagramId = it.key();
+        
+        ZipFile zf(zr.zip, diagramId + '/' + FILE_PROPS);
+        if (!zf.error.isEmpty())
+            return zf.error;
+        if (!zf.asJson())
+            return zf.error;
+    
+        auto diagram = new Diagram(project);
+        QString err = readDiagram(zf.json, diagram);
+        if (!err.isEmpty()) {
+            delete diagram;
+            return QString("Failed to read diagram %1: %2").arg(diagramId, err);
+        }
+        
+        diagram->_id = diagramId;
+        project->_diagrams.insert(diagramId, diagram);
+        BusEvent::DiagramAdded::send({{"id", diagramId}});
+        
+        for (const QString &graphId : it.value()) {
+            std::unique_ptr<Graph> graph(new Graph);
+            {
+                ZipFile zf(zr.zip, diagramId + '/' + graphId + '/' + FILE_PROPS);
+                if (!zf.error.isEmpty())
+                    return zf.error;
+                if (!zf.asJson())
+                    return zf.error;
+        
+                QString err = readGraph(zf.json, graph.get());
+                if (!err.isEmpty())
+                    return QString("Failed to read props of graph %1: %2").arg(graphId, err);
+            }
+            {
+                ZipFile zf(zr.zip, diagramId + '/' + graphId + '/' + FILE_DATA);
+                if (!zf.error.isEmpty())
+                    return zf.error;
+                QString err = readGraphData(zf.data, graph.get());
+                if (!err.isEmpty())
+                    return QString("Failed to read data of graph %1: %2").arg(graphId, err);
+            }
+            graph->_id = graphId;
+            diagram->_graphs.insert(graphId, graph.release());
+            BusEvent::GraphLoaded::send({{"id", graphId}});
+        }
+    }
+    
     return {};
 }

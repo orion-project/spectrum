@@ -21,31 +21,6 @@
 
 using Ori::Gui::PopupMessage;
 
-static QIcon makeGraphIcon(QColor color)
-{
-    int H, S, L;
-    color.getHsl(&H, &S, &L);
-    QColor backColor = QColor::fromHsl(H, int(float(S)*0.8f), int(float(L)*1.2f));
-    QColor borderColor = QColor::fromHsl(H, int(float(S)*0.5f), L);
-
-    QPixmap px(16, 16);
-    px.fill(Qt::transparent);
-
-    QPainter p(&px);
-    p.setRenderHint(QPainter::Antialiasing, true);
-
-    QPen borderPen(borderColor);
-    borderPen.setWidthF(1.5);
-    p.setPen(borderPen);
-
-    p.setBrush(backColor);
-    p.drawEllipse(px.rect().adjusted(1, 1, -1, -1));
-
-    // TODO draw gradient gloss
-
-    return QIcon(px);
-}
-
 PlotWindow::PlotWindow(Operations *operations, Diagram *diagram, QWidget *parent)
     : QWidget(parent), Ori::IMessageBusListener(), _diagram(diagram), _operations(operations)
 {
@@ -147,12 +122,16 @@ void PlotWindow::createContextMenus()
 
 void PlotWindow::closeEvent(class QCloseEvent* ce)
 {
-    QWidget::closeEvent(ce);
+    if (_autoClosing) {
+        ce->accept();
+        return;
+    }
 
     if (graphCount() == 0 or
         Ori::Dlg::yes(tr("Delete diagram <b>%1</b> and all its graphs?").arg(windowTitle())))
     {
         ce->accept();
+        _userClosing = true;
         _diagram->project()->deleteDiagram(_diagram->id());
     }
     else
@@ -162,12 +141,28 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
 void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& params)
 {
     switch (event) {
+    case BusEvent::DiagramDeleted::id:
+        if (!_userClosing && params.value("id") == _diagram->id()) {
+            auto parent = parentWidget();
+            while (parent) {
+                if (auto mdi = qobject_cast<QMdiSubWindow*>(parent); mdi) {
+                    _autoClosing = true;
+                    mdi->close();
+                    break;
+                }
+                parent->parentWidget();
+            }
+        }
+        break;
     case BusEvent::DiagramRenamed::id:
         if (params.value("id") == _diagram->id())
             handleDiagramRenamed();
         break;
     case BusEvent::GraphAdded::id:
         handleGraphAdded(params.value("id").toString());
+        break;
+    case BusEvent::GraphLoaded::id:
+        handleGraphLoaded(params.value("id").toString());
         break;
     case BusEvent::GraphUpdated::id:
         handleGraphUpdated(params.value("id").toString());
@@ -211,7 +206,6 @@ void PlotWindow::handleGraphAdded(const QString &id)
     connect(item->line, SIGNAL(selectionChanged(bool)), this, SLOT(graphLineSelected(bool)));
 
     g->setColor(item->line->pen().color());
-    g->setIcon(makeGraphIcon(g->color()));
 
     if (AppSettings::instance().autolimitAfterGraphGreated)
     {
@@ -226,6 +220,24 @@ void PlotWindow::handleGraphAdded(const QString &id)
 
     if (AppSettings::instance().selectNewGraph)
         emit graphSelected(g);
+}
+
+void PlotWindow::handleGraphLoaded(const QString &id)
+{
+    auto g = _diagram->graph(id);
+    if (!g) return;
+
+    auto item = new PlotItem;
+    item->graph = g;
+
+    item->line = _plot->makeNewGraph(g->title(), {g->data().xs, g->data().ys}, false);
+    connect(item->line, SIGNAL(selectionChanged(bool)), this, SLOT(graphLineSelected(bool)));
+
+    auto pen = item->line->pen();
+    pen.setColor(g->color());
+    item->line->setPen(pen);
+
+    _items.append(item);
 }
 
 void PlotWindow::handleGraphUpdated(const QString &id)

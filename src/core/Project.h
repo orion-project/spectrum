@@ -53,9 +53,12 @@ class Diagram : public QObject
 
 public:
     Project* project() const { return _prj; }
+
     QString id() const { return _id; }
+
     const QString& title() const { return _title; }
     void setTitle(const QString &s) { _title = s; }
+
     const QColor& color() const { return _color; }
     const QIcon& icon();
 
@@ -93,9 +96,7 @@ public:
 
     const QColor& color() const { return _color; }
     void setColor(const QColor& color) { _color = color; }
-
-    const QIcon& icon() const { return _icon; }
-    void setIcon(const QIcon& icon) { _icon = icon; }
+    const QIcon& icon();
 
     DataSource* dataSource() const { return _dataSource; }
     const GraphPoints& data() const { return _data; }
@@ -116,6 +117,8 @@ private:
     QString _title;
     QIcon _icon;
     QColor _color;
+  
+    Graph() {}
     
     friend class ProjectFile;
 };

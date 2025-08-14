@@ -29,7 +29,7 @@ class MainWindow : public QMainWindow, public Ori::IMessageBusListener
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(const QString &fileName, QWidget *parent = nullptr);
     ~MainWindow();
 
     // Ori::IMessageBusListener

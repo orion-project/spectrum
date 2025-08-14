@@ -123,6 +123,8 @@ private:
     //QCPL::CursorPanel* _cursorPanel;
     QList<PlotItem*> _items;
     Operations *_operations;
+    bool _userClosing = false;
+    bool _autoClosing = false;
 
     PlotItem* itemForLine(QCPGraph* line) const;
     PlotItem* itemForGraph(Graph* graph) const;
@@ -132,6 +134,7 @@ private:
 
     void handleDiagramRenamed();
     void handleGraphAdded(const QString &id);
+    void handleGraphLoaded(const QString &id);
     void handleGraphUpdated(const QString &id);
     void handleGraphRenamed(const QString &id);
     void handleGraphDeleting(const QString &id);

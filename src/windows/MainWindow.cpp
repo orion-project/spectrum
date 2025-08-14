@@ -51,8 +51,9 @@ enum StatusPanels
 
 #define IN_ACTIVE_PLOT(do_func) \
     [this]{ auto plot = activePlot(); if (plot) plot->do_func(); }
-    
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Ori::IMessageBusListener()
+
+MainWindow::MainWindow(const QString &fileName, QWidget *parent)
+    : QMainWindow(parent), Ori::IMessageBusListener()
 {
     setObjectName("mainWindow");
     Ori::Wnd::setWindowIcon(this, ":/window_icons/main");
@@ -80,9 +81,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Ori::IMessageBusL
 
     restoreState();
 
-    QTimer::singleShot(200, this, [this](){
-        _project->newDiagram();
-        _project->markUnmodified("MainWindow::MainWindow");
+    QTimer::singleShot(200, this, [this, fileName](){
+        if (fileName.isEmpty()) {
+            _project->newDiagram();
+            _project->markUnmodified("MainWindow::MainWindow");
+        } else {
+            _operations->openPrjFile(fileName);
+        }
     });
 }
 

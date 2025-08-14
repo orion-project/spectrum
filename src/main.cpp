@@ -72,7 +72,16 @@ int main(int argc, char *argv[])
     // to be able to apply custom colors.
     app.setStyleSheet(Ori::Theme::makeStyleSheet(Ori::Theme::loadRawStyleSheet()));
 
-    MainWindow w;
+    // Open a file if given
+    QString fileName;
+    auto args = parser.positionalArguments();
+    if (!args.isEmpty()) {
+        fileName = args.first();
+        if (!QFileInfo::exists(fileName))
+            fileName.clear();
+    }
+
+    MainWindow w(fileName);
     w.show();
 
     return app.exec();

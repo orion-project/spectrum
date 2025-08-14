@@ -88,6 +88,23 @@ bool Operations::prjSaveAs()
 
 bool Operations::openPrjFile(const QString& fileName)
 {
+    bool isNew = _project->fileName().isEmpty() && !_project->modified();
+    if (!isNew)
+    {
+        startAppInstance({}, fileName);
+        return true;
+    }
+    
+    QString err = ProjectFile::loadProject(fileName, _project);
+    if (!err.isEmpty()) {
+        QString msg = tr("Failed to load project: %1").arg(err);
+        BusEvent::ErrorMessage::send({{"error", msg}});
+        return false;
+    }
+    
+    qDebug() << "Loaded" << fileName;
+    _project->setFileName(fileName);
+    _project->markUnmodified("Operations::openPrjFile");
     return true;
 }
 
@@ -103,6 +120,8 @@ bool Operations::savePrjFile(const QString& fileName)
         BusEvent::ErrorMessage::send({{"error", msg}});
         return false;
     }
+
+    qDebug() << "Saved" << fileName;
     _project->setFileName(fileName);
     _project->markUnmodified("Operations::savePrjFile");
     return true;

@@ -77,6 +77,7 @@ struct BusEvent
     BUS_EVENT(DiagramDeleted)
     BUS_EVENT(DiagramRenamed)
     BUS_EVENT(GraphAdded)
+    BUS_EVENT(GraphLoaded)
     BUS_EVENT(GraphDeleting)
     BUS_EVENT(GraphDeleted)
     BUS_EVENT(GraphUpdated)
