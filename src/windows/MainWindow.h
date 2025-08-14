@@ -4,6 +4,7 @@
 #include "tools/OriMessageBus.h"
 
 #include <QMainWindow>
+#include <QJsonObject>
 
 QT_BEGIN_NAMESPACE
 class QAction;
@@ -66,6 +67,10 @@ private:
     void deletePlot();
     
     void handleDiagramAdded(const QString& id);
+
+    /// Returns formats of all plots and all graphs.
+    /// Used for saving project files.
+    QHash<const void*, QJsonObject> getFormats() const;
 
 private slots:
     void editCopy();

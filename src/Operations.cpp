@@ -113,7 +113,7 @@ bool Operations::savePrjFile(const QString& fileName)
     ProjectFile::StorableData data;
     data.fileName = fileName;
     data.project = _project;
-    // TODO: get formats
+    data.formats = getFormats();
     QString err = ProjectFile::saveProject(data);
     if (!err.isEmpty()) {
         QString msg = tr("Failed to save project: %1").arg(err);

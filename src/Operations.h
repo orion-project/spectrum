@@ -28,6 +28,7 @@ public:
     void restoreState(Ori::Settings &s);
 
     std::function<Graph*()> getSelectedGraph;
+    std::function<QHash<const void*, QJsonObject>()> getFormats;
 
     using DoConfig = Ori::Argument<bool, struct DoConfigTag>;
     using DoLoad = Ori::Argument<bool, struct DoLoadTag>;

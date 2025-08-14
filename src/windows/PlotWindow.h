@@ -5,7 +5,7 @@
 
 #include "tools/OriMessageBus.h"
 
-#include <QMdiSubWindow>
+#include <QWidget>
 
 namespace QCPL {
 //class Cursor;
@@ -106,6 +106,10 @@ public:
     bool isTitleVisible() const;
     QString displayFactorX() const;
     QString displayFactorY() const;
+    
+    /// Returns formats of plot and all graphs.
+    /// Used for saving project files.
+    QHash<const void*, QJsonObject> getFormats() const;
 
 protected:
     void closeEvent(class QCloseEvent*) override;
@@ -133,8 +137,9 @@ private:
     void addAxisVars(QCPAxis* axis);
 
     void handleDiagramRenamed();
+    void handleDiagramFormatLoaded(const QJsonObject &fmt);
     void handleGraphAdded(const QString &id);
-    void handleGraphLoaded(const QString &id);
+    void handleGraphLoaded(const QString &id, const QJsonObject &fmt);
     void handleGraphUpdated(const QString &id);
     void handleGraphRenamed(const QString &id);
     void handleGraphDeleting(const QString &id);

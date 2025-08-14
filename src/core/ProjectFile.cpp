@@ -156,6 +156,18 @@ struct ZipWriter
     {
         if (!zip)
             return false;
+
+        // Docs say:
+        // https://libzip.org/documentation/zip_source_buffer.html
+        // > data must remain valid for the lifetime of the created source.
+        // https://libzip.org/documentation/zip_file_add.html
+        // > zip_source_free should not be called on a source after it was used successfully in a zip_file_add
+        //
+        // Since we don't know when zip-source is auto-freed
+        // we have to keep all added data during the whole saving process
+        // (which happens in zip_close)
+        savingData << data;
+        
         QString path = curDir.isEmpty() ? fileName : (curDir % '/' % fileName);
         zip_source_t *src = zip_source_buffer(zip, data.constData(), data.size(), 0);
         if (!src) {
@@ -184,6 +196,7 @@ struct ZipWriter
     
     QString error;
     QString curDir;
+    QVector<QByteArray> savingData;
     zip_t *zip = nullptr;
 };
 
@@ -379,23 +392,31 @@ QString ProjectFile::loadProject(const QString &fileName, Project *project)
     
     for (auto it = zr.ids.cbegin(); it != zr.ids.cend(); it++) {
         QString diagramId = it.key();
-        
-        ZipFile zf(zr.zip, diagramId + '/' + FILE_PROPS);
-        if (!zf.error.isEmpty())
-            return zf.error;
-        if (!zf.asJson())
-            return zf.error;
-    
-        auto diagram = new Diagram(project);
-        QString err = readDiagram(zf.json, diagram);
-        if (!err.isEmpty()) {
-            delete diagram;
-            return QString("Failed to read diagram %1: %2").arg(diagramId, err);
+        std::unique_ptr<Diagram> diagram(new Diagram(project));
+        {
+            ZipFile zf(zr.zip, diagramId + '/' + FILE_PROPS);
+            if (!zf.error.isEmpty())
+                return zf.error;
+            if (!zf.asJson())
+                return zf.error;
+            QString err = readDiagram(zf.json, diagram.get());
+            if (!err.isEmpty()) {
+                return QString("Failed to read diagram %1: %2").arg(diagramId, err);
+            }
         }
-        
+        QJsonObject diagramFormat;
+        {
+            ZipFile zf(zr.zip, diagramId + '/' + FILE_FORMAT);
+            if (!zf.error.isEmpty())
+                return zf.error;
+            if (!zf.asJson())
+                return zf.error;
+            diagramFormat = zf.json;
+        }
         diagram->_id = diagramId;
-        project->_diagrams.insert(diagramId, diagram);
+        project->_diagrams.insert(diagramId, diagram.release());
         BusEvent::DiagramAdded::send({{"id", diagramId}});
+        BusEvent::DiagramFormatLoaded::send({{"id", diagramId}, {"format", diagramFormat}});
         
         for (const QString &graphId : it.value()) {
             std::unique_ptr<Graph> graph(new Graph);
@@ -405,7 +426,6 @@ QString ProjectFile::loadProject(const QString &fileName, Project *project)
                     return zf.error;
                 if (!zf.asJson())
                     return zf.error;
-        
                 QString err = readGraph(zf.json, graph.get());
                 if (!err.isEmpty())
                     return QString("Failed to read props of graph %1: %2").arg(graphId, err);
@@ -418,10 +438,21 @@ QString ProjectFile::loadProject(const QString &fileName, Project *project)
                 if (!err.isEmpty())
                     return QString("Failed to read data of graph %1: %2").arg(graphId, err);
             }
+            QJsonObject graphFormat;
+            {
+                ZipFile zf(zr.zip, diagramId + '/' + graphId + '/' + FILE_FORMAT);
+                if (!zf.error.isEmpty())
+                    return zf.error;
+                if (!zf.asJson())
+                    return zf.error;
+                graphFormat = zf.json;
+            }
             graph->_id = graphId;
-            diagram->_graphs.insert(graphId, graph.release());
-            BusEvent::GraphLoaded::send({{"id", graphId}});
+            project->_diagrams[diagramId]->_graphs.insert(graphId, graph.release());
+            BusEvent::GraphLoaded::send({{"id", graphId}, {"format", graphFormat}});
         }
+
+        BusEvent::DiagramLoaded::send({{"id", diagramId}});
     }
     
     return {};

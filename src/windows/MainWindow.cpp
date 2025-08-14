@@ -64,6 +64,7 @@ MainWindow::MainWindow(const QString &fileName, QWidget *parent)
 
     _operations = new Operations(_project, this);
     _operations->getSelectedGraph = [this](){ return selectedGraph(); };
+    _operations->getFormats = [this]{ return getFormats(); };
     connect(_operations, &Operations::graphCreated, this, &MainWindow::graphCreated);
     connect(_operations->mruPlotFormats(), &Ori::MruFileList::clicked, this, [this](const QString& fileName){
         auto plot = activePlot(); if (plot) plot->loadPlotFormat(fileName);
@@ -559,4 +560,18 @@ void MainWindow::renameDiagramFromMdiToolbar()
 {
     auto plot = qobject_cast<PlotWindow*>(_mdiToolbar->windowUnderMenu->widget());
     if (plot) plot->renamePlot();
+}
+
+QHash<const void*, QJsonObject> MainWindow::getFormats() const
+{
+    QHash<const void*, QJsonObject> formats;
+    auto mdiChildren = _mdiArea->subWindowList();
+    for (auto mdiChild : std::as_const(mdiChildren)) {
+        auto plotWnd = dynamic_cast<PlotWindow*>(mdiChild->widget());
+        if (!plotWnd) continue;
+        auto plotFormats = plotWnd->getFormats();
+        for (auto it = plotFormats.cbegin(); it != plotFormats.cend(); it++)
+            formats.insert(it.key(), it.value());
+    }
+    return formats;
 }

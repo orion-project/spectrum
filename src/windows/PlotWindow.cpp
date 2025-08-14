@@ -140,6 +140,8 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
 
 void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& params)
 {
+    if (_autoClosing)
+        return;
     switch (event) {
     case BusEvent::DiagramDeleted::id:
         if (!_userClosing && params.value("id") == _diagram->id()) {
@@ -158,11 +160,19 @@ void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
         if (params.value("id") == _diagram->id())
             handleDiagramRenamed();
         break;
+    case BusEvent::DiagramFormatLoaded::id:
+        if (params.value("id") == _diagram->id())
+            handleDiagramFormatLoaded(params.value("format").toJsonObject());
+        break;
+    case BusEvent::DiagramLoaded::id:
+        if (params.value("id") == _diagram->id())
+            _plot->replot();
+        break;
     case BusEvent::GraphAdded::id:
         handleGraphAdded(params.value("id").toString());
         break;
     case BusEvent::GraphLoaded::id:
-        handleGraphLoaded(params.value("id").toString());
+        handleGraphLoaded(params.value("id").toString(), params.value("format").toJsonObject());
         break;
     case BusEvent::GraphUpdated::id:
         handleGraphUpdated(params.value("id").toString());
@@ -187,6 +197,18 @@ void PlotWindow::handleDiagramRenamed()
         _plot->title()->setText(_diagram->title());
         _plot->replot();
     }
+}
+
+void PlotWindow::handleDiagramFormatLoaded(const QJsonObject &fmt)
+{
+    QCPL::JsonReport report;
+    QCPL::readPlot(fmt, _plot, &report, {.autoCreateAxes=true});
+    if (report.isEmpty())
+        for (const auto &msg : std::as_const(report))
+            if (!msg.ok())
+                qWarning() << msg.message;
+    // do not replot, all graphs will be loaded
+    // then DiagramLoaded happens, do replot there
 }
 
 int PlotWindow::graphCount() const
@@ -222,7 +244,7 @@ void PlotWindow::handleGraphAdded(const QString &id)
         emit graphSelected(g);
 }
 
-void PlotWindow::handleGraphLoaded(const QString &id)
+void PlotWindow::handleGraphLoaded(const QString &id, const QJsonObject &fmt)
 {
     auto g = _diagram->graph(id);
     if (!g) return;
@@ -236,8 +258,15 @@ void PlotWindow::handleGraphLoaded(const QString &id)
     auto pen = item->line->pen();
     pen.setColor(g->color());
     item->line->setPen(pen);
+    
+    auto fmtRes = QCPL::readGraph(fmt, item->line);
+    if (!fmtRes.ok())
+        qWarning() << "Bad format for graph" << g->id() << fmtRes.message;
 
     _items.append(item);
+
+    // do not replot, all graphs will be loaded
+    // then DiagramLoaded happens, do replot there
 }
 
 void PlotWindow::handleGraphUpdated(const QString &id)
@@ -757,10 +786,7 @@ void PlotWindow::exportPlotPrj()
     data.fileName = fileName;
     data.project = &project;
     data.diagrams << _diagram;
-    data.formats[_diagram] = QCPL::writePlot(_plot, {.onlyPrimaryAxes = false});
-    for (auto it : std::as_const(_items)) {
-        data.formats[it->graph] = QCPL::writeGraph(it->line);
-    }
+    data.formats = getFormats();
     QString err = ProjectFile::saveProject(data);
     if (!err.isEmpty())
         Ori::Dlg::error(tr("Failed to export project: %1").arg(err));
@@ -800,4 +826,14 @@ void PlotWindow::changeGraphAxes()
 void PlotWindow::settingsChanged()
 {
     _plot->highlightAxesOfSelectedGraphs = AppSettings::instance().highlightAxesOfSelectedGraphs;
+}
+
+QHash<const void*, QJsonObject> PlotWindow::getFormats() const
+{
+    QHash<const void*, QJsonObject> formats;
+    formats[_diagram] = QCPL::writePlot(_plot, {.onlyPrimaryAxes = false});
+    for (auto it : std::as_const(_items)) {
+        formats[it->graph] = QCPL::writeGraph(it->line);
+    }
+    return formats;
 }
