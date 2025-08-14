@@ -141,8 +141,10 @@ QString ProjectFile::saveProject(const StorableData &data)
         
     if (!zp.addFile(FILE_PROPS, writeProject(data.project)))
         return zp.error;
+        
+    auto diagrams = data.diagrams.isEmpty() ? data.project->diagrams() : data.diagrams;
 
-    for (auto d : std::as_const(data.diagrams)) {
+    for (auto d : std::as_const(diagrams)) {
         zp.curDir = d->id();
 
         if (!zp.addFile(FILE_PROPS, writeDiagram(d)))

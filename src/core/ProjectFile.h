@@ -16,7 +16,7 @@ public:
     {
         QString fileName;
         Project *project;
-        QVector<const Diagram*> diagrams;
+        QVector<Diagram*> diagrams;
         QHash<const void*, QJsonObject> formats;
     };
     

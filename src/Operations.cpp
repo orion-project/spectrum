@@ -1,9 +1,12 @@
 #include "Operations.h"
 
 #include "CustomPrefs.h"
+#include "app/AppSettings.h"
 #include "core/DataSources.h"
+#include "core/FileUtils.h"
 #include "core/Modifiers.h"
 #include "core/Project.h"
+#include "core/ProjectFile.h"
 #include "dialogs/CsvConfigDialog.h"
 #include "dialogs/OpenFileDlg.h"
 #include "widgets/RangeEditor.h"
@@ -11,11 +14,14 @@
 #include "helpers/OriDialogs.h"
 #include "helpers/OriLayouts.h"
 #include "tools/OriMruList.h"
+#include "tools/OriSettings.h"
 #include "widgets/OriPopupMessage.h"
 
 #include <QApplication>
 #include <QDebug>
 #include <QGroupBox>
+#include <QMessageBox>
+#include <QProcess>
 
 #define SELECTED_GRAPH \
     auto graph = getSelectedGraph(); \
@@ -24,10 +30,104 @@
         return; \
     }
 
+static void startAppInstance(QStringList args, const QString& prjFile = QString())
+{
+    QString exe = qApp->applicationFilePath();
+    if (AppSettings::instance().isDevMode)
+        args << "--dev";
+    if (!prjFile.isEmpty())
+        args << prjFile;
+    if (!QProcess::startDetached(exe, args))
+        qWarning() << "Unable to start another instance" << exe << args.join(' ');
+}
+
+//------------------------------------------------------------------------------
+
 Operations::Operations(Project *project, QObject *parent) : QObject(parent), _project(project)
 {
     _mruPlotFormats = new Ori::MruFileList(this);
-    _mruPlotFormats->load("mruPlotFormats");
+    _mruProjects = new Ori::MruFileList(this);
+}
+
+void Operations::restoreState(Ori::Settings &s)
+{
+    _mruPlotFormats->load(s.settings(), "mruPlotFormats");
+    _mruProjects->load(s.settings(), "mruProjects");
+}
+
+void Operations::prjNew()
+{
+    startAppInstance({});
+}
+
+void Operations::prjOpen()
+{
+    auto fileName = FileUtils::getProjectOpenFileName(parent());
+    if (fileName.isEmpty()) return;
+    if (openPrjFile(fileName))
+        _mruProjects->append(fileName);
+}
+
+bool Operations::prjSave()
+{
+    auto fileName = _project->fileName();
+    if (fileName.isEmpty())
+        return prjSaveAs();
+    return savePrjFile(fileName);
+}
+
+bool Operations::prjSaveAs()
+{
+    auto fileName = FileUtils::getProjectSaveFileName(parent());
+    if (fileName.isEmpty()) return false;
+    bool ok = savePrjFile(fileName);
+    if (ok)
+        _mruProjects->append(fileName);
+    return ok;
+}
+
+bool Operations::openPrjFile(const QString& fileName)
+{
+    return true;
+}
+
+bool Operations::savePrjFile(const QString& fileName)
+{
+    ProjectFile::StorableData data;
+    data.fileName = fileName;
+    data.project = _project;
+    // TODO: get formats
+    QString err = ProjectFile::saveProject(data);
+    if (!err.isEmpty()) {
+        QString msg = tr("Failed to save project: %1").arg(err);
+        BusEvent::ErrorMessage::send({{"error", msg}});
+        return false;
+    }
+    _project->setFileName(fileName);
+    _project->markUnmodified("Operations::savePrjFile");
+    return true;
+}
+
+bool Operations::canClose()
+{
+    if (_project->modified())
+    {
+        if (_project->fileName().isEmpty())
+            switch (Ori::Dlg::yesNoCancel(tr("Project has not been saved. Save it before closing?")))
+            {
+            case QMessageBox::Cancel: return false;
+            case QMessageBox::Yes: return prjSaveAs();
+            default: return true;
+            }
+        else
+            switch (Ori::Dlg::yesNoCancel(tr("Project has been modified. Save changes?")))
+            {
+            case QMessageBox::Cancel: return false;
+            case QMessageBox::Yes: return prjSave();
+            default: return true;
+            }
+    }
+    return true;
 }
 
 void Operations::addFromFile()

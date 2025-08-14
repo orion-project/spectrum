@@ -35,6 +35,9 @@ public:
     // Ori::IMessageBusListener
     void messageBusEvent(int event, const QMap<QString, QVariant>& params) override;
 
+protected:
+    void closeEvent(class QCloseEvent*) override;
+    
 private:
     QMdiArea* _mdiArea;
     Project* _project;

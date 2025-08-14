@@ -3,7 +3,7 @@
 
 #include <QString>
 
-class QWidget;
+class QObject;
 
 namespace FileUtils
 {
@@ -14,7 +14,8 @@ inline QString suffix() { return QStringLiteral("spectr"); }
 QString refineFileName(const QString& fileName, const QString &selectedFilter);
 QString appendSuffix(const QString& fileName, const QString &selectedSuffix);
 QString extractSuffix(const QString& filter);
-QString getProjectSaveFileName(QWidget *parent);
+QString getProjectOpenFileName(QObject *parent);
+QString getProjectSaveFileName(QObject *parent);
 
 } // namespace FileUtils
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <linearGradient id="c">
+  <stop stop-color="#705526" offset="0"/>
+  <stop stop-color="#c69c59" offset="1"/>
+ </linearGradient>
+ <linearGradient id="d">
+  <stop stop-color="#f3c668" offset="0"/>
+  <stop stop-color="#f9f398" offset="1"/>
+ </linearGradient>
+ <linearGradient id="e" x1="1" x2="16" y1="17" y2="7" gradientUnits="userSpaceOnUse" xlink:href="#c"/>
+ <linearGradient id="f" x1="3" x2="10" y1="13" y2="8" gradientUnits="userSpaceOnUse" xlink:href="#d"/>
+ <linearGradient id="g" x1="6" x2="17" y1="13" y2="20" gradientUnits="userSpaceOnUse" xlink:href="#d"/>
+ <linearGradient id="h" x1="3" x2="21" y1="20" y2="11" gradientUnits="userSpaceOnUse" xlink:href="#c"/>
+ <path d="m0.6 21.4v-14.4l2.4-4.4h7l1 2.8h7v16z" fill="url(#f)" fill-rule="evenodd" stroke="url(#e)" stroke-linejoin="round" stroke-width="1.2"/>
+ <path d="m.6 21.4h17.4l5-12h-13l-1 2h-4z" fill="url(#g)" fill-rule="evenodd" stroke="url(#h)" stroke-linejoin="round" stroke-width="1.2"/>
+</svg>

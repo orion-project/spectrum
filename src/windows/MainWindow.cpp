@@ -9,6 +9,7 @@
 #include "widgets/DataGridPanel.h"
 #include "windows/PlotWindow.h"
 
+#include "helpers/OriDialogs.h"
 #include "helpers/OriWidgets.h"
 #include "helpers/OriWindows.h"
 #include "tools/OriMruList.h"
@@ -20,6 +21,7 @@
 #include "widgets/OriStatusBar.h"
 
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDebug>
 #include <QDockWidget>
 #include <QLabel>
@@ -78,7 +80,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Ori::IMessageBusL
 
     restoreState();
 
-    QTimer::singleShot(200, this, [this](){ _project->newDiagram(); });
+    QTimer::singleShot(200, this, [this](){
+        _project->newDiagram();
+        _project->markUnmodified("MainWindow::MainWindow");
+    });
 }
 
 MainWindow::~MainWindow()
@@ -96,6 +101,7 @@ void MainWindow::storeState()
 void MainWindow::restoreState()
 {
     Ori::Settings s;
+    _operations->restoreState(s);
     s.restoreWindowGeometry(this);
     s.restoreDockState(this);
 }
@@ -111,19 +117,28 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actPlotNew = A1_(tr("New Diagram"), _project, &Project::newDiagram, ":/toolbar/plot_new", QKeySequence("Ctrl+N"));
+    auto actPrjNew = A1_(tr("New Project"), _operations, &Operations::prjNew, ":/toolbar/page", QKeySequence("Ctrl+N"));
+    auto actPrjOpen = A1_(tr("Open Project..."), _operations, &Operations::prjOpen, ":/toolbar/open", QKeySequence("Ctrl+O"));
+    auto actPrjSave = A1_(tr("Save Project"), _operations, &Operations::prjSave, ":/toolbar/save", QKeySequence("Ctrl+S"));
+    auto actPrjSaveAs = A1_(tr("Save Project As..."), _operations, &Operations::prjSaveAs);
+    auto actPlotNew = A1_(tr("New Diagram"), _project, &Project::newDiagram, ":/toolbar/plot_new", QKeySequence("Shift_Ctrl+N"));
     auto actPlotRename = A1_(tr("Rename Diagram..."), this, IN_ACTIVE_PLOT(renamePlot), ":/toolbar/plot_rename", QKeySequence("Ctrl+F2"));
     auto actPlotDelete = A1_(tr("Delete Diagram"), this, &MainWindow::deletePlot, ":/toolbar/plot_delete");
     auto actPlotSaveImg = A1_(tr("Save Diagram as Image..."), this, IN_ACTIVE_PLOT(exportPlotImg), ":/toolbar/save_img");
     auto actPlotSavePrj = A1_(tr("Save Diagram as Project..."), this, IN_ACTIVE_PLOT(exportPlotPrj), ":/toolbar/plot_save");
     auto actExit = A0_(tr("Exit"), this, SLOT(close()));
 
-    menuBar->addMenu(Ori::Gui::menu(tr("Project"), this, {
-        actPlotNew, actPlotRename, actPlotDelete, actPlotSavePrj, actPlotSaveImg,
-        0, actExit
-    }));
+    auto menuPrj = Ori::Gui::menu(tr("Project"), this, {
+        actPrjNew, actPrjOpen, actPrjSave, actPrjSaveAs, 0,
+        actPlotNew, actPlotRename, actPlotDelete, actPlotSavePrj, actPlotSaveImg, 0,
+        actExit
+    });
+    menuBar->addMenu(menuPrj);
+    
+    new Ori::Widgets::MruMenuPart(_operations->mruProjects(), menuPrj, actExit, this);
 
     addToolBar(Ori::Gui::toolbar(tr("Project"), "project", {
+        actPrjNew, actPrjOpen, actPrjSave, 0,
         actPlotNew, actPlotRename, actPlotDelete, actPlotSavePrj, actPlotSaveImg,
     }));
 
@@ -372,15 +387,27 @@ void MainWindow::createStatusBar()
     setStatusBar(_statusBar);
 }
 
+void MainWindow::closeEvent(QCloseEvent* ce)
+{
+    if (_operations->canClose())
+        ce->accept();
+    else
+        ce->ignore();
+}
+
 void MainWindow::messageBusEvent(int event, const QMap<QString, QVariant>& params)
 {
     switch (event)
     {
-    case BusEvent::ProjectModified:
+    case BusEvent::ProjectModified::id:
+    case BusEvent::ProjectUnmodified::id:
         updateStatusBar();
         break;
-    case BusEvent::DiagramAdded:
+    case BusEvent::DiagramAdded::id:
         handleDiagramAdded(params.value("id").toString());
+        break;
+    case BusEvent::ErrorMessage::id:
+        Ori::Dlg::error(params.value("error").toString());
         break;
     }
 }
@@ -407,6 +434,8 @@ void MainWindow::updateStatusBar()
     if (_project->modified())
         _statusBar->setText(STATUS_MODIF, tr("Modified"));
     else _statusBar->clear(STATUS_MODIF);
+    setWindowModified(_project->modified());
+    Ori::Wnd::setWindowFilePath(this, _project->fileName());
 }
 
 void MainWindow::updateDataGrid()

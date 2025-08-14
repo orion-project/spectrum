@@ -14,6 +14,7 @@ class Project;
 
 namespace Ori {
 class MruFileList;
+class Settings;
 }
 
 
@@ -23,6 +24,8 @@ class Operations : public QObject
 
 public:
     explicit Operations(Project *project, QObject *parent = nullptr);
+    
+    void restoreState(Ori::Settings &s);
 
     std::function<Graph*()> getSelectedGraph;
 
@@ -30,8 +33,15 @@ public:
     using DoLoad = Ori::Argument<bool, struct DoLoadTag>;
 
     Ori::MruFileList* mruPlotFormats() { return _mruPlotFormats; }
+    Ori::MruFileList* mruProjects() { return _mruProjects; }
+    
+    bool canClose();
 
 public slots:
+    void prjNew();
+    void prjOpen();
+    bool prjSave();
+    bool prjSaveAs();
     void addFromFile();
     void addFromCsvFile();
     void addFromClipboard();
@@ -59,10 +69,14 @@ signals:
     
 private:
     Project *_project;
+    Ori::MruFileList *_mruProjects;
     Ori::MruFileList *_mruPlotFormats;
     
     void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
     void modifyGraph(Modifier *mod);
+
+    bool openPrjFile(const QString& fileName);
+    bool savePrjFile(const QString& fileName);
 };
 
 #endif // OPERATIONS_H

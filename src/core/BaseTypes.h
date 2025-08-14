@@ -2,6 +2,7 @@
 #define BASE_TYPES_H
 
 #include "core/OriResult.h"
+#include "tools/OriMessageBus.h"
 
 #include <QVector>
 
@@ -60,17 +61,27 @@ struct RandomSampleParams
     void save(QJsonObject &root) const;
 };
 
-enum BusEvent
+#define BUS_EVENT(name) \
+    struct name { \
+        static const int id = __COUNTER__; \
+        static void send(const QMap<QString, QVariant>& params = {}) {\
+            Ori::MessageBus::send(id, params); \
+        } \
+    };
+struct BusEvent
 {
-    ProjectModified,
-    DiagramAdded,
-    DiagramDeleted,
-    DiagramRenamed,
-    GraphAdded,
-    GraphDeleting,
-    GraphDeleted,
-    GraphUpdated,
-    GraphRenamed,
+    BUS_EVENT(ErrorMessage)
+    BUS_EVENT(ProjectModified)
+    BUS_EVENT(ProjectUnmodified)
+    BUS_EVENT(DiagramAdded)
+    BUS_EVENT(DiagramDeleted)
+    BUS_EVENT(DiagramRenamed)
+    BUS_EVENT(GraphAdded)
+    BUS_EVENT(GraphDeleting)
+    BUS_EVENT(GraphDeleted)
+    BUS_EVENT(GraphUpdated)
+    BUS_EVENT(GraphRenamed)
 };
+#undef BUS_EVENT
 
 #endif // BASE_TYPES_H

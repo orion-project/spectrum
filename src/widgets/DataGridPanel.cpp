@@ -33,12 +33,12 @@ DataGridPanel::DataGridPanel(Project *project, QWidget *parent)
 void DataGridPanel::messageBusEvent(int event, const QMap<QString, QVariant>& params)
 {
     switch (event) {
-    case BusEvent::DiagramRenamed:
+    case BusEvent::DiagramRenamed::id:
         if (isVisible() && params.value("id") == _plotId)
             showData(_project->diagram(_plotId), nullptr);
         break;
-    case BusEvent::GraphUpdated:
-    case BusEvent::GraphRenamed:
+    case BusEvent::GraphUpdated::id:
+    case BusEvent::GraphRenamed::id:
         if (isVisible() && params.value("id") == _graphId)
             showData(nullptr, _project->graph(_graphId));
         break;

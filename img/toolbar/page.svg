@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <linearGradient id="a">
+  <stop stop-color="#92b1de" offset="0"/>
+  <stop stop-color="#525f96" offset="1"/>
+ </linearGradient>
+ <linearGradient id="b">
+  <stop stop-color="#fdffff" offset="0"/>
+  <stop stop-color="#b2d3fa" offset="1"/>
+ </linearGradient>
+ <linearGradient id="c" x1="5" x2="20" y1="3" y2="21" gradientTransform="matrix(1 0 0 .899 -.5 -.287)" gradientUnits="userSpaceOnUse" xlink:href="#b"/>
+ <linearGradient id="d" x1="18.1" x2="15.1" y1="4.9" y2="7.9" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+ <linearGradient id="e" x1="15" x2="18" y1="8" y2="5" gradientUnits="userSpaceOnUse" xlink:href="#b"/>
+ <linearGradient id="f" x1="17.6" x2="4.4" y1="5.82" y2="23.8" gradientTransform="matrix(1 0 0 .899 -.5 -.287)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+ <path d="m20.5 8.62v12.9h-17v-19h10.9" fill="url(#c)" fill-rule="evenodd" stroke="url(#f)" stroke-dashoffset="21.4" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="m21 8.5h-6.5v-6.5" fill="url(#e)" fill-rule="evenodd"/>
+ <path d="m20.5 8.5h-6v-6" fill="none" stroke="url(#d)" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

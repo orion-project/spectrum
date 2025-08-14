@@ -4,16 +4,12 @@
 #include "DataSources.h"
 #include "Modifiers.h"
 
-#include "tools/OriMessageBus.h"
-
 #include "qcpl_colors.h"
 
 #include <QDebug>
 #include <QFileDialog>
 #include <QPainter>
 #include <QUuid>
-
-using Ori::MessageBus;
 
 //------------------------------------------------------------------------------
 //                                 Project
@@ -31,7 +27,7 @@ void Project::newDiagram()
     dia->_color = nextDiagramColor();
     _diagrams.insert(dia->id(), dia);
     qDebug() << "Project::newDiagram" << dia->id();
-    MessageBus::send((int)BusEvent::DiagramAdded, {{"id", dia->id()}});
+    BusEvent::DiagramAdded::send({{"id", dia->id()}});
     markModified("Project::newDiagram");
 }
 
@@ -44,13 +40,21 @@ void Project::deleteDiagram(const QString &id)
     }
     _diagrams.remove(id);
     delete dia;
-    MessageBus::send((int)BusEvent::DiagramDeleted, {{"id", id}});
+    BusEvent::DiagramDeleted::send({{"id", id}});
     markModified("Project::deleteDiagram " + id);
 }
 
 Diagram* Project::diagram(const QString &id)
 {
     return _diagrams.value(id);
+}
+
+QVector<Diagram*> Project::diagrams() const
+{
+    QVector<Diagram*> res;
+    for (auto it = _diagrams.cbegin(); it != _diagrams.cend(); it++)
+        res << it.value();
+    return res;
 }
 
 Graph* Project::graph(const QString &id)
@@ -72,12 +76,19 @@ void Project::markModified(const QString &reason)
 {
     _modified = true;
     qDebug() << "Project::modified" << reason;
-    MessageBus::send((int)BusEvent::ProjectModified);
+    BusEvent::ProjectModified::send();
+}
+
+void Project::markUnmodified(const QString &reason)
+{
+    _modified = false;
+    qDebug() << "Project::unmodified" << reason;
+    BusEvent::ProjectUnmodified::send();
 }
 
 void Project::updateGraph(Graph *graph)
 {
-    MessageBus::send((int)BusEvent::GraphUpdated, {{"id", graph->id()}});
+    BusEvent::GraphUpdated::send({{"id", graph->id()}});
     markModified("Project::updateGraph");
 }
 
@@ -134,7 +145,7 @@ Graph* Diagram::graph(const QString &id)
 void Diagram::addGraph(Graph *g)
 {
     _graphs.insert(g->id(), g);
-    MessageBus::send((int)BusEvent::GraphAdded, {{"id", g->id()}});
+    BusEvent::GraphAdded::send({{"id", g->id()}});
     markModified("Diagram::addGraph");
 }
 
@@ -142,10 +153,10 @@ void Diagram::deleteGraphs(const QVector<Graph*> &graphs)
 {
     for (auto g : std::as_const(graphs)) {
         QString id = g->id();
-        MessageBus::send((int)BusEvent::GraphDeleting, {{"id", id}});
+        BusEvent::GraphDeleting::send({{"id", id}});
         _graphs.remove(id);
         delete g;
-        MessageBus::send((int)BusEvent::GraphDeleted, {{"id", id}});
+        BusEvent::GraphDeleted::send({{"id", id}});
     }
     markModified("Diagram::deleteGraphs");
 }

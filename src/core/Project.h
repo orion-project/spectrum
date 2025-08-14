@@ -19,17 +19,23 @@ class Project : public QObject
 public:
     Project(QObject *parent);
     
+    QString fileName() const { return _fileName; }
+    void setFileName(const QString &v) { _fileName = v; }
+    
     Diagram* diagram(const QString &id);
+    QVector<Diagram*> diagrams() const;
     void newDiagram();
     void deleteDiagram(const QString &id);
     
     bool modified() const { return _modified; }
     void markModified(const QString &reason);
+    void markUnmodified(const QString &reason);
     
     Graph* graph(const QString &id);
     void updateGraph(Graph *graph);
     
 private:
+    QString _fileName;
     QHash<QString, Diagram*> _diagrams;
     int _nextDiagramIndex = 0;
     int _nextDiagramColorIndex = 0;

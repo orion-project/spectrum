@@ -8,7 +8,6 @@
 
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
-#include "tools/OriMessageBus.h"
 #include "tools/OriMruList.h"
 #include "widgets/OriPopupMessage.h"
 
@@ -21,7 +20,6 @@
 #include "qcpl_plot.h"
 
 using Ori::Gui::PopupMessage;
-using Ori::MessageBus;
 
 static QIcon makeGraphIcon(QColor color)
 {
@@ -164,17 +162,17 @@ void PlotWindow::closeEvent(class QCloseEvent* ce)
 void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& params)
 {
     switch (event) {
-    case BusEvent::DiagramRenamed:
+    case BusEvent::DiagramRenamed::id:
         if (params.value("id") == _diagram->id())
             handleDiagramRenamed();
         break;
-    case BusEvent::GraphAdded:
+    case BusEvent::GraphAdded::id:
         handleGraphAdded(params.value("id").toString());
         break;
-    case BusEvent::GraphUpdated:
+    case BusEvent::GraphUpdated::id:
         handleGraphUpdated(params.value("id").toString());
         break;
-    case BusEvent::GraphDeleting:
+    case BusEvent::GraphDeleting::id:
         handleGraphDeleting(params.value("id").toString());
         break;
     }
@@ -698,7 +696,7 @@ void PlotWindow::renamePlot()
     QString newTitle = Ori::Dlg::inputText(tr("Diagram title:"), _diagram->title());
     if (newTitle.isEmpty() || newTitle == _diagram->title()) return;
     _diagram->setTitle(newTitle);
-    MessageBus::send((int)BusEvent::DiagramRenamed, {{"id", _diagram->id()}});
+    BusEvent::DiagramRenamed::send({{"id", _diagram->id()}});
     _diagram->markModified("PlotWindow::renamePlot");
 }
 
@@ -709,7 +707,7 @@ void PlotWindow::renameGraph()
     QString newTitle = Ori::Dlg::inputText(tr("Graph title:"), graph->title());
     if (newTitle.isEmpty() || newTitle == graph->title()) return;
     graph->setTitle(newTitle);
-    MessageBus::send((int)BusEvent::GraphRenamed, {{"id", graph->id()}});
+    BusEvent::GraphRenamed::send({{"id", graph->id()}});
     _diagram->markModified("PlotWindow::renameGraph");
 }
 

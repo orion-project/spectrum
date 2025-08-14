@@ -53,8 +53,10 @@
         <file alias="limits_zoom_out">../img/toolbar/limits_zoom_out.svg</file>
         <file alias="navigate_back">../img/toolbar/navigate_back.svg</file>
         <file alias="navigate_fwd">../img/toolbar/navigate_fwd.svg</file>
+        <file alias="open">../img/toolbar/open.svg</file>
         <file alias="open_format">../img/toolbar/open_format.svg</file>
         <file alias="panel_datagrid">../img/toolbar/panel_datagrid.svg</file>
+        <file alias="page">../img/toolbar/page.svg</file>
         <file alias="paste">../img/toolbar/paste.svg</file>
         <file alias="paste_fmt">../img/toolbar/paste_format.svg</file>
         <file alias="paste_table">../img/toolbar/paste_table.svg</file>
@@ -65,6 +67,7 @@
         <file alias="plot_save">../img/toolbar/plot_save.svg</file>
         <file alias="plot_title">../img/toolbar/plot_title.svg</file>
         <file alias="protocol">../img/toolbar/protocol.svg</file>
+        <file alias="save">../img/toolbar/save.svg</file>
         <file alias="save_format">../img/toolbar/save_format.svg</file>
         <file alias="save_img">../img/toolbar/save_img.svg</file>
         <file alias="settings">../img/toolbar/settings.svg</file>

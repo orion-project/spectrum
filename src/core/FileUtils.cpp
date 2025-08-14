@@ -9,15 +9,7 @@
 namespace FileUtils
 {
 
-QString filtersForOpen()
-{
-    return qApp->translate("IO",
-                           "Spectrum project files (*.%1)\n"
-                           "All files (*.*)")
-            .arg(suffix());
-}
-
-QString filtersForSave()
+QString filtersForProject()
 {
     return qApp->translate("IO",
                            "Spectrum project files (*.%1)\n"
@@ -61,7 +53,7 @@ QString extractSuffix(const QString& filter)
     return ext;
 }
 
-QString getProjectSaveFileName(QWidget *parent)
+QString getProjectOpenFileName(QObject *parent)
 {
     Ori::Settings s;
     s.beginGroup("Recent");
@@ -69,10 +61,31 @@ QString getProjectSaveFileName(QWidget *parent)
     QString recentPath = s.strValue("prjSavePath");
     QString recentFilter = s.strValue("prjSaveFilter");
 
-    auto fileName = QFileDialog::getSaveFileName(parent,
+    auto fileName = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent),
+                                                 qApp->tr("Open Project", "Dialog title"),
+                                                 recentPath,
+                                                 filtersForProject(),
+                                                 &recentFilter);
+    if (fileName.isEmpty()) return QString();
+
+    s.setValue("prjSavePath", fileName);
+    s.setValue("prjSaveFilter", recentFilter);
+
+    return refineFileName(fileName, recentFilter);
+}
+
+QString getProjectSaveFileName(QObject *parent)
+{
+    Ori::Settings s;
+    s.beginGroup("Recent");
+
+    QString recentPath = s.strValue("prjSavePath");
+    QString recentFilter = s.strValue("prjSaveFilter");
+
+    auto fileName = QFileDialog::getSaveFileName(qobject_cast<QWidget*>(parent),
                                                  qApp->tr("Save Project", "Dialog title"),
                                                  recentPath,
-                                                 filtersForSave(),
+                                                 filtersForProject(),
                                                  &recentFilter);
     if (fileName.isEmpty()) return QString();
 

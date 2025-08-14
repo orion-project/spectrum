@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     app.setApplicationName("Spectrum");
+    app.setApplicationDisplayName("Spectrum");
     app.setOrganizationName("orion-project.org");
     app.setApplicationVersion(Z::HelpSystem::appVersion());
     app.setStyle("Fusion");
