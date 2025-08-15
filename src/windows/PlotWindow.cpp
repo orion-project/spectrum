@@ -202,11 +202,15 @@ void PlotWindow::handleDiagramRenamed()
 void PlotWindow::handleDiagramFormatLoaded(const QJsonObject &fmt)
 {
     QCPL::JsonReport report;
-    QCPL::readPlot(fmt, _plot, &report, {.autoCreateAxes=true});
-    if (report.isEmpty())
-        for (const auto &msg : std::as_const(report))
-            if (!msg.ok())
-                qWarning() << msg.message;
+    QCPL::readPlot(fmt, _plot, &report, {
+                                            .autoCreateAxes = true,
+                                            .titleText = true,
+                                            .axesTexts = true,
+                                            .axesLimits = true,
+                                        });
+    for (const auto &msg : std::as_const(report))
+        if (!msg.ok())
+            qWarning() << msg.message;
     // do not replot, all graphs will be loaded
     // then DiagramLoaded happens, do replot there
 }
@@ -831,7 +835,12 @@ void PlotWindow::settingsChanged()
 QHash<const void*, QJsonObject> PlotWindow::getFormats() const
 {
     QHash<const void*, QJsonObject> formats;
-    formats[_diagram] = QCPL::writePlot(_plot, {.onlyPrimaryAxes = false});
+    formats[_diagram] = QCPL::writePlot(_plot, {
+                                                   .onlyPrimaryAxes = false,
+                                                   .titleText = true,
+                                                   .axesTexts = true,
+                                                   .axesLimits = true,
+                                               });
     for (auto it : std::as_const(_items)) {
         formats[it->graph] = QCPL::writeGraph(it->line);
     }

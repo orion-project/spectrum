@@ -6,6 +6,9 @@
 
 #include <zip.h>
 
+#ifdef Q_OS_MACOS
+#include <QIODevice>
+#endif
 #include <QJsonArray>
 #include <QJsonDocument>
 
