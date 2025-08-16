@@ -211,6 +211,13 @@ void PlotWindow::handleDiagramFormatLoaded(const QJsonObject &fmt)
     for (const auto &msg : std::as_const(report))
         if (!msg.ok())
             qWarning() << msg.message;
+
+    // Default axes already have vars, but vars are not
+    // duplicated, so it's save just to process all axes
+    auto axes = _plot->axisRect()->axes();
+    for (auto axis : std::as_const(axes))
+        addAxisVars(axis);
+
     // do not replot, all graphs will be loaded
     // then DiagramLoaded happens, do replot there
 }

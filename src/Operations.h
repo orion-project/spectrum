@@ -38,7 +38,7 @@ public:
     
     bool canClose();
 
-    bool openPrjFile(const QString& fileName);
+    void openPrjFile(const QString& fileName);
     bool savePrjFile(const QString& fileName);
 
 public slots:

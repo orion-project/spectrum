@@ -69,6 +69,9 @@ MainWindow::MainWindow(const QString &fileName, QWidget *parent)
     connect(_operations->mruPlotFormats(), &Ori::MruFileList::clicked, this, [this](const QString& fileName){
         auto plot = activePlot(); if (plot) plot->loadPlotFormat(fileName);
     });
+    connect(_operations->mruProjects(), &Ori::MruFileList::clicked, this, [this](const QString& fileName){
+        _operations->openPrjFile(fileName);
+    });
 
     _mdiArea = new QMdiArea;
     _mdiArea->setBackground(QBrush(QPixmap(":/misc/mdi_background")));

@@ -64,8 +64,7 @@ void Operations::prjOpen()
 {
     auto fileName = FileUtils::getProjectOpenFileName(parent());
     if (fileName.isEmpty()) return;
-    if (openPrjFile(fileName))
-        _mruProjects->append(fileName);
+    openPrjFile(fileName);
 }
 
 bool Operations::prjSave()
@@ -86,26 +85,26 @@ bool Operations::prjSaveAs()
     return ok;
 }
 
-bool Operations::openPrjFile(const QString& fileName)
+void Operations::openPrjFile(const QString& fileName)
 {
     bool isNew = _project->fileName().isEmpty() && !_project->modified();
     if (!isNew)
     {
         startAppInstance({}, fileName);
-        return true;
+        return;
     }
     
     QString err = ProjectFile::loadProject(fileName, _project);
     if (!err.isEmpty()) {
         QString msg = tr("Failed to load project: %1").arg(err);
         BusEvent::ErrorMessage::send({{"error", msg}});
-        return false;
+        return;
     }
     
     qDebug() << "Loaded" << fileName;
     _project->setFileName(fileName);
     _project->markUnmodified("Operations::openPrjFile");
-    return true;
+    _mruProjects->append(fileName);
 }
 
 bool Operations::savePrjFile(const QString& fileName)
