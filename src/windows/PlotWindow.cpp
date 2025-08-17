@@ -217,6 +217,8 @@ void PlotWindow::handleDiagramFormatLoaded(const QJsonObject &fmt)
     auto axes = _plot->axisRect()->axes();
     for (auto axis : std::as_const(axes))
         addAxisVars(axis);
+        
+    _plot->updateTexts();
 
     // do not replot, all graphs will be loaded
     // then DiagramLoaded happens, do replot there
@@ -273,6 +275,13 @@ void PlotWindow::handleGraphLoaded(const QString &id, const QJsonObject &fmt)
     auto fmtRes = QCPL::readGraph(fmt, item->line);
     if (!fmtRes.ok())
         qWarning() << "Bad format for graph" << g->id() << fmtRes.message;
+        
+    if (fmt.contains("axis_k"))
+        if (auto a = _plot->findAxisById(fmt["axis_k"].toString()); a)
+            item->line->setKeyAxis(a);
+    if (fmt.contains("axis_v"))
+        if (auto a = _plot->findAxisById(fmt["axis_v"].toString()); a)
+            item->line->setValueAxis(a);
 
     _items.append(item);
 
@@ -849,7 +858,10 @@ QHash<const void*, QJsonObject> PlotWindow::getFormats() const
                                                    .axesLimits = true,
                                                });
     for (auto it : std::as_const(_items)) {
-        formats[it->graph] = QCPL::writeGraph(it->line);
+        auto json = QCPL::writeGraph(it->line);
+        json["axis_k"] = it->line->keyAxis()->objectName();
+        json["axis_v"] = it->line->valueAxis()->objectName();
+        formats[it->graph] = json;
     }
     return formats;
 }

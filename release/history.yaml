@@ -2,6 +2,7 @@ history:
 - varsion: 7.0.6
   date:
   changes:
+  - text: Save and load project files (*.spectr)
   - text: '(NEW) Modes for the First Derivative function'
   - text: '(NEW) Show column numbers of CSV-graph in status bar'
   - text: '(NEW) Plot only one column from CSV file'

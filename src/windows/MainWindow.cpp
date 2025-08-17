@@ -450,7 +450,7 @@ void MainWindow::updateStatusBar()
 void MainWindow::updateDataGrid()
 {
     if (_panelDataGrid->isVisible())
-        if (auto plot = activePlot(); plot)
+        if (auto plot = activePlot(false); plot)
             if (auto graph = selectedGraph(false); graph)
                 _panelDataGrid->showData(plot->diagram(), graph);
 }
