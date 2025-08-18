@@ -12,7 +12,8 @@ public:
     virtual ~Modifier() {}
     virtual GraphResult modify(const GraphPoints& data) const = 0;
     virtual bool configure() { return true; }
-    virtual void save(QJsonObject &root) const = 0;
+    virtual void save(QJsonObject &obj) const = 0;
+    virtual void load(const QJsonObject &obj) = 0;
 };
 
 template <typename TParams>
@@ -29,10 +30,14 @@ protected:
 #define MODIFIER(mod) \
     class mod##Modifier : public ModifierBase<GraphMath::mod> { \
     public: \
+        static QString type() { return QStringLiteral(#mod); } \
         bool configure() override; \
-        void save(QJsonObject &root) const override { \
-            root["type"] = QString::fromLatin1(#mod); \
-            _params.save(root); \
+        void save(QJsonObject &obj) const override { \
+            obj["type"] = type(); \
+            _params.save(obj); \
+        } \
+        void load(const QJsonObject &obj) override { \
+            _params.load(obj); \
         } \
     };
 
@@ -50,5 +55,7 @@ MODIFIER(MavgExp)
 MODIFIER(FitLimits)
 MODIFIER(Despike)
 MODIFIER(Derivative)
+
+Modifier* makeModifier(const QString &type);
 
 #endif // MODIFIERS_H

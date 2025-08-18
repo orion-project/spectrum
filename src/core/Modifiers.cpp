@@ -21,6 +21,39 @@ using namespace Ori::Gui;
 using namespace GraphMath;
 using Ori::Widgets::ValueEdit;
 
+Modifier* makeModifier(const QString &type)
+{
+    if (type == OffsetModifier::type())
+        return new OffsetModifier;
+    if (type == ReflectModifier::type())
+        return new ReflectModifier;
+    if (type == FlipModifier::type())
+        return new FlipModifier;
+    if (type == ScaleModifier::type())
+        return new ScaleModifier;
+    if (type == NormalizeModifier::type())
+        return new NormalizeModifier;
+    if (type == InvertModifier::type())
+        return new InvertModifier;
+    if (type == DecimateModifier::type())
+        return new DecimateModifier;
+    if (type == AverageModifier::type())
+        return new AverageModifier;
+    if (type == MavgSimpleModifier::type())
+        return new MavgSimpleModifier;
+    if (type == MavgCumulModifier::type())
+        return new MavgCumulModifier;
+    if (type == MavgExpModifier::type())
+        return new MavgExpModifier;
+    if (type == FitLimitsModifier::type())
+        return new FitLimitsModifier;
+    if (type == DespikeModifier::type())
+        return new DespikeModifier;
+    if (type == DerivativeModifier::type())
+        return new DerivativeModifier;
+    return nullptr;
+}
+
 namespace {
 
 ValueEdit* makeEditor() {
@@ -28,6 +61,10 @@ ValueEdit* makeEditor() {
     Ori::Gui::adjustFont(editor);
     return editor;
 }
+
+//------------------------------------------------------------------------------
+//                                ValueOption
+//------------------------------------------------------------------------------
 
 class ValueOption : public QGroupBox
 {
@@ -48,6 +85,10 @@ public:
 private:
     ValueEdit* _editor;
 };
+
+//------------------------------------------------------------------------------
+//                               RadioOptions
+//------------------------------------------------------------------------------
 
 template <typename TOption> class RadioOptions : public QGroupBox
 {
@@ -116,6 +157,10 @@ private:
     Ori::Widgets::ValueEdit* _editor = nullptr;
 };
 
+//------------------------------------------------------------------------------
+//                               AxisOption
+//------------------------------------------------------------------------------
+
 class AxisOption : public RadioOptions<Direction>
 {
 public:
@@ -124,6 +169,10 @@ public:
         { DIR_Y, qApp->tr("Along Y Axis" )},
     }) {}
 };
+
+//------------------------------------------------------------------------------
+//                              IntervalOption
+//------------------------------------------------------------------------------
 
 class IntervalOption : public QGroupBox
 {
@@ -162,6 +211,10 @@ private:
     ValueEdit *_step;
 };
 
+//------------------------------------------------------------------------------
+//                                   State
+//------------------------------------------------------------------------------
+
 struct State
 {
     State(const char *name) : name(name) {
@@ -183,6 +236,10 @@ struct State
     QJsonObject root, state;
     bool modified = false;
 };
+
+//------------------------------------------------------------------------------
+//                               Config dialog
+//------------------------------------------------------------------------------
 
 bool dlg(const QString &title, std::initializer_list<LayoutItem> items, const QString &helpTopic, std::function<void()> apply)
 {

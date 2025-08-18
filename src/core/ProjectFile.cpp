@@ -96,9 +96,25 @@ QString ProjectFile::readGraph(const QJsonObject &obj, Graph *g)
     g->_title = obj["title"].toString();
     g->_autoTitle = obj["autoTitle"].toBool();
     g->_color = jsonToColor(obj["color"], Qt::red);
-    g->_dataSource = new ClipboardDataSource;
-    // TODO: read datasource
-    // TODO: read modifiers
+    
+    auto dsJson = obj["dataSource"].toObject();
+    auto ds = makeDataSource(dsJson["type"].toString());
+    if (!ds)
+        return QString("Unknown data source: %1").arg(dsJson["type"].toString());
+    ds->load(dsJson);
+    g->_dataSource = ds;
+    
+    auto arr = obj["modifiers"].toArray();
+    for (auto it = arr.cbegin(); it != arr.cend(); it++) {
+        auto modJson = it->toObject();
+        auto mod = makeModifier(modJson["type"].toString());
+        if (!mod) {
+            qWarning() << "Unknown modifier type" << modJson["type"].toString() << "for graph" << g->id();
+            continue;
+        }
+        mod->load(modJson);
+        g->_modifiers << mod;
+    }
     return {};
 }
 
@@ -396,6 +412,7 @@ QString ProjectFile::loadProject(const QString &fileName, Project *project)
     for (auto it = zr.ids.cbegin(); it != zr.ids.cend(); it++) {
         QString diagramId = it.key();
         std::unique_ptr<Diagram> diagram(new Diagram(project));
+        diagram->_id = diagramId;
         {
             ZipFile zf(zr.zip, diagramId + '/' + FILE_PROPS);
             if (!zf.error.isEmpty())
@@ -416,13 +433,13 @@ QString ProjectFile::loadProject(const QString &fileName, Project *project)
                 return zf.error;
             diagramFormat = zf.json;
         }
-        diagram->_id = diagramId;
         project->_diagrams.insert(diagramId, diagram.release());
         BusEvent::DiagramAdded::send({{"id", diagramId}});
         BusEvent::DiagramFormatLoaded::send({{"id", diagramId}, {"format", diagramFormat}});
         
         for (const QString &graphId : it.value()) {
             std::unique_ptr<Graph> graph(new Graph);
+            graph->_id = graphId;
             {
                 ZipFile zf(zr.zip, diagramId + '/' + graphId + '/' + FILE_PROPS);
                 if (!zf.error.isEmpty())
@@ -450,7 +467,6 @@ QString ProjectFile::loadProject(const QString &fileName, Project *project)
                     return zf.error;
                 graphFormat = zf.json;
             }
-            graph->_id = graphId;
             project->_diagrams[diagramId]->_graphs.insert(graphId, graph.release());
             BusEvent::GraphLoaded::send({{"id", graphId}, {"format", graphFormat}});
         }

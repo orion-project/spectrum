@@ -101,18 +101,18 @@ GraphPoints Offset::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-void Offset::save(QJsonObject &root) const
+void Offset::save(QJsonObject &obj) const
 {
-    root["dir"] = dir;
-    root["mode"] = mode;
-    root["value"] = value;
+    obj["dir"] = dir;
+    obj["mode"] = mode;
+    obj["value"] = value;
 }
 
-void Offset::load(const QJsonObject &root)
+void Offset::load(const QJsonObject &obj)
 {
-    dir = Direction(root["dir"].toInt());
-    mode = Mode(root["mode"].toInt());
-    value = root["value"].toDouble();
+    dir = Direction(obj["dir"].toInt());
+    mode = Mode(obj["mode"].toInt());
+    value = obj["value"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -142,11 +142,18 @@ GraphPoints Reflect::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-void Reflect::save(QJsonObject &root) const
+void Reflect::save(QJsonObject &obj) const
 {
-    root["dir"] = dir;
-    root["centerMode"] = centerMode;
-    root["centerValue"] = centerValue;
+    obj["dir"] = dir;
+    obj["centerMode"] = centerMode;
+    obj["centerValue"] = centerValue;
+}
+
+void Reflect::load(const QJsonObject &obj)
+{
+    dir = Direction(obj["dir"].toInt());
+    centerMode = Mode(obj["centerMode"].toInt());
+    centerValue = obj["centerValue"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -165,10 +172,16 @@ GraphPoints Flip::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-void Flip::save(QJsonObject &root) const
+void Flip::save(QJsonObject &obj) const
 {
-    root["dir"] = dir;
-    root["value"] = value;
+    obj["dir"] = dir;
+    obj["value"] = value;
+}
+
+void Flip::load(const QJsonObject &obj)
+{
+    dir = Direction(obj["dir"].toInt());
+    value = obj["value"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -197,12 +210,20 @@ GraphPoints Scale::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-void Scale::save(QJsonObject &root) const
+void Scale::save(QJsonObject &obj) const
 {
-    root["dir"] = dir;
-    root["centerMode"] = centerMode;
-    root["centerValue"] = centerValue;
-    root["scaleFactor"] = scaleFactor;
+    obj["dir"] = dir;
+    obj["centerMode"] = centerMode;
+    obj["centerValue"] = centerValue;
+    obj["scaleFactor"] = scaleFactor;
+}
+
+void Scale::load(const QJsonObject &obj)
+{
+    dir = Direction(obj["dir"].toInt());
+    centerMode = CenterMode(obj["centerMode"].toInt());
+    centerValue = obj["centerValue"].toDouble();
+    scaleFactor = obj["scaleFactor"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -227,11 +248,18 @@ GraphPoints Normalize::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-void Normalize::save(QJsonObject &root) const
+void Normalize::save(QJsonObject &obj) const
 {
-    root["dir"] = dir;
-    root["mode"] = mode;
-    root["value"] = value;
+    obj["dir"] = dir;
+    obj["mode"] = mode;
+    obj["value"] = value;
+}
+
+void Normalize::load(const QJsonObject &obj)
+{
+    dir = Direction(obj["dir"].toInt());
+    mode = Mode(obj["mode"].toInt());
+    value = obj["value"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -250,10 +278,16 @@ GraphPoints Invert::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-void Invert::save(QJsonObject &root) const
+void Invert::save(QJsonObject &obj) const
 {
-    root["dir"] = dir;
-    root["value"] = value;
+    obj["dir"] = dir;
+    obj["value"] = value;
+}
+
+void Invert::load(const QJsonObject &obj)
+{
+    dir = Direction(obj["dir"].toInt());
+    value = obj["value"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -297,11 +331,18 @@ GraphPoints Decimate::calc(const GraphPoints& data) const
     return {xs, ys};
 }
 
-void Decimate::save(QJsonObject &root) const
+void Decimate::save(QJsonObject &obj) const
 {
-    root["points"] = points;
-    root["step"] = step;
-    root["useStep"] = useStep;
+    obj["points"] = points;
+    obj["step"] = step;
+    obj["useStep"] = useStep;
+}
+
+void Decimate::load(const QJsonObject &obj)
+{
+    points = obj["points"].toInt();
+    step = obj["step"].toDouble();
+    useStep = obj["useStep"].toBool();
 }
 
 //------------------------------------------------------------------------------
@@ -371,12 +412,20 @@ GraphPoints Average::calc(const GraphPoints& data) const
     return {xs, ys};
 }
 
-void Average::save(QJsonObject &root) const
+void Average::save(QJsonObject &obj) const
 {
-    root["points"] = points;
-    root["step"] = step;
-    root["useStep"] = useStep;
-    root["pointPos"] = pointPos;
+    obj["points"] = points;
+    obj["step"] = step;
+    obj["useStep"] = useStep;
+    obj["pointPos"] = pointPos;
+}
+
+void Average::load(const QJsonObject &obj)
+{
+    points = obj["points"].toInt();
+    step = obj["step"].toDouble();
+    useStep = obj["useStep"].toBool();
+    pointPos = PointPos(obj["pointPos"].toInt());
 }
 
 //------------------------------------------------------------------------------
@@ -411,11 +460,18 @@ GraphPoints MavgSimple::calc(const GraphPoints& data) const
     return {data.xs, ys};
 }
 
-void MavgSimple::save(QJsonObject &root) const
+void MavgSimple::save(QJsonObject &obj) const
 {
-    root["points"] = points;
-    root["step"] = step;
-    root["useStep"] = useStep;
+    obj["points"] = points;
+    obj["step"] = step;
+    obj["useStep"] = useStep;
+}
+
+void MavgSimple::load(const QJsonObject &obj)
+{
+    points = obj["points"].toInt();
+    step = obj["step"].toDouble();
+    useStep = obj["useStep"].toBool();
 }
 
 //------------------------------------------------------------------------------
@@ -449,9 +505,14 @@ GraphPoints MavgExp::calc(const GraphPoints& data) const
     return {data.xs, ys};
 }
 
-void MavgExp::save(QJsonObject &root) const
+void MavgExp::save(QJsonObject &obj) const
 {
-    root["alpha"] = alpha;
+    obj["alpha"] = alpha;
+}
+
+void MavgExp::load(const QJsonObject &obj)
+{
+    alpha = obj["alpha"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -481,11 +542,18 @@ GraphPoints FitLimits::calc(const GraphPoints& data) const
     return {alongX ? newValues : data.xs, alongX ? data.ys : newValues};
 }
 
-void FitLimits::save(QJsonObject &root) const
+void FitLimits::save(QJsonObject &obj) const
 {
-    root["dir"] = dir;
-    root["beg"] = beg;
-    root["end"] = end;
+    obj["dir"] = dir;
+    obj["beg"] = beg;
+    obj["end"] = end;
+}
+
+void FitLimits::load(const QJsonObject &obj)
+{
+    dir = Direction(obj["dir"].toInt());
+    beg = obj["beg"].toDouble();
+    end = obj["end"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -536,11 +604,18 @@ GraphPoints Despike::calc(const GraphPoints& data) const
     return {data.xs, ys};
 }
 
-void Despike::save(QJsonObject &root) const
+void Despike::save(QJsonObject &obj) const
 {
-    root["mode"] = mode;
-    root["min"] = min;
-    root["max"] = max;
+    obj["mode"] = mode;
+    obj["min"] = min;
+    obj["max"] = max;
+}
+
+void Despike::load(const QJsonObject &obj)
+{
+    mode = Mode(obj["mode"].toInt());
+    min = obj["min"].toDouble();
+    max = obj["max"].toDouble();
 }
 
 //------------------------------------------------------------------------------
@@ -596,10 +671,16 @@ GraphPoints Derivative::calc(const GraphPoints& data) const
     return {dx, dy};
 }
 
-void Derivative::save(QJsonObject &root) const
+void Derivative::save(QJsonObject &obj) const
 {
-    root["mode"] = mode;
-    root["tau"] = tau;
+    obj["mode"] = mode;
+    obj["tau"] = tau;
+}
+
+void Derivative::load(const QJsonObject &obj)
+{
+    mode = Mode(obj["mode"].toInt());
+    tau = obj["tau"].toDouble();
 }
 
 } // namespace GraphMath

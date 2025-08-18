@@ -7,14 +7,24 @@
 //                              CsvGraphParams
 //------------------------------------------------------------------------------
 
-void CsvGraphParams::save(QJsonObject &root) const
+void CsvGraphParams::save(QJsonObject &obj) const
 {
-    root["title"] = title;
-    root["valueSeparators"] = valueSeparators;
-    root["decimalPoint"] = decimalPoint;
-    root["columnX"] = columnX;
-    root["columnY"] = columnY;
-    root["skipFirstLines"] = skipFirstLines;
+    obj["title"] = title;
+    obj["valueSeparators"] = valueSeparators;
+    obj["decimalPoint"] = decimalPoint;
+    obj["columnX"] = columnX;
+    obj["columnY"] = columnY;
+    obj["skipFirstLines"] = skipFirstLines;
+}
+
+void CsvGraphParams::load(const QJsonObject &obj)
+{
+    title = obj["title"].toString();
+    valueSeparators = obj["valueSeparators"].toString();
+    decimalPoint = obj["decimalPoint"].toBool();
+    columnX = obj["columnX"].toInt();
+    columnY = obj["columnY"].toInt();
+    skipFirstLines = obj["skipFirstLines"].toInt();
 }
 
 //------------------------------------------------------------------------------
@@ -71,34 +81,55 @@ QString PlottingRange::verify() const
     return QString();
 }
 
-void PlottingRange::save(QJsonObject &root) const
+void PlottingRange::save(QJsonObject &obj) const
 {
-    root["start"] = start;
-    root["stop"] = stop;
-    root["step"] = step;
-    root["points"] = points;
-    root["useStep"] = useStep;
+    obj["start"] = start;
+    obj["stop"] = stop;
+    obj["step"] = step;
+    obj["points"] = points;
+    obj["useStep"] = useStep;
+}
+
+void PlottingRange::load(const QJsonObject &obj)
+{
+    start = obj["start"].toDouble();
+    stop = obj["stop"].toDouble();
+    step = obj["step"].toDouble();
+    points = obj["points"].toInt(100);
+    useStep = obj["useStep"].toBool(false);
 }
 
 //------------------------------------------------------------------------------
 //                               MinMax
 //------------------------------------------------------------------------------
 
-void MinMax::save(QJsonObject &root) const
+void MinMax::save(QJsonObject &obj) const
 {
-    root["min"] = min;
-    root["max"] = max;
+    obj["min"] = min;
+    obj["max"] = max;
+}
+
+void MinMax::load(const QJsonObject &obj)
+{
+    min = obj["min"].toDouble(0);
+    max = obj["max"].toDouble(1);
 }
 
 //------------------------------------------------------------------------------
 //                         RandomSampleParams
 //------------------------------------------------------------------------------
 
-void RandomSampleParams::save(QJsonObject &root) const
+void RandomSampleParams::save(QJsonObject &obj) const
 {
     QJsonObject x, y;
     rangeX.save(x);
     rangeY.save(y);
-    root["rangeX"] = x;
-    root["rangeY"] = y;
+    obj["rangeX"] = x;
+    obj["rangeY"] = y;
+}
+
+void RandomSampleParams::load(const QJsonObject &obj)
+{
+    rangeX.load(obj["rangeX"].toObject());
+    rangeY.load(obj["rangeY"].toObject());
 }

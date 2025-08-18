@@ -28,7 +28,8 @@ public:
     virtual QString canRefresh() const { return QString(); }
     virtual ConfigResult configure() { return ConfigResult(false); }
     
-    virtual void save(QJsonObject &root) const = 0;
+    virtual void save(QJsonObject &obj) const = 0;
+    virtual void load(const QJsonObject &obj) = 0;
     
     const GraphPoints& data() { return _data; }
 protected:
@@ -39,13 +40,15 @@ protected:
 class TextFileDataSource : public DataSource
 {
 public:
+    TextFileDataSource() {}
     TextFileDataSource(QString fileName);
     ConfigResult configure() override;
     GraphResult read() override;
     QString makeTitle() const override;
     QString displayStr() const override { return _fileName; }
-    void save(QJsonObject &root) const override;
-    static QString type() { return "TextFile"; }
+    void save(QJsonObject &obj) const override;
+    void load(const QJsonObject &obj) override;
+    static QString type() { return QStringLiteral("TextFile"); }
 private:
     QString _fileName;
 };
@@ -58,8 +61,9 @@ public:
     GraphResult read() override;
     QString makeTitle() const override;
     QString displayStr() const override;
-    void save(QJsonObject &root) const override;
-    static QString type() { return "CsvFile"; }
+    void save(QJsonObject &obj) const override;
+    void load(const QJsonObject &obj) override;
+    static QString type() { return QStringLiteral("CsvFile"); }
 private:
     QString _fileName;
     CsvGraphParams _params;
@@ -70,13 +74,15 @@ private:
 class RandomSampleDataSource : public DataSource
 {
 public:
+    RandomSampleDataSource();
     RandomSampleDataSource(const RandomSampleParams& params);
     GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
     QString displayStr() const override { return "Random sample"; }
-    void save(QJsonObject &root) const override;
-    static QString type() { return "RandomSample"; }
+    void save(QJsonObject &obj) const override;
+    void load(const QJsonObject &obj) override;
+    static QString type() { return QStringLiteral("RandomSample"); }
 private:
     int _index;
     RandomSampleParams _params;
@@ -91,8 +97,9 @@ public:
     QString makeTitle() const override;
     QString canRefresh() const override;
     QString displayStr() const override { return "Clipboard"; }
-    void save(QJsonObject &root) const override;
-    static QString type() { return "Clipboard"; }
+    void save(QJsonObject &obj) const override;
+    void load(const QJsonObject &obj) override;
+    static QString type() { return QStringLiteral("Clipboard"); }
 private:
     int _index;
 };
@@ -105,11 +112,14 @@ public:
     QString makeTitle() const override;
     QString canRefresh() const override;
     QString displayStr() const override { return "Clipboard"; }
-    void save(QJsonObject &root) const override;
-    static QString type() { return "Clipboard"; }
+    void save(QJsonObject &obj) const override;
+    void load(const QJsonObject &obj) override;
+    static QString type() { return QStringLiteral("ClipboardCsv"); }
 private:
     CsvGraphParams _params;
     friend class CsvConfigDialog;
 };
+
+DataSource* makeDataSource(const QString &type);
 
 #endif // DATA_SOURCES_H

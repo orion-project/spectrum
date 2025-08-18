@@ -12,6 +12,21 @@
 #include <QJsonObject>
 #include <QMimeData>
 
+DataSource* makeDataSource(const QString &type)
+{
+    if (type == TextFileDataSource::type())
+        return new TextFileDataSource;
+    if (type == CsvFileDataSource::type())
+        return new CsvFileDataSource;
+    if (type == RandomSampleDataSource::type())
+        return new RandomSampleDataSource;
+    if (type == ClipboardDataSource::type())
+        return new ClipboardDataSource;
+    if (type == ClipboardCsvDataSource::type())
+        return new ClipboardCsvDataSource;
+    return nullptr;
+}
+
 //------------------------------------------------------------------------------
 //                                 DataSource
 //------------------------------------------------------------------------------
@@ -81,10 +96,15 @@ QString TextFileDataSource::makeTitle() const
     return QFileInfo(_fileName).fileName();
 }
 
-void TextFileDataSource::save(QJsonObject &root) const
+void TextFileDataSource::save(QJsonObject &obj) const
 {
-    root["type"] = type();
-    root["fileName"] = _fileName;
+    obj["type"] = type();
+    obj["fileName"] = _fileName;
+}
+
+void TextFileDataSource::load(const QJsonObject &obj)
+{
+    _fileName = obj["fileName"].toString();
 }
 
 //------------------------------------------------------------------------------
@@ -140,21 +160,33 @@ QString CsvFileDataSource::displayStr() const
     return QStringLiteral("%1 [%2]").arg(_fileName).arg(_params.columnY);
 }
 
-void CsvFileDataSource::save(QJsonObject &root) const
+void CsvFileDataSource::save(QJsonObject &obj) const
 {
-    root["type"] = type();
-    root["fileName"] = _fileName;
-    _params.save(root);
+    obj["type"] = type();
+    obj["fileName"] = _fileName;
+    _params.save(obj);
+}
+
+void CsvFileDataSource::load(const QJsonObject &obj)
+{
+    _fileName = obj["fileName"].toString();
+    _params.load(obj);
 }
 
 //------------------------------------------------------------------------------
 //                             RandomSampleDataSource
 //------------------------------------------------------------------------------
 
+static int __randomSampleIndex = 0;
+
+RandomSampleDataSource::RandomSampleDataSource()
+{
+    _index = ++__randomSampleIndex;
+}
+
 RandomSampleDataSource::RandomSampleDataSource(const RandomSampleParams& params)
 {
-    static int randomSampleIndex = 0;
-    _index = ++randomSampleIndex;
+    _index = ++__randomSampleIndex;
     _params = params;
 }
 
@@ -187,11 +219,17 @@ QString RandomSampleDataSource::makeTitle() const
     return QString("random-sample (%1)").arg(_index);
 }
 
-void RandomSampleDataSource::save(QJsonObject &root) const
+void RandomSampleDataSource::save(QJsonObject &obj) const
 {
-    root["type"] = type();
-    root["index"] = _index;
-    _params.save(root);
+    obj["type"] = type();
+    obj["index"] = _index;
+    _params.save(obj);
+}
+
+void RandomSampleDataSource::load(const QJsonObject &obj)
+{
+    _index = obj["index"].toInt();
+    _params.load(obj);
 }
 
 //------------------------------------------------------------------------------
@@ -231,9 +269,15 @@ QString ClipboardDataSource::makeTitle() const
      return QString("clipboard (%1)").arg(_index);
 }
 
-void ClipboardDataSource::save(QJsonObject &root) const
+void ClipboardDataSource::save(QJsonObject &obj) const
 {
-    root["type"] = type();
+    obj["type"] = type();
+}
+
+void ClipboardDataSource::load(const QJsonObject &obj)
+{
+    // ClipboardDataSource doesn't have persistent data to load beyond type
+    // The _index is set during construction based on clipboard state
 }
 
 //------------------------------------------------------------------------------
@@ -255,8 +299,13 @@ QString ClipboardCsvDataSource::makeTitle() const
      return _params.title;
 }
 
-void ClipboardCsvDataSource::save(QJsonObject &root) const
+void ClipboardCsvDataSource::save(QJsonObject &obj) const
 {
-    root["type"] = type();
-    _params.save(root);
+    obj["type"] = type();
+    _params.save(obj);
+}
+
+void ClipboardCsvDataSource::load(const QJsonObject &obj)
+{
+    _params.load(obj);
 }

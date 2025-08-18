@@ -28,7 +28,8 @@ struct CsvGraphParams
     int columnX, columnY;
     int skipFirstLines;
     
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct PlottingRange
@@ -42,7 +43,8 @@ struct PlottingRange
     QVector<double> calcValues() const;
     QString verify() const;
     
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct MinMax
@@ -50,7 +52,8 @@ struct MinMax
     double min;
     double max;
     
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct RandomSampleParams
@@ -58,7 +61,8 @@ struct RandomSampleParams
     PlottingRange rangeX;
     MinMax rangeY;
     
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 #define BUS_EVENT(name) \

@@ -32,8 +32,8 @@ struct Offset
     enum Mode {MODE_MAX, MODE_MIN, MODE_AVG, MODE_MID, MODE_VAL} mode;
     double value;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
-    void load(const QJsonObject &root);
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Reflect
@@ -42,7 +42,8 @@ struct Reflect
     enum Mode {CENTER_ZERO, CENTER_MAX, CENTER_MIN, CENTER_AVG, CENTER_MID, CENTER_VAL} centerMode;
     double centerValue;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Flip
@@ -50,7 +51,8 @@ struct Flip
     Direction dir;
     double value;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Scale
@@ -60,7 +62,8 @@ struct Scale
     double centerValue;
     double scaleFactor;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Normalize
@@ -69,7 +72,8 @@ struct Normalize
     enum Mode {MODE_MAX, MODE_VAL} mode;
     double value;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Invert
@@ -77,7 +81,8 @@ struct Invert
     Direction dir;
     double value;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Decimate
@@ -86,7 +91,8 @@ struct Decimate
     double step;
     bool useStep;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Average
@@ -96,7 +102,8 @@ struct Average
     bool useStep;
     enum PointPos { POS_MID, POS_BEG, POS_END } pointPos;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct MavgSimple
@@ -105,20 +112,23 @@ struct MavgSimple
     double step;
     bool useStep;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct MavgCumul
 {
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const {}
+    void save(QJsonObject &obj) const {}
+    void load(const QJsonObject &obj) {}
 };
 
 struct MavgExp
 {
     double alpha;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct FitLimits
@@ -126,7 +136,8 @@ struct FitLimits
     Direction dir;
     double beg, end;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Despike
@@ -134,7 +145,8 @@ struct Despike
     enum Mode {MODE_REL, MODE_ABS} mode;
     double min, max;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 struct Derivative
@@ -142,7 +154,8 @@ struct Derivative
     enum Mode { MODE_SIMPLE, MODE_REFINED, MODE_SIMPLE_TAU, MODE_REFINED_TAU } mode;
     double tau;
     GraphPoints calc(const GraphPoints& data) const;
-    void save(QJsonObject &root) const;
+    void save(QJsonObject &obj) const;
+    void load(const QJsonObject &obj);
 };
 
 } // namespace GraphMath
