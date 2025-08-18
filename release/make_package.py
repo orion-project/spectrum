@@ -41,23 +41,29 @@ def make_package_for_windows():
   remove_files_in_dir('imageformats', ['qdds.dll', 'qicns.dll', 'qtga.dll', 'qtiff.dll', 'qwbmp.dll', 'qwebp.dll'])
 
   print_header('Copy project files...')
-  copy_file('..\\..\\bin\\' + PROJECT_EXE, '.')
+  copy_files('..\\..\\bin', [
+      PROJECT_EXE,
+      'help.zip',
+      'zip.dll', 'zlib1.dll', 'bz2.dll',
+  ], '.')
+  shutil.copytree('..\\..\\bin\\samples', 'samples')
 
   # Seems sometimes windeployqt does copy these files,
   # but I definitely had cases when they had not been in the the place...
   print_header('Copy additional files ignored by windeployqt...')
-  copy_files(find_qt_dir(), [
-    'libgcc_s_seh-1.dll',  # doesn't exist in Qt 5.7
-    'libstdc++-6.dll',
-    'libwinpthread-1.dll',
-    'libgcc_s_dw2-1.dll',  # for Qt 5.7
-  ], '.')
 
-  # TODO: copy samples
+  # This is GCC-related, not needed for MSVC
+  # copy_files(find_qt_dir(), [
+  #   'libgcc_s_seh-1.dll',  # doesn't exist in Qt 5.7
+  #   'libstdc++-6.dll',
+  #   'libwinpthread-1.dll',
+  #   'libgcc_s_dw2-1.dll',  # for Qt 5.7
+  # ], '.')
 
   print_header('Pack files to zip...')
   global package_name
-  package_name = '{}-win-x{}.zip'.format(package_name, get_exe_bits(PROJECT_EXE))
+  #package_name = '{}-win-x{}.zip'.format(package_name, get_exe_bits(PROJECT_EXE))
+  package_name = f'{package_name}.zip'
   zip_dir('.', '..\\' + package_name)
 
 

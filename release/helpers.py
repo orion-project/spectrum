@@ -28,7 +28,7 @@ else:
 
 
 PROJECT_NAME = 'spectrum'
-PROJECT_FILE = 'spectrum.pro'
+PROJECT_FILE = 'CMakeLists.txt'
 if IS_WINDOWS: PROJECT_EXE = 'spectrum.exe'
 if IS_LINUX: PROJECT_EXE = 'spectrum'
 if IS_MACOS: PROJECT_EXE = 'spectrum.app'
@@ -102,11 +102,11 @@ def check_qt_path(cmd = 'qmake -v', print_stdout = True, check_return_code = Tru
 
   def get_qt_path_example():
     if IS_WINDOWS:
-      return 'set PATH=c:\\Qt\\Qt5.7.0\\5.7\\mingw53_32\\bin;%PATH%'
+      return 'set PATH=C:\\Qt\\5.15.2\\msvc2019_64\\bin;%PATH%'
     if IS_LINUX:
-      return 'export PATH=/home/user/Qt/5.10.0/gcc_64/bin:$PATH$'
+      return 'export PATH=/home/user/Qt/5.15.2/gcc_64/bin:$PATH'
     if IS_MACOS:
-      return 'export PATH=/Users/user/Qt/5.10.0/clang_64/bin:$PATH$'
+      return 'export PATH=/Users/user/Qt/5.15.2/clang_64/bin:$PATH' 
 
   try:
     execute(cmd,
