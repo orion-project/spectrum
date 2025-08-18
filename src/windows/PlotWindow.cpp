@@ -598,6 +598,7 @@ void PlotWindow::formatGraph()
     if (QCPL::graphFormatDlg(line, props)) {
         if (auto item = itemForLine(line); item) {
             item->graph->setColor(line->pen().color());
+            // Update anything related to selected graph (data table)
             emit graphSelected(item->graph);
         }
         _diagram->markModified("PlotWindow::formatGraph");
