@@ -178,6 +178,12 @@ Graph::~Graph()
     qDeleteAll(_modifiers);
 }
 
+void Graph::setColor(const QColor& color)
+{
+    _color = color;
+    _icon = QIcon();
+}
+
 const QIcon& Graph::icon()
 {
     if (_icon.isNull())

@@ -595,8 +595,13 @@ void PlotWindow::formatGraph()
 
     QCPL::GraphFormatDlgProps props;
     props.title = tr("Format %1").arg(line->name());
-    if (QCPL::graphFormatDlg(line, props))
+    if (QCPL::graphFormatDlg(line, props)) {
+        if (auto item = itemForLine(line); item) {
+            item->graph->setColor(line->pen().color());
+            emit graphSelected(item->graph);
+        }
         _diagram->markModified("PlotWindow::formatGraph");
+    }
 }
 
 void PlotWindow::addAxisBottom()

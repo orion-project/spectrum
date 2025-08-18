@@ -95,7 +95,7 @@ public:
     void setTitle(const QString& title) { _title = title; _autoTitle = false; }
 
     const QColor& color() const { return _color; }
-    void setColor(const QColor& color) { _color = color; }
+    void setColor(const QColor& color);
     const QIcon& icon();
 
     DataSource* dataSource() const { return _dataSource; }
