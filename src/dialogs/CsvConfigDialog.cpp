@@ -468,7 +468,6 @@ void CsvConfigDialog::updatePreviewData()
     LineSplitter lineSplitter(valueSeparators());
     ValueParser valueParser(_decSepPoint->isChecked());
     int maxColCount = 0;
-    int lineNo = 0;
     foreach (const QString& line, _previewLines)
     {
         lineSplitter.split(line);

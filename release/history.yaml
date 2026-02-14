@@ -3,6 +3,7 @@ history:
   date: ''
   changes:
   - text: '(FIX) Wrong column number substitution in graph title'
+  - text: '(FIX) Wrong x-values when add several graphs with X column 0'
 
 - version: 7.0.6
   date: 2025-08-18

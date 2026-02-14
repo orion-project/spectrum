@@ -153,7 +153,6 @@ void CsvMultiReader::read(QTextStream& stream)
     LineSplitter lineSplitter(valueSeparators);
     ValueParser valueParser(decimalPoint);
     int linesSkipped = 0;
-    double oneColX = 0;
     while (true)
     {
         QString line;
@@ -174,8 +173,7 @@ void CsvMultiReader::read(QTextStream& stream)
                 if (!valueParser.ok) continue;
                 x = valueParser.value;
             } else {
-                x = oneColX;
-                oneColX++;
+                x = item.xs.size();
             }
             valueParser.parse(lineSplitter.parts.at(item.columnY-1));
             if (!valueParser.ok) continue;
