@@ -506,17 +506,12 @@ void CsvConfigDialog::addGraphItem(int colX, int colY)
 
     auto updateGraphTitle = [item](){
         QString title = item.title->text();
-        static QRegularExpression reXY("^.*\\[\\s*(\\d+)\\s*[,;]\\s*(\\d+)\\s*\\].*$");
-        auto m = reXY.match(title);
-        if (!m.hasMatch()) return;
-        int startX = m.capturedStart(1);
-        int lenX = m.capturedLength(1);
-        int startY = m.capturedStart(2);
-        int lenY = m.capturedLength(2);
-        if (startX > -1 && lenX > 0 && startY > -1 && lenY > 0)
+        static QRegularExpression reXY(R"(^.*(\[\s*\d+\s*[,;]\s*\d+\s*\]).*$)");
+        if (auto m = reXY.match(title); m.hasMatch())
         {
-            title.replace(startX, lenX, QString::number(item.colX->value()));
-            title.replace(startY, lenY, QString::number(item.colY->value()));
+            int colX = item.colX->value();
+            int colY = item.colY->value();
+            title.replace(m.capturedStart(1), m.capturedLength(1), QString("[%1;%2]").arg(colX).arg(colY));
             item.title->setText(title);
         }
     };

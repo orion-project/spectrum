@@ -1,14 +1,19 @@
 history:
-- varsion: 7.0.6
+- version: 7.0.7
+  date: ''
+  changes:
+  - text: '(FIX) Wrong column number substitution in graph title'
+
+- version: 7.0.6
   date: 2025-08-18
   changes:
-  - text: Save and load project files (*.spectr)
+  - text: 'Save and load project files (*.spectr)'
   - text: '(NEW) Modes for the First Derivative function'
   - text: '(NEW) Show column numbers of CSV-graph in status bar'
   - text: '(NEW) Plot only one column from CSV file'
-  - text: '(FIX) Wrong preview line cound in Open CSV dialog'
+  - text: '(FIX) Wrong preview line count in Open CSV dialog'
   - text: '(FIX) Old graph color in data table when line color changed'
-  - text: 'Switch to msvc on Windows'
+  - text: 'Switch to MSVC on Windows'
 
 # 7.0.5 is not published, all changes went to 7.0.6
 
@@ -31,12 +36,12 @@ history:
   date: 2024-03-10
   changes:
   - text: 'Can open several data files (plain and csv)'
-  - text: 'Diagram format dialolgs (graph, title, axes, legend)'
+  - text: 'Diagram format dialogs (graph, title, axes, legend)'
   - text: 'Copy-paste diagram part formats (graph, title, axes, legend)'
   - text: 'Decimal axis factors'
   - text: '(NEW) Custom axis factor'
-  - text: '(NEW) Internal help viever'
-  - tetx: '(NEW) Can use different axes for different graphs'
+  - text: '(NEW) Internal help viewer'
+  - text: '(NEW) Can use different axes for different graphs'
   - text: 'Add docs for Scale and Offset functions'
   - text: 'Switch to cmake'
 
