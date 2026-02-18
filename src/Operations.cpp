@@ -24,8 +24,8 @@
 #include <QProcess>
 
 #define SELECTED_GRAPH \
-    auto graph = getSelectedGraph(); \
-    if (!graph) { \
+    auto graphs = getSelectedGraphs(); \
+    if (graphs.isEmpty()) { \
         Ori::Gui::PopupMessage::warning(qApp->tr("Please select a graph")); \
         return; \
     }
@@ -293,56 +293,119 @@ void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLo
     emit graphCreated(graph);
 }
 
-void Operations::modifyGraph(Modifier* mod)
+void Operations::modifyGraph(Modifier *modParams)
 {
-    // TODO: modify several selected graphs
     SELECTED_GRAPH
-
-    if (!mod->configure())
+        
+    if (!modParams->configure())
     {
-        delete mod;
+        delete modParams;
         return;
     }
-    auto res = graph->modify(mod);
-    if (!res.isEmpty())
+    QList<QPair<QString, QString>> report;
+    for (auto graph : std::as_const(graphs))
     {
-        Ori::Dlg::error(res);
-        delete mod;
-        return;
+        auto mod = makeModifier(modParams->type());
+        mod->copyParams(modParams);
+        auto res = graph->modify(mod);
+        if (!res.isEmpty())
+        {
+            report << qMakePair(graph->title(), res);
+            delete mod;
+            continue;
+        }
+        _project->updateGraph(graph);
     }
-    _project->updateGraph(graph);
+    delete modParams;
+    if (!report.isEmpty())
+    {
+        QString msg;
+        if (graphs.size() > 1)
+        {
+            QStringList msgs;
+            msgs << tr("There are errors while modifying some graphs:<br>");
+            for (const auto &it : std::as_const(report))
+                msgs << QString("<b>%1</b>: %2").arg(it.first, it.second);
+            msg = msgs.join("<br>");
+        }
+        else msg = report.first().second;
+        Ori::Dlg::error(msg);
+    }
 }
 
 void Operations::graphRefresh()
 {
-    // TODO: refresh several selected graphs
     SELECTED_GRAPH
 
-    auto res = graph->canRefreshData();
-    if (!res.isEmpty())
+    bool hasErrors = false;
+    QList<QPair<QString, QString>> report;
+    for (auto graph : std::as_const(graphs))
     {
-        Ori::Dlg::info(res);
-        return;
+        auto res = graph->canRefreshData();
+        if (!res.isEmpty())
+        {
+            report <<qMakePair(graph->title(), res);
+            continue;
+        }
+        // TODO: check if graph has no data anymore
+        // (e.g. file was deleted or its content changed unexpectedly)
+        // and add an ability to cancel and keep old data
+        res = graph->refreshData();
+        if (!res.isEmpty())
+        {
+            hasErrors = true;
+            report <<qMakePair(graph->title(), res);
+            continue;
+        }
+        _project->updateGraph(graph);
     }
-
-    // TODO: check if graph has no data anymore
-    // (e.g. file was deleted or its content changed unexpectedly)
-    // and add an ability to cancel and keep old data
-    res = graph->refreshData();
-    if (!res.isEmpty())
+    if (!report.isEmpty())
     {
-        Ori::Dlg::error(res);
-        return;
+        QString msg;
+        if (graphs.size() > 1)
+        {
+            QStringList msgs;
+            if (hasErrors)
+                msgs << tr("There are errors while refreshing some graphs:<br>");
+            else
+                msgs << tr("There are messages while refreshing some graphs:<br>");
+            for (const auto &it : std::as_const(report))
+                msgs << QString("<b>%1</b>: %2").arg(it.first, it.second);
+            msg = msgs.join("<br>");
+        }
+        else msg = report.first().second;
+        if (hasErrors)
+            Ori::Dlg::error(msg);
+        else
+            Ori::Dlg::info(msg);
     }
-    _project->updateGraph(graph);
 }
 
 void Operations::graphReopen()
 {
     SELECTED_GRAPH
-
-    auto dataSource = graph->dataSource();
-
+    
+    if (graphs.size() > 1)
+    {
+        Graph* prevGraph = graphs.first();
+        for (int i = 1; i < graphs.size(); i++)
+        {
+            auto graph = graphs.at(i);
+            if (graph->dataSource()->type() != prevGraph->dataSource()->type())
+            {
+                Ori::Dlg::info(tr("Can't reopen several graphs with different data sources<br><br>"
+                    "Graph <b>%1</b> has data source <b>%2</b><br>"
+                    "Graph <b>%3</b> has data source <b>%4</b><br>")
+                    .arg(prevGraph->title(), prevGraph->dataSource()->type())
+                    .arg(graph->title(), graph->dataSource()->type()));
+                return;
+            }
+            prevGraph = graph;
+        }
+    }
+    
+    auto dataSource = graphs.first()->dataSource();
+    
     auto res = dataSource->canRefresh();
     if (!res.isEmpty())
     {
@@ -358,14 +421,34 @@ void Operations::graphReopen()
         return;
     }
 
+    QList<QPair<QString, QString>> report;
+
     // TODO: check if new config issues no data (e.g. wrong file selected)
     // and add an ability to rollback the config
 
-    res = graph->refreshData();
-    if (!res.isEmpty())
+    for (auto graph : std::as_const(graphs))
     {
-        Ori::Dlg::error(res);
-        return;
+        graph->dataSource()->copyParams(dataSource);
+        res = graph->refreshData();
+        if (!res.isEmpty())
+        {
+            report << qMakePair(graph->title(), res);
+            continue;
+        }
+        _project->updateGraph(graph);
     }
-    _project->updateGraph(graph);
+    if (!report.isEmpty())
+    {
+        QString msg;
+        if (graphs.size() > 1)
+        {
+            QStringList msgs;
+            msgs << tr("There are errors while reopening some graphs:<br>");
+            for (const auto &it : std::as_const(report))
+                msgs << QString("<b>%1</b>: %2").arg(it.first, it.second);
+            msg = msgs.join("<br>");
+        }
+        else msg = report.first().second;
+        Ori::Dlg::error(msg);
+    }
 }

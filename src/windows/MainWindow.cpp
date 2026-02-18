@@ -63,7 +63,7 @@ MainWindow::MainWindow(const QString &fileName, QWidget *parent)
     _panelDataGrid = new DataGridPanel(_project, this);
 
     _operations = new Operations(_project, this);
-    _operations->getSelectedGraph = [this](){ return selectedGraph(); };
+    _operations->getSelectedGraphs = [this]{ return selectedGraphs(); };
     _operations->getFormats = [this]{ return getFormats(); };
     connect(_operations, &Operations::graphCreated, this, &MainWindow::graphCreated);
     connect(_operations->mruPlotFormats(), &Ori::MruFileList::clicked, this, [this](const QString& fileName){
@@ -468,6 +468,14 @@ Graph* MainWindow::selectedGraph(bool warn) const
 {
     auto plot = activePlot(warn);
     return plot ? plot->selectedGraph(warn) : nullptr;
+}
+
+QVector<Graph*> MainWindow::selectedGraphs(bool warn) const
+{
+    auto plot = activePlot(warn);
+    if (plot)
+        return plot->selectedGraphs(warn);
+    return {};
 }
 
 void MainWindow::handleDiagramAdded(const QString& id)

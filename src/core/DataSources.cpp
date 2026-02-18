@@ -12,17 +12,24 @@
 #include <QJsonObject>
 #include <QMimeData>
 
+#define CAST_OTHER_TYPE(this_type) \
+    auto ds = dynamic_cast<this_type*>(other); \
+    if (!ds) { \
+        qWarning() << Q_FUNC_INFO << "Wrong type of data source to copy params from"; \
+        return; \
+    }
+
 DataSource* makeDataSource(const QString &type)
 {
-    if (type == TextFileDataSource::type())
+    if (type == TextFileDataSource::_type_())
         return new TextFileDataSource;
-    if (type == CsvFileDataSource::type())
+    if (type == CsvFileDataSource::_type_())
         return new CsvFileDataSource;
-    if (type == RandomSampleDataSource::type())
+    if (type == RandomSampleDataSource::_type_())
         return new RandomSampleDataSource;
-    if (type == ClipboardDataSource::type())
+    if (type == ClipboardDataSource::_type_())
         return new ClipboardDataSource;
-    if (type == ClipboardCsvDataSource::type())
+    if (type == ClipboardCsvDataSource::_type_())
         return new ClipboardCsvDataSource;
     return nullptr;
 }
@@ -107,6 +114,12 @@ void TextFileDataSource::load(const QJsonObject &obj)
     _fileName = obj["fileName"].toString();
 }
 
+void TextFileDataSource::copyParams(DataSource *other)
+{
+    CAST_OTHER_TYPE(TextFileDataSource)
+    _fileName = ds->_fileName;
+}
+
 //------------------------------------------------------------------------------
 //                             CsvFileDataSource
 //------------------------------------------------------------------------------
@@ -173,6 +186,13 @@ void CsvFileDataSource::load(const QJsonObject &obj)
     _params.load(obj);
 }
 
+void CsvFileDataSource::copyParams(DataSource *other)
+{
+    CAST_OTHER_TYPE(CsvFileDataSource)
+    _fileName = ds->_fileName;
+    _params = ds->_params;
+}
+
 //------------------------------------------------------------------------------
 //                             RandomSampleDataSource
 //------------------------------------------------------------------------------
@@ -230,6 +250,13 @@ void RandomSampleDataSource::load(const QJsonObject &obj)
 {
     _index = obj["index"].toInt();
     _params.load(obj);
+}
+
+void RandomSampleDataSource::copyParams(DataSource *other)
+{
+    CAST_OTHER_TYPE(RandomSampleDataSource)
+    // don't copy _index
+    _params = ds->_params;
 }
 
 //------------------------------------------------------------------------------
@@ -308,4 +335,11 @@ void ClipboardCsvDataSource::save(QJsonObject &obj) const
 void ClipboardCsvDataSource::load(const QJsonObject &obj)
 {
     _params.load(obj);
+}
+
+void ClipboardCsvDataSource::copyParams(DataSource *other)
+{
+    CAST_OTHER_TYPE(ClipboardCsvDataSource)
+    // don't copy _index
+    _params = ds->_params;
 }

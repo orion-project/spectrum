@@ -23,33 +23,33 @@ using Ori::Widgets::ValueEdit;
 
 Modifier* makeModifier(const QString &type)
 {
-    if (type == OffsetModifier::type())
+    if (type == OffsetModifier::_type_())
         return new OffsetModifier;
-    if (type == ReflectModifier::type())
+    if (type == ReflectModifier::_type_())
         return new ReflectModifier;
-    if (type == FlipModifier::type())
+    if (type == FlipModifier::_type_())
         return new FlipModifier;
-    if (type == ScaleModifier::type())
+    if (type == ScaleModifier::_type_())
         return new ScaleModifier;
-    if (type == NormalizeModifier::type())
+    if (type == NormalizeModifier::_type_())
         return new NormalizeModifier;
-    if (type == InvertModifier::type())
+    if (type == InvertModifier::_type_())
         return new InvertModifier;
-    if (type == DecimateModifier::type())
+    if (type == DecimateModifier::_type_())
         return new DecimateModifier;
-    if (type == AverageModifier::type())
+    if (type == AverageModifier::_type_())
         return new AverageModifier;
-    if (type == MavgSimpleModifier::type())
+    if (type == MavgSimpleModifier::_type_())
         return new MavgSimpleModifier;
-    if (type == MavgCumulModifier::type())
+    if (type == MavgCumulModifier::_type_())
         return new MavgCumulModifier;
-    if (type == MavgExpModifier::type())
+    if (type == MavgExpModifier::_type_())
         return new MavgExpModifier;
-    if (type == FitLimitsModifier::type())
+    if (type == FitLimitsModifier::_type_())
         return new FitLimitsModifier;
-    if (type == DespikeModifier::type())
+    if (type == DespikeModifier::_type_())
         return new DespikeModifier;
-    if (type == DerivativeModifier::type())
+    if (type == DerivativeModifier::_type_())
         return new DerivativeModifier;
     return nullptr;
 }

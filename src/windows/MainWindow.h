@@ -57,6 +57,7 @@ private:
 
     PlotWindow* activePlot(bool warn = true) const;
     Graph* selectedGraph(bool warn = true) const;
+    QVector<Graph*> selectedGraphs(bool warn = true) const;
     void graphSelected(Graph* graph);
     void graphCreated(Graph* graph);
     void mdiSubWindowActivated(QMdiSubWindow* window);

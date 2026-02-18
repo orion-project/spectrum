@@ -2,6 +2,7 @@ history:
 - version: 7.0.7
   date: ''
   changes:
+  - text: 'Can modify several graphs at the same time (multiselect)'
   - text: '(FIX) Wrong column number substitution in graph title'
   - text: '(FIX) Wrong x-values when add several graphs with X column 0'
 

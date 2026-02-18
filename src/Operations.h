@@ -27,7 +27,7 @@ public:
     
     void restoreState(Ori::Settings &s);
 
-    std::function<Graph*()> getSelectedGraph;
+    std::function<QVector<Graph*>()> getSelectedGraphs;
     std::function<QHash<const void*, QJsonObject>()> getFormats;
 
     using DoConfig = Ori::Argument<bool, struct DoConfigTag>;
@@ -77,7 +77,7 @@ private:
     Ori::MruFileList *_mruPlotFormats;
     
     void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
-    void modifyGraph(Modifier *mod);
+    void modifyGraph(Modifier* modParams);
 };
 
 #endif // OPERATIONS_H
