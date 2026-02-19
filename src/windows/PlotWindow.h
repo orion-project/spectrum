@@ -93,6 +93,7 @@ public:
     void exportPlotImg();
     void exportPlotPrj();
     void changeGraphAxes();
+    void selectGraphsDlg();
 
     Graph* selectedGraph(bool warn = true) const;
     QVector<Graph*> selectedGraphs(bool warn = true) const;

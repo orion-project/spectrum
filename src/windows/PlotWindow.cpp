@@ -17,6 +17,7 @@
 //#include "qcpl_cursor_panel.h"
 #include "qcpl_export.h"
 #include "qcpl_format.h"
+#include "qcpl_graph_select.h"
 #include "qcpl_io_json.h"
 #include "qcpl_plot.h"
 
@@ -229,7 +230,7 @@ void PlotWindow::handleDiagramFormatLoaded(const QJsonObject &fmt)
 
 int PlotWindow::graphCount() const
 {
-    return _plot->graphsCount();
+    return _plot->userGraphsCount();
 }
 
 void PlotWindow::handleGraphAdded(const QString &id)
@@ -539,7 +540,7 @@ void PlotWindow::selectGraph(Graph* graph)
 void PlotWindow::selectGraphLine(QCPGraph* line, bool replot)
 {
     _plot->deselectAll();
-    line->setSelection(QCPDataSelection(line->data()->dataRange()));
+    _plot->selectGraph(line);
     _plot->updateAxesInteractivity();
     if (replot) _plot->replot();
 }
@@ -923,3 +924,7 @@ QHash<const void*, QJsonObject> PlotWindow::getFormats() const
     return formats;
 }
 
+void PlotWindow::selectGraphsDlg()
+{
+    QCPL::selectGraphsDlg(_plot);
+}

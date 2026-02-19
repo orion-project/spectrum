@@ -2,6 +2,7 @@ history:
 - version: 7.0.7
   date: ''
   changes:
+  - text: 'Graphs selection dialog'
   - text: 'Function: Limits -> Fit Selection'
   - text: 'Can modify several graphs at the same time (multiselect)'
   - text: 'Account for selected axes when change limits if there are several axes of the same orientation'
