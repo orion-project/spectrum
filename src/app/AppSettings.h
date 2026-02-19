@@ -25,6 +25,7 @@ public:
     bool autolitmAfterAxesChanged = true;
     bool highlightAxesOfSelectedGraphs = true;
     bool selectNewGraph = true;
+    bool lockPanZoomToSelectedGraphs = true;
 
     bool isDevMode = false;
 

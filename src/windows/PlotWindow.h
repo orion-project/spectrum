@@ -44,15 +44,15 @@ public:
 
     int graphCount() const;
 
-    void limitsDlg();
+//    void limitsDlg();
     void limitsDlgX();
     void limitsDlgY();
     void autolimits();
     void autolimitsX();
     void autolimitsY();
-//    void limitsToSelection();
-//    void limitsToSelectionX();
-//    void limitsToSelectionY();
+    void limitsToSelection();
+    void limitsToSelectionX();
+    void limitsToSelectionY();
     void zoomIn();
     void zoomOut();
     void zoomInX();
@@ -135,6 +135,8 @@ private:
 
     void createContextMenus();
     void addAxisVars(QCPAxis* axis);
+    void limitsToSelection(bool x, bool y);
+    void applyAppSettings();
 
     void handleDiagramRenamed();
     void handleDiagramFormatLoaded(const QJsonObject &fmt);

@@ -288,15 +288,15 @@ void MainWindow::createActions()
 
     //---------------------------------------------------------
 
-    auto actLimitsBoth = A1_(tr("Limits for Both Axes..."), this, IN_ACTIVE_PLOT(limitsDlg), ":/toolbar/limits", QKeySequence("Shift+Ctrl+="));
+//    auto actLimitsBoth = A1_(tr("Limits for Both Axes..."), this, IN_ACTIVE_PLOT(limitsDlg), ":/toolbar/limits", QKeySequence("Shift+Ctrl+="));
     auto actLimitsX = A1_(tr("Limits X..."), this, IN_ACTIVE_PLOT(limitsDlgX), ":/toolbar/limits_x", QKeySequence("Shift+Ctrl+X"));
     auto actLimitsY = A1_(tr("Limits Y..."), this, IN_ACTIVE_PLOT(limitsDlgY), ":/toolbar/limits_y", QKeySequence("Shift+Ctrl+Y"));
     auto actAutolimits = A1_(tr("Autolimits"), this, IN_ACTIVE_PLOT(autolimits), ":/toolbar/limits_auto", QKeySequence("Alt+0"));
     auto actAutolimitsX = A1_(tr("Autolimits X"), this, IN_ACTIVE_PLOT(autolimitsX), ":/toolbar/limits_auto_x", QKeySequence("Alt+X"));
     auto actAutolimitsY = A1_(tr("Autolimits Y"), this, IN_ACTIVE_PLOT(autolimitsY), ":/toolbar/limits_auto_y", QKeySequence("Alt+Y"));
-//    auto actFitSelection = A1_(tr("Fit Selection"), this, IN_ACTIVE_PLOT(limitsToSelection), ":/toolbar/limits_fit", QKeySequence("Ctrl+/"));
-//    auto actFitSelectionX = A1_(tr("Fit Selection X"), this, IN_ACTIVE_PLOT(limitsToSelectionX), ":/toolbar/limits_fit_x", QKeySequence("Shift+Ctrl+/,x"));
-//    auto actFitSelectionY = A1_(tr("Fit Selection Y"), this, IN_ACTIVE_PLOT(limitsToSelectionY), ":/toolbar/limits_fit_y", QKeySequence("Shift+Ctrl+/,y"));
+    auto actFitSelection = A1_(tr("Fit Selection"), this, IN_ACTIVE_PLOT(limitsToSelection), ":/toolbar/limits_fit", QKeySequence("Ctrl+/"));
+    auto actFitSelectionX = A1_(tr("Fit Selection X"), this, IN_ACTIVE_PLOT(limitsToSelectionX), ":/toolbar/limits_fit_x", QKeySequence("Shift+Ctrl+/,x"));
+    auto actFitSelectionY = A1_(tr("Fit Selection Y"), this, IN_ACTIVE_PLOT(limitsToSelectionY), ":/toolbar/limits_fit_y", QKeySequence("Shift+Ctrl+/,y"));
     auto actZoomIn = A1_(tr("Zoom-in"), this, IN_ACTIVE_PLOT(zoomIn), ":/toolbar/limits_zoom_in", QKeySequence("Ctrl+Alt+="));
     auto actZoomOut = A1_(tr("Zoom-out"), this, IN_ACTIVE_PLOT(zoomOut), ":/toolbar/limits_zoom_out", QKeySequence("Ctrl+Alt+-"));
     auto actZoomInX = A1_(tr("Zoom-in X"), this, IN_ACTIVE_PLOT(zoomInX), ":/toolbar/limits_zoom_in_x", QKeySequence("Alt+="));
@@ -305,15 +305,15 @@ void MainWindow::createActions()
     auto actZoomOutY = A1_(tr("Zoom-out Y"), this, IN_ACTIVE_PLOT(zoomOutY), ":/toolbar/limits_zoom_out_y", QKeySequence("Ctrl+-"));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Limits"), this, {
-        actLimitsBoth, actAutolimits, /*actFitSelection,*/ actZoomIn, actZoomOut, 0,
-        actLimitsX, actAutolimitsX, /*actFitSelectionX,*/ actZoomInX, actZoomOutX, 0,
-        actLimitsY, actAutolimitsY, /*actFitSelectionY,*/ actZoomInY, actZoomOutY,
+        /*actLimitsBoth,*/ actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
+        actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
+        actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
     }));
 
     addToolBar(Qt::RightToolBarArea, Ori::Gui::toolbar(tr("Limits"), "limits", {
-        actLimitsBoth, actAutolimits, /*actFitSelection,*/ actZoomIn, actZoomOut, 0,
-        actLimitsX, actAutolimitsX, /*actFitSelectionX,*/ actZoomInX, actZoomOutX, 0,
-        actLimitsY, actAutolimitsY, /*actFitSelectionY,*/ actZoomInY, actZoomOutY,
+        /*actLimitsBoth,*/ actAutolimits, actFitSelection, actZoomIn, actZoomOut, 0,
+        actLimitsX, actAutolimitsX, actFitSelectionX, actZoomInX, actZoomOutX, 0,
+        actLimitsY, actAutolimitsY, actFitSelectionY, actZoomInY, actZoomOutY,
     }));
 
     //---------------------------------------------------------

@@ -2,6 +2,7 @@
 
 #include "Operations.h"
 #include "core/FileUtils.h"
+#include "core/GraphMath.h"
 #include "core/Project.h"
 #include "core/ProjectFile.h"
 #include "app/PersistentState.h"
@@ -26,7 +27,8 @@ PlotWindow::PlotWindow(Operations *operations, Diagram *diagram, QWidget *parent
 {
     _plot = new QCPL::Plot({.replaceDefaultAxes=true});
     _plot->formatAxisTitleAfterFactorSet = true;
-    _plot->highlightAxesOfSelectedGraphs = AppSettings::instance().highlightAxesOfSelectedGraphs;;
+    _plot->autolimitOnlyPrimaryAxes = false;
+    _plot->manualLimitOnlyPrimaryAxes = false;
     foreach (auto axis, _plot->defaultAxes())
         addAxisVars(axis);
     _plot->setPlottingHint(QCP::phFastPolylines, true);
@@ -51,6 +53,7 @@ PlotWindow::PlotWindow(Operations *operations, Diagram *diagram, QWidget *parent
 
     setWindowIcon(_diagram->icon());
     handleDiagramRenamed();
+    applyAppSettings();
 }
 
 PlotWindow::~PlotWindow()
@@ -185,8 +188,8 @@ void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
 
 void PlotWindow::addAxisVars(QCPAxis* axis)
 {
-    _plot->addTextVar(axis, "{factor}", tr("Axis factor"), [this, axis]{ return QCPL::axisFactorStr(_plot->axisFactor(axis)); });
-    _plot->addTextVar(axis, "{(factor)}", tr("Axis factor (in brackets)"), [this, axis]{
+    _plot->putTextVar(axis, "{factor}", tr("Axis factor"), [this, axis]{ return QCPL::axisFactorStr(_plot->axisFactor(axis)); });
+    _plot->putTextVar(axis, "{(factor)}", tr("Axis factor (in brackets)"), [this, axis]{
         auto s = QCPL::axisFactorStr(_plot->axisFactor(axis)); return s.isEmpty() ? QString() : QStringLiteral("(%1)").arg(s); });
 }
 
@@ -325,6 +328,7 @@ void PlotWindow::handleGraphDeleting(const QString &id)
     _items.removeAll(item);
     delete item;
 
+    _plot->updateAxesInteractivity();
     _plot->replot();
 }
 
@@ -343,12 +347,12 @@ void PlotWindow::deleteGraph()
         _diagram->deleteGraphs(graphs);
 }
 
-void PlotWindow::limitsDlg()
-{
-    if (_plot->limitsDlgXY())
-        // TODO if limits changed
-        _diagram->markModified("PlotWindow::limitsDlg");
-}
+// void PlotWindow::limitsDlg()
+// {
+//     if (_plot->limitsDlgXY())
+//         // TODO if limits changed
+//         _diagram->markModified("PlotWindow::limitsDlg");
+// }
 
 void PlotWindow::limitsDlgX()
 {
@@ -384,43 +388,76 @@ void PlotWindow::autolimitsY()
     // TODO if limits changed
     _diagram->markModified("PlotWindow::autolimitsY");
 }
-/*
+
+void PlotWindow::limitsToSelection(bool x, bool y)
+{
+    QMap<QCPAxis*, QPair<double, double>> limits;
+    for (auto g : selectedGraphs())
+    {
+        auto it = itemForGraph(g);
+        if (!it) continue; 
+        
+        // TODO: process only visible part
+        auto minMax = GraphMath::minMax(g->data());
+        
+        if (x)
+        {
+            auto min = minMax.minX;
+            auto max = minMax.maxX;
+            auto axis = it->line->keyAxis();
+            if (limits.contains(axis))
+            {
+                auto [prevMin, prevMax] = limits[axis];
+                min = qMin(min, prevMin);
+                max = qMax(max, prevMax);
+            }
+            limits[axis] = {min, max};
+        }
+        
+        if (y)
+        {
+            auto min = minMax.minY.y;
+            auto max = minMax.maxY.y;
+            auto axis = it->line->valueAxis();
+            if (limits.contains(axis))
+            {
+                auto [prevMin, prevMax] = limits[axis];
+                min = qMin(min, prevMin);
+                max = qMax(max, prevMax);
+            }
+            limits[axis] = {min, max};
+        }
+    }
+    bool changed = false;
+    for (auto it = limits.cbegin(); it != limits.cend(); it++)
+    {
+        auto [min, max] = it.value();
+        _plot->setLimits(it.key(), min, max, false);
+        // TODO if limits changed
+        changed = true;
+    }
+    if (changed)
+    {
+        _plot->replot();
+        _diagram->markModified("PlotWindow::limitsToSelection");
+    }
+}
+
 void PlotWindow::limitsToSelection()
 {
-    // TODO: process multiselection
-    auto g = selectedGraph();
-    if (!g) return;
-    auto minMax = GraphMath::minMax(g->data());
-    _plot->setLimitsX(minMax.minX, minMax.maxX, false);
-    _plot->setLimitsY(minMax.minY.y, minMax.maxY.y);
-    // TODO if limits changed
-    markModified("PlotWindow::limitsToSelection");
+    limitsToSelection(true, true);
 }
 
 void PlotWindow::limitsToSelectionX()
 {
-    // TODO: process multiselection
-    auto g = selectedGraph();
-    if (!g) return;
-    // TODO: process only visible part
-    auto minMax = GraphMath::minMax(g->data());
-    _plot->setLimitsX(minMax.minX, minMax.maxX);
-    // TODO if limits changed
-    markModified("PlotWindow::limitsToSelectionX");
+    limitsToSelection(true, false);
 }
 
 void PlotWindow::limitsToSelectionY()
 {
-    // TODO: process multiselection
-    auto g = selectedGraph();
-    if (!g) return;
-    // TODO: process only visible part
-    auto minMax = GraphMath::minMax(g->data());
-    _plot->setLimitsY(minMax.minY.y, minMax.maxY.y);
-    // TODO if limits changed
-    markModified("PlotWindow::limitsToSelectionY");
+    limitsToSelection(false, true);
 }
-*/
+
 void PlotWindow::zoomIn() { _plot->zoomIn(); }
 void PlotWindow::zoomOut() { _plot->zoomOut(); }
 void PlotWindow::zoomInX() { _plot->zoomInX(); }
@@ -503,6 +540,7 @@ void PlotWindow::selectGraphLine(QCPGraph* line, bool replot)
 {
     _plot->deselectAll();
     line->setSelection(QCPDataSelection(line->data()->dataRange()));
+    _plot->updateAxesInteractivity();
     if (replot) _plot->replot();
 }
 
@@ -609,6 +647,7 @@ void PlotWindow::addAxisBottom()
 {
     auto axis = _plot->addAxis(QCPAxis::atBottom);
     addAxisVars(axis);
+    _plot->updateAxesInteractivity();
     _plot->replot();
 }
 
@@ -616,6 +655,7 @@ void PlotWindow::addAxisLeft()
 {
     auto axis = _plot->addAxis(QCPAxis::atLeft);
     addAxisVars(axis);
+    _plot->updateAxesInteractivity();
     _plot->replot();
 }
 
@@ -623,6 +663,7 @@ void PlotWindow::addAxisTop()
 {
     auto axis = _plot->addAxis(QCPAxis::atTop);
     addAxisVars(axis);
+    _plot->updateAxesInteractivity();
     _plot->replot();
 }
 
@@ -630,6 +671,7 @@ void PlotWindow::addAxisRight()
 {
     auto axis = _plot->addAxis(QCPAxis::atRight);
     addAxisVars(axis);
+    _plot->updateAxesInteractivity();
     _plot->replot();
 }
 
@@ -844,6 +886,7 @@ void PlotWindow::changeGraphAxes()
             _plot->autolimits(res.y, false);
     }
     if (changed) {
+        _plot->updateAxesInteractivity();
         _plot->replot();
         _diagram->markModified("PlotWindow::changeGraphAxes");
     }
@@ -851,7 +894,15 @@ void PlotWindow::changeGraphAxes()
 
 void PlotWindow::settingsChanged()
 {
-    _plot->highlightAxesOfSelectedGraphs = AppSettings::instance().highlightAxesOfSelectedGraphs;
+    applyAppSettings();
+}
+
+void PlotWindow::applyAppSettings()
+{
+    const auto &s = AppSettings::instance();
+    _plot->highlightAxesOfSelectedGraphs = s.highlightAxesOfSelectedGraphs;
+    _plot->lockPanZoomToSelectedGraphs = s.lockPanZoomToSelectedGraphs;
+    _plot->updateAxesInteractivity();
 }
 
 QHash<const void*, QJsonObject> PlotWindow::getFormats() const
@@ -871,3 +922,4 @@ QHash<const void*, QJsonObject> PlotWindow::getFormats() const
     }
     return formats;
 }
+

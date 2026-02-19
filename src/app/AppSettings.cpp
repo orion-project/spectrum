@@ -50,6 +50,7 @@ void AppSettings::load()
     LOAD(autolitmAfterAxesChanged, Bool, true);
     LOAD(highlightAxesOfSelectedGraphs, Bool, true);
     LOAD(selectNewGraph, Bool, true);
+    LOAD(lockPanZoomToSelectedGraphs, Bool, true);
 }
 
 void AppSettings::save()
@@ -61,6 +62,7 @@ void AppSettings::save()
     SAVE(autolitmAfterAxesChanged);
     SAVE(highlightAxesOfSelectedGraphs);
     SAVE(selectNewGraph);
+    SAVE(lockPanZoomToSelectedGraphs);
 }
 
 bool AppSettings::edit()
@@ -74,8 +76,12 @@ bool AppSettings::edit()
     opts.items = {
         new ConfigItemBool(0, tr("Select just created graphs"), &selectNewGraph),
         new ConfigItemBool(0, tr("Autolimit axes after creating graphs"), &autolimitAfterGraphGreated),
-        new ConfigItemBool(0, tr("Autolimit axes after choosing them for graph"), &autolitmAfterAxesChanged),
+        new ConfigItemSpace(0, 12),
+        (new ConfigItemSection(0, tr("Multi-axis")))
+            ->withHint(tr("The next options make sense only if there are several axes of the same orientation")),
+        new ConfigItemBool(0, tr("Autolimit axes after they was assigned to graph"), &autolitmAfterAxesChanged),
         new ConfigItemBool(0, tr("Highlight axes of selected graphs"), &highlightAxesOfSelectedGraphs),
+        new ConfigItemBool(0, tr("Use only selected graphs' axes for pan and zoom"), &lockPanZoomToSelectedGraphs),
     };
     if (ConfigDlg::edit(opts))
     {
