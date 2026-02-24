@@ -1,5 +1,7 @@
 #include "HelpSystem.h"
 
+#include "app/AppSettings.h"
+
 #include "core/OriVersion.h"
 #include "helpers/OriLayouts.h"
 #include "helpers/OriDialogs.h"
@@ -40,6 +42,11 @@ namespace Z {
 
 HelpSystem::HelpSystem() : QObject()
 {
+    if (AppSettings::instance().isDevMode)
+    {
+        Ori::HelpWindow::isDevMode = true;
+        Ori::HelpWindow::getHelpDir = []{ return QString(qApp->applicationDirPath() + "/../help"); };
+    }
 }
 
 HelpSystem* HelpSystem::instance()

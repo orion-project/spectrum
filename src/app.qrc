@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/toolbar">
         <file alias="add_file">../img/toolbar/add_file.svg</file>
+        <file alias="add_formula">../img/toolbar/add_formula.svg</file>
         <file alias="add_random">../img/toolbar/add_dice.svg</file>
         <file alias="add_table">../img/toolbar/add_table.svg</file>
         <file alias="axis_bottom">../img/toolbar/axis_bottom.svg</file>
@@ -9,6 +10,8 @@
         <file alias="axis_right">../img/toolbar/axis_right.svg</file>
         <file alias="bug">../img/toolbar/bug.svg</file>
         <file alias="book">../img/toolbar/book.svg</file>
+        <file alias="check">../img/toolbar/check.svg</file>
+        <file alias="clear_log">../img/toolbar/clear_log.svg</file>
         <file alias="copy">../img/toolbar/copy.svg</file>
         <file alias="copy_fmt">../img/toolbar/copy_format.svg</file>
         <file alias="copy_img">../img/toolbar/copy_img.svg</file>
@@ -51,6 +54,7 @@
         <file alias="limits_zoom_in">../img/toolbar/limits_zoom_in.svg</file>
         <file alias="limits_zoom_out_x">../img/toolbar/limits_zoom_out_x.svg</file>
         <file alias="limits_zoom_out_y">../img/toolbar/limits_zoom_out_y.svg</file>
+        <file alias="menu_sm">../img/toolbar/menu_sm.svg</file>
         <file alias="limits_zoom_out">../img/toolbar/limits_zoom_out.svg</file>
         <file alias="navigate_back">../img/toolbar/navigate_back.svg</file>
         <file alias="navigate_fwd">../img/toolbar/navigate_fwd.svg</file>
@@ -58,6 +62,7 @@
         <file alias="open_format">../img/toolbar/open_format.svg</file>
         <file alias="panel_datagrid">../img/toolbar/panel_datagrid.svg</file>
         <file alias="page">../img/toolbar/page.svg</file>
+        <file alias="page_insert">../img/toolbar/page_insert.svg</file>
         <file alias="paste">../img/toolbar/paste.svg</file>
         <file alias="paste_fmt">../img/toolbar/paste_format.svg</file>
         <file alias="paste_table">../img/toolbar/paste_table.svg</file>
@@ -72,6 +77,7 @@
         <file alias="save_format">../img/toolbar/save_format.svg</file>
         <file alias="save_img">../img/toolbar/save_img.svg</file>
         <file alias="settings">../img/toolbar/settings.svg</file>
+        <file alias="star">../img/toolbar/star.svg</file>
         <file alias="title_x">../img/toolbar/title_x.svg</file>
         <file alias="title_y">../img/toolbar/title_y.svg</file>
         <file alias="todo">../img/toolbar/todo.svg</file>
@@ -90,6 +96,7 @@
     <qresource prefix="/syntax">
         <file alias="css">../libs/orion/syntax/css.ohl</file>
         <file alias="qss">../libs/orion/syntax/qss.ohl</file>
+        <file alias="lua">../libs/orion/syntax/lua.ohl</file>
     </qresource>
     <qresource prefix="/style">
         <file alias="app">app.qss</file>

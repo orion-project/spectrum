@@ -65,6 +65,7 @@ set(PROJECT_SOURCES
     src/core/DataSources.h src/core/DataSources.cpp
     src/core/FileUtils.h src/core/FileUtils.cpp
     src/core/GraphMath.h src/core/GraphMath.cpp
+    src/core/LuaHelper.h src/core/LuaHelper.cpp
     src/core/Modifiers.h src/core/Modifiers.cpp
     src/core/Project.h src/core/Project.cpp
     src/core/ProjectFile.h src/core/ProjectFile.cpp
@@ -72,7 +73,9 @@ set(PROJECT_SOURCES
     src/dialogs/OpenFileDlg.h src/dialogs/OpenFileDlg.cpp
     src/tests/test_DataReaders.cpp
     src/tests/test_GraphMath.cpp
+    src/tests/test_LuaHelper.cpp
     src/tests/TestSuite.h
+    src/widgets/CodeEditor.h src/widgets/CodeEditor.cpp
     src/widgets/DataGridPanel.h src/widgets/DataGridPanel.cpp
     src/widgets/RangeEditor.h src/widgets/RangeEditor.cpp
     src/windows/MainWindow.h src/windows/MainWindow.cpp
@@ -105,12 +108,17 @@ endif()
 
 find_package(libzip CONFIG REQUIRED)
 
+# Add Lua library
+find_package(Lua REQUIRED)
+target_include_directories(${PROJECT_NAME} PRIVATE ${LUA_INCLUDE_DIR})
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     orion
     custom-plot-lab
     Qt::Widgets
     Qt::Network
     libzip::zip
+    lua
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

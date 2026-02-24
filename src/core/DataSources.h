@@ -133,6 +133,31 @@ private:
     friend class CsvConfigDialog;
 };
 
+
+class FormulaDataSource : public DataSource
+{
+public:
+    FormulaDataSource();
+    FormulaDataSource(const QString& code);
+    ConfigResult configure() override;
+    GraphResult read() override;
+    QString makeTitle() const override;
+    QString displayStr() const override { return QStringLiteral("Formula"); }
+    void save(QJsonObject &obj) const override;
+    void load(const QJsonObject &obj) override;
+    QString type() const override { return _type_(); }
+    static QString _type_() { return QStringLiteral("Formula"); }
+    void copyParams(DataSource *other) override;
+    QString code() const { return _code; }
+    
+    static GraphResult exec(const QString &code);
+    
+private:
+    int _index;
+    QString _code;
+    bool _dataReady = false;
+};
+
 DataSource* makeDataSource(const QString &type);
 
 #endif // DATA_SOURCES_H

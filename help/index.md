@@ -2,8 +2,9 @@
 
 ## Graph
 
-- [Refresh](refresh.md)
-- [Reopen](reopen.md)
+- [Refresh Graph](refresh.md)
+- [Reopen Graph](reopen.md)
+- [Add Graph From Formula](add_formula.md)
 
 ## Modify
 

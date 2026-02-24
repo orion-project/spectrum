@@ -9,6 +9,7 @@
 #include "core/ProjectFile.h"
 #include "dialogs/CsvConfigDialog.h"
 #include "dialogs/OpenFileDlg.h"
+#include "widgets/CodeEditor.h"
 #include "widgets/RangeEditor.h"
 
 #include "helpers/OriDialogs.h"
@@ -251,6 +252,20 @@ void Operations::addRandomSample()
     }
 }
 
+void Operations::addFormula()
+{
+    auto root = CustomDataHelpers::loadDataSourceStates();
+    auto state = root["formula"].toObject();
+    
+    auto dataSource = new FormulaDataSource(state["code"].toString()); 
+    if (addGraph(dataSource))
+    {
+        state["code"] = dataSource->code();
+        root["formula"] = state;
+        CustomDataHelpers::saveDataSourceStates(root);
+    }
+}
+
 void Operations::modifyOffset() { modifyGraph(new OffsetModifier); }
 void Operations::modifyReflect() { modifyGraph(new ReflectModifier); }
 void Operations::modifyFlip() { modifyGraph(new FlipModifier); }
@@ -266,17 +281,17 @@ void Operations::modifyFitLimits() { modifyGraph(new FitLimitsModifier); }
 void Operations::modifyDespike() { modifyGraph(new DespikeModifier); }
 void Operations::modifyDerivative() { modifyGraph(new DerivativeModifier); }
 
-void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad)
+bool Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLoad)
 {
     if (doConfig.value)
     {
         auto cr = dataSource->configure();
-        if (cr.ok)
+        if (!cr.ok)
         {
             if (!cr.error.isEmpty())
                 Ori::Dlg::error(cr.error);
             delete dataSource;
-            return;
+            return false;
         }
     }
 
@@ -287,10 +302,11 @@ void Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLo
     {
         Ori::Dlg::error(res);
         delete graph;
-        return;
+        return false;
     }
 
     emit graphCreated(graph);
+    return true;
 }
 
 void Operations::modifyGraph(Modifier *modParams)

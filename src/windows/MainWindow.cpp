@@ -190,13 +190,14 @@ void MainWindow::createActions()
     auto actAddClipboard = A0_(tr("From Clipboard"), tr("Create graph from Clipboard data"), _operations, SLOT(addFromClipboard()), ":/toolbar/paste");
     auto actAddCsvClipboard = A0_(tr("From Clipboard as CSV..."), tr("Create graphs from Clipboard data (with config dialog)"), _operations, SLOT(addFromClipboardCsv()), ":/toolbar/paste_table");
     auto actAddRandom = A0_(tr("Random Sample..."), tr("Add random sample graph"), _operations, SLOT(addRandomSample()), ":/toolbar/add_random");
+    auto actAddFormula = A0_(tr("From Formula..."), tr("Add formula graph"), _operations, SLOT(addFormula()), ":/toolbar/add_formula");
 
     menuBar->addMenu(Ori::Gui::menu(tr("Add"), this, {
-        actAddFile, actAddCsv, 0, actAddClipboard, actAddCsvClipboard, 0, actAddRandom,
+        actAddFile, actAddCsv, 0, actAddClipboard, actAddCsvClipboard, 0, actAddRandom, actAddFormula,
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Add"), "add", {
-        actAddFile, actAddCsv, 0, actAddRandom,
+        actAddFile, actAddCsv, 0, actAddRandom, actAddFormula,
     }));
 
     //---------------------------------------------------------

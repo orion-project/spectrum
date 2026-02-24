@@ -51,6 +51,7 @@ public slots:
     void addFromClipboard();
     void addFromClipboardCsv();
     void addRandomSample();
+    void addFormula();
     void modifyOffset();
     void modifyReflect();
     void modifyFlip();
@@ -76,7 +77,7 @@ private:
     Ori::MruFileList *_mruProjects;
     Ori::MruFileList *_mruPlotFormats;
     
-    void addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
+    bool addGraph(DataSource* dataSource, DoConfig doConfig = DoConfig(true), DoLoad doLoad = DoLoad(true));
     void modifyGraph(Modifier* modParams);
 };
 

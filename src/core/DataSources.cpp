@@ -1,8 +1,11 @@
 #include "DataSources.h"
 
 #include "CustomPrefs.h"
+#include "LuaHelper.h"
 #include "core/DataReaders.h"
+#include "widgets/CodeEditor.h"
 
+#include "helpers/OriDialogs.h"
 #include "helpers/OriTools.h"
 
 #include <QApplication>
@@ -31,6 +34,8 @@ DataSource* makeDataSource(const QString &type)
         return new ClipboardDataSource;
     if (type == ClipboardCsvDataSource::_type_())
         return new ClipboardCsvDataSource;
+    if (type == FormulaDataSource::_type_())
+        return new FormulaDataSource;
     return nullptr;
 }
 
@@ -204,9 +209,8 @@ RandomSampleDataSource::RandomSampleDataSource()
     _index = ++__randomSampleIndex;
 }
 
-RandomSampleDataSource::RandomSampleDataSource(const RandomSampleParams& params)
+RandomSampleDataSource::RandomSampleDataSource(const RandomSampleParams& params) : RandomSampleDataSource()
 {
-    _index = ++__randomSampleIndex;
     _params = params;
 }
 
@@ -342,4 +346,121 @@ void ClipboardCsvDataSource::copyParams(DataSource *other)
     CAST_OTHER_TYPE(ClipboardCsvDataSource)
     // don't copy _index
     _params = ds->_params;
+}
+
+//------------------------------------------------------------------------------
+//                              FormulaDataSource
+//------------------------------------------------------------------------------
+
+static int __formulaIndex = 0;
+
+FormulaDataSource::FormulaDataSource()
+{
+    _index = ++__formulaIndex;
+}
+
+FormulaDataSource::FormulaDataSource(const QString& code) : FormulaDataSource()
+{
+    _code = code;
+}
+
+DataSource::ConfigResult FormulaDataSource::configure()
+{
+    QSharedPointer<CodeEditor> editor(new CodeEditor);
+    editor->setCode(_code);
+    
+    if (Ori::Dlg::Dialog(editor)
+        .windowModal()
+        .withTitle(qApp->tr("Formula Code"))
+        .withSkipContentMargins()
+        .withStretchedContent()
+        .withInitialSize({500, 400})
+        .withPersistenceId("add_formula_dlg")
+        .withVerification([this, editor]{
+            auto res = editor->verify();
+            if (!res.ok())
+                return res.error();
+            _data = res.result();
+            _dataReady = true;
+            return QString();
+        })
+        .exec())
+    {
+        _code = editor->code();
+        return ConfigResult(true);
+    }
+    return ConfigResult(false);
+}
+
+GraphResult FormulaDataSource::read()
+{
+    if (_dataReady)
+    {
+        _dataReady = false;
+        return GraphResult::ok(_data);
+    }
+
+    auto res = exec(_code);
+    if (res.ok())
+        _data = res.result();
+
+    return res;
+}
+
+GraphResult FormulaDataSource::exec(const QString &code)
+{
+    // TODO: run in a separate thread to avoid blocking the app if user code started an infinite loop
+
+    Z::Lua lua;
+    QString err = lua.open();
+    if (!err.isEmpty())
+        return GraphResult::fail(err);
+        
+    err = lua.setCode(code);
+    if (!err.isEmpty())
+        return GraphResult::fail(err);
+        
+    err = lua.execute();
+    if (!err.isEmpty())
+        return GraphResult::fail(err);
+        
+    auto resX = lua.getGlobalArray("X");
+    if (!resX.ok())
+        return GraphResult::fail(resX.error());
+
+    auto resY = lua.getGlobalArray("Y");
+    if (!resY.ok())
+        return GraphResult::fail(resY.error());
+        
+    auto xs = resX.result();
+    auto ys = resY.result();
+    if (xs.size() != ys.size())
+        return GraphResult::fail(qApp->tr("Arrays of X and Y values have different sizes (%1 vs %2)").arg(xs.size()).arg(ys.size()));
+
+    return GraphResult::ok({xs, ys});
+}
+
+QString FormulaDataSource::makeTitle() const
+{
+    return QString("formula (%1)").arg(_index);
+}
+
+void FormulaDataSource::save(QJsonObject &obj) const
+{
+    obj["type"] = type();
+    obj["index"] = _index;
+    obj["code"] = _code;
+}
+
+void FormulaDataSource::load(const QJsonObject &obj)
+{
+    _index = obj["index"].toInt();
+    _code = obj["code"].toString();
+}
+
+void FormulaDataSource::copyParams(DataSource *other)
+{
+    CAST_OTHER_TYPE(FormulaDataSource)
+    // don't copy _index
+    _code = ds->_code;
 }

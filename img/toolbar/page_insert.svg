@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="24" height="24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <defs>
+  <linearGradient id="e-0" x1="20.5" x2="2.96" y1="11.8" y2="14.1" gradientTransform="matrix(.709 -.709 -.712 -.712 13.8 28.1)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#a1de92" offset="0"/>
+   <stop stop-color="#5f9652" offset="1"/>
+  </linearGradient>
+  <linearGradient id="f-8" x1="17.5" x2="7.98" y1="6.27" y2="14.7" gradientTransform="matrix(.709 -.709 -.712 -.712 13.8 28.1)" gradientUnits="userSpaceOnUse">
+   <stop stop-color="#50b938" offset="0"/>
+   <stop stop-color="#2f4b29" offset="1"/>
+  </linearGradient>
+ </defs>
+ <linearGradient id="a">
+  <stop stop-color="#92b1de" offset="0"/>
+  <stop stop-color="#525f96" offset="1"/>
+ </linearGradient>
+ <linearGradient id="b">
+  <stop stop-color="#fdffff" offset="0"/>
+  <stop stop-color="#b2d3fa" offset="1"/>
+ </linearGradient>
+ <linearGradient id="c" x1="5" x2="20" y1="3" y2="21" gradientTransform="matrix(1 0 0 .899 -3.5 -2.29)" gradientUnits="userSpaceOnUse" xlink:href="#b"/>
+ <linearGradient id="d" x1="18.1" x2="15.1" y1="4.9" y2="7.9" gradientTransform="translate(-5,-2)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+ <linearGradient id="e" x1="15" x2="18" y1="8" y2="5" gradientTransform="translate(-5,-2)" gradientUnits="userSpaceOnUse" xlink:href="#b"/>
+ <linearGradient id="f" x1="17.6" x2="4.4" y1="5.82" y2="23.8" gradientTransform="matrix(1 0 0 .899 -3.5 -2.29)" gradientUnits="userSpaceOnUse" xlink:href="#a"/>
+ <path d="m15.5 17v6.53h-15v-6.51m0-7.02v-9.47h8.9l6.1 6.1v3.39" fill="url(#c)" fill-rule="evenodd" stroke="url(#f)" stroke-dashoffset="21.4" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="m16 6.39-6.5 0.112 0.112-6.5" fill="url(#e)" fill-rule="evenodd"/>
+ <path d="m15.5 6.5h-6v-6" fill="none" stroke="url(#d)" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="m12 8-6 6 6 6v-4c10 0 11-5 11-14-2 7-3 10-11 10z" fill="url(#e-0)" fill-rule="evenodd" stroke="url(#f-8)" stroke-linejoin="round" stroke-width=".502"/>
+</svg>

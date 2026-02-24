@@ -4,6 +4,7 @@ history:
   changes:
   - text: 'Graphs selection dialog'
   - text: 'Function: Limits -> Fit Selection'
+  - text: 'Function: Add -> From Formula'
   - text: 'Can modify several graphs at the same time (multiselect)'
   - text: 'Account for selected axes when change limits if there are several axes of the same orientation'
   - text: '(FIX) Wrong column number substitution in graph title'
