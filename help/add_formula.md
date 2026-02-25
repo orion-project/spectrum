@@ -4,7 +4,7 @@
 ► Add ► From Formula...
 ```
 
-This data source allows for the generation of graph data from a custom formula written in [Lua](http://www.lua.org) code. The code just has to initialize two global variables `X` and `Y` as arrays of the same size.
+This data source allows for the generation of graph data from a custom formula written in [Lua](http://www.lua.org) code. The code just has to initialize two global variables `X` and `Y` as [arrays](./lua_primer.md#lua_array) of the same size.
 
 ## Presets
 

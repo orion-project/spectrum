@@ -1,6 +1,7 @@
 {
   "dependencies": [
     "libzip",
-    "lua"
+    "lua",
+    "md4c"
   ]
 }

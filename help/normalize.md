@@ -6,7 +6,7 @@
 
 The function normalizes the graph along given axis processing points by the formula: 
 
-<span style="font-family:Times New Roman;font-size:14pt"><i>V<sub>i</sub> = V<sub>i</sub> / factor</i></span>
+<p class="formula">V<sub>i</sub> = V<sub>i</sub> / factor</p>
 
 Where *V* is the *X* or *Y* values of the graph, depending on the chosen normalization direction.
 

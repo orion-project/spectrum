@@ -84,6 +84,7 @@ set(PROJECT_SOURCES
 
 set(ORI_WITH_TESTS ON)
 set(ORI_WITH_ZIP_HELP ON)
+set(ORI_WITH_MD4C_HELP ON)
 add_subdirectory(libs/orion)
 add_subdirectory(libs/custom-plot-lab)
 

@@ -3,11 +3,12 @@
 ```
 ► Modify ► Remove Spikes...
 ```
+
 The function deletes random spikes or pulses from the graph. Spikes are separate points falling off the data series described by the formula: 
 
-<span style="font-family:Times New Roman;font-size:14pt"><i>Y<sub>i</sub> = Y<sub>avg</sub> ± ΔY </i></span>
+<p class="formula">Y<sub>i</sub> = Y<sub>avg</sub> ± ΔY</p>
 
-The points whose values differ from the average value Y<sub>avg</sub> on more than acceptable deviation ΔY are reduced to the average value Y<sub>avg</sub>. 
+The points whose values differ from the average value *Y<sub>avg</sub>* on more than acceptable deviation *ΔY* are reduced to the average value *Y<sub>avg</sub>*. 
 
 The function can be useful for frequency stability analysis, in particular, when you have to eliminate random frequency pulses that are not intrinsic to the investigated system. Those pulses usually appear as a result of external noises and should not be taken into account. For example, see the file `sample/spikes.txt`.
 

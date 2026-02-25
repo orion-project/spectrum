@@ -65,7 +65,13 @@ QJsonObject ProjectFile::writeGraph(const Graph *g)
 QByteArray ProjectFile::writeGraphData(const Graph *g)
 {
     QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
+    QDataStream stream(&data,
+    #if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
+        QIODevice::WriteOnly
+    #else
+        QIODeviceBase::WriteOnly
+    #endif
+    );
     stream.setVersion(QDataStream::Qt_5_12);
     stream << quint32(g->pointsCount());
     for (const auto &v : g->data().xs)

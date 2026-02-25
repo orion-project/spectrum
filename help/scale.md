@@ -6,7 +6,7 @@
 
 The function normalizes the graph along given axis processing points by the formula: 
 
-<span style="font-family:Times New Roman;font-size:14pt"><i>V<sub>i</sub> = (V<sub>i</sub> - center) × factor + center</i></span>
+<p class="formula">V<sub>i</sub> = (V<sub>i</sub> - center) × factor + center</p>
 
 Where *V* is the *X* or *Y* values of the graph, depending on the chosen normalization direction, and the *center* value is chosen depending on the selected parameter.
 
