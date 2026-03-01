@@ -44,6 +44,8 @@ def make_package_for_windows():
   copy_files('..\\..\\bin', [
       PROJECT_EXE,
       'help.zip',
+      'lua.dll',
+      'md4c.dll', 'md4c-html.dll',
       'zip.dll', 'zlib1.dll', 'bz2.dll',
   ], '.')
   shutil.copytree('..\\..\\bin\\samples', 'samples')
