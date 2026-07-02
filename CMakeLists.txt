@@ -85,11 +85,13 @@ set(PROJECT_SOURCES
     src/core/Modifiers.h src/core/Modifiers.cpp
     src/core/Project.h src/core/Project.cpp
     src/core/ProjectFile.h src/core/ProjectFile.cpp
+    src/core/StringUtils.h src/core/StringUtils.cpp
     src/dialogs/CsvConfigDialog.h src/dialogs/CsvConfigDialog.cpp
     src/dialogs/OpenFileDlg.h src/dialogs/OpenFileDlg.cpp
     src/tests/test_DataReaders.cpp
     src/tests/test_GraphMath.cpp
     src/tests/test_LuaHelper.cpp
+    src/tests/test_StringUtils.cpp
     src/tests/TestSuite.h
     src/widgets/CodeEditor.h src/widgets/CodeEditor.cpp
     src/widgets/DataGridPanel.h src/widgets/DataGridPanel.cpp
