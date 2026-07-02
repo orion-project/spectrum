@@ -149,16 +149,41 @@ bool Operations::canClose()
     return true;
 }
 
+struct AddFromFileState : RecentDirState
+{
+    AddFromFileState()
+    {
+        root = CustomDataHelpers::loadDataSourceStates();
+        file = root["file"].toObject();
+    }
+
+    QString getRecentDir() override
+    {
+        return file["dir"].toString();
+    }
+    
+    void setRecentDir(const QString &dir) override
+    {
+        file["dir"] = dir;
+    }
+    
+    void save()
+    {
+        root["file"] = file;
+        CustomDataHelpers::saveDataSourceStates(root);
+    }
+    
+    QJsonObject root, file;
+};
+
 void Operations::addFromFile()
 {
-    auto states = CustomDataHelpers::loadDataSourceStates();
-    auto state = states["file"].toObject();
+    AddFromFileState state;
 
     OpenFileDlg dlg;
     if (dlg.open(&state))
     {
-        states["file"] = state;
-        CustomDataHelpers::saveDataSourceStates(states);
+        state.save();
 
         foreach (const QString& file, dlg.files)
             addGraph(new TextFileDataSource(file), DoConfig(false));

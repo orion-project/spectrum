@@ -4,15 +4,17 @@
 #include <QString>
 #include <QList>
 
-QT_BEGIN_NAMESPACE
-class QJsonObject;
-QT_END_NAMESPACE
+struct RecentDirState
+{
+    virtual QString getRecentDir() = 0;
+    virtual void setRecentDir(const QString &dir) = 0;
+};
 
 struct OpenFileDlg
 {
     QStringList files;
 
-    bool open(QJsonObject* state = nullptr);
+    bool open(RecentDirState* state = nullptr);
 };
 
 #endif // OPEN_FILE_DLG_H

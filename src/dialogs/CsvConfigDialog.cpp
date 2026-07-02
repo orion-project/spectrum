@@ -42,13 +42,23 @@ using namespace Ori::Layouts;
 //                                 CsvDlgState
 //------------------------------------------------------------------------------
 
-struct CsvDlgState
+struct CsvDlgState : RecentDirState
 {
     CsvDlgState()
     {
         root = CustomDataHelpers::loadDataSourceStates();
         file = root["file"].toObject();
         csv = root["csv"].toObject();
+    }
+    
+    QString getRecentDir() override
+    {
+        return file["dir"].toString();
+    }
+    
+    void setRecentDir(const QString &dir) override
+    {
+        file["dir"] = dir;
     }
 
     void applyTo(CsvConfigDialog& dlg)
@@ -106,7 +116,7 @@ CsvOpenResult CsvConfigDialog::openFile()
     CsvDlgState state;
 
     OpenFileDlg fileDlg;
-    if (!fileDlg.open(&state.file)) return CsvOpenResult();
+    if (!fileDlg.open(&state)) return CsvOpenResult();
 
     CsvConfigDialog csvDlg;
     csvDlg._files = fileDlg.files;

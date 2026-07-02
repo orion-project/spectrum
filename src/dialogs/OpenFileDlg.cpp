@@ -2,9 +2,8 @@
 
 #include <QApplication>
 #include <QFileDialog>
-#include <QJsonObject>
 
-bool OpenFileDlg::open(QJsonObject *state)
+bool OpenFileDlg::open(RecentDirState *state)
 {
     QFileDialog dlg(qApp->activeWindow());
     dlg.setFileMode(QFileDialog::ExistingFiles);
@@ -13,7 +12,7 @@ bool OpenFileDlg::open(QJsonObject *state)
     {
         if (state)
         {
-            auto dir = (*state)["dir"].toString();
+            auto dir = state->getRecentDir();
             if (!dir.isEmpty())
                 dlg.setDirectory(dir);
         }
@@ -28,7 +27,7 @@ bool OpenFileDlg::open(QJsonObject *state)
         return false;
 
     if (state)
-        (*state)["dir"] = dlg.directory().path();
+        state->setRecentDir(dlg.directory().path());
 
     return true;
 }
