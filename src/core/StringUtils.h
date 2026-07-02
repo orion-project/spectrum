@@ -14,7 +14,8 @@ float diceSimilarity(const QString& s1, const QString& s2);
 // counts the number of edits needed to transform one string into another.
 int levenshteinDistance(const QString& s1, const QString& s2);
 
-int selectSimilarFileName(const QString& fileName, const QStringList& fileNames);
+struct SimilarItem { int index; float score; };
+SimilarItem selectDiceSimilar(const QString& str, const QStringList& strs);
 }
 
 #endif // STRING_UTILS_H

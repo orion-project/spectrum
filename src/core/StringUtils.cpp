@@ -99,28 +99,34 @@ static QString replaceDigits(const QString &str)
     return s;
 }
 
-int selectSimilarFileName(const QString& fileName, const QStringList& fileNames)
+SimilarItem selectDiceSimilar(const QString& str, const QStringList& strs)
 {
-    if (fileName.length() < 2)
-        return -1;
+    int exactMatchIndex = strs.indexOf(str);
+    if (exactMatchIndex >= 0)
+        return {exactMatchIndex, 1};
 
-    QString fn = replaceDigits(fileName);
+    if (str.length() < 2)
+        return {-1, 0};
+        
+    QString s = replaceDigits(str);
     QSet<QStringView> bigrams1;
-    for (int i = 0; i < fn.length() - 1; i++)
-        bigrams1.insert(QStringView(fn).mid(i, 2));
+    for (int i = 0; i < s.length() - 1; i++)
+        bigrams1.insert(QStringView(s).mid(i, 2));
 
     int maxIndex = -1;
-    double maxSimilarity = 0;
-    for (int i = 0; i < fileNames.size(); i++)
+    float maxScore = 0;
+    for (int i = 0; i < strs.size(); i++)
     {
-        auto similarity = diceSimilarity(bigrams1, replaceDigits(fileNames.at(i)));
-        if (similarity >= maxSimilarity)
+        float score = diceSimilarity(bigrams1, replaceDigits(strs.at(i)));
+        if (score >= maxScore)
         {
-            maxSimilarity = similarity;
+            maxScore = score;
             maxIndex = i;
         }
     }
-    return maxSimilarity > 0.85 ? maxIndex : -1;
+    if (maxScore > 0.85)
+        return {maxIndex, maxScore};
+    return {-1, 0};
 }
 
 }

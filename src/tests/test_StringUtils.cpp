@@ -112,17 +112,17 @@ TEST_METHOD(various_names)
         "220429_2_Freq_A_1.allan.txt", // 6
     };
     
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_1.csv", fileNames), 0);
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_2.csv", fileNames), 0);
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_20260703.csv", fileNames), 0);
-    ASSERT_EQ_INT(selectSimilarFileName("led_measur_3.csv", fileNames), 2);
-    ASSERT_EQ_INT(selectSimilarFileName("led_measur_2025-05-21.csv", fileNames), 3);
-    ASSERT_EQ_INT(selectSimilarFileName("led_measur_2025-05-21.csv", fileNames), 3);
-    ASSERT_EQ_INT(selectSimilarFileName("260219_laser1550.dat", fileNames), 4);
-    ASSERT_EQ_INT(selectSimilarFileName("260219_laser1551.dat", fileNames), 4);
-    ASSERT_EQ_INT(selectSimilarFileName("260219_lasernoise1551.dat", fileNames), -1);
-    ASSERT_EQ_INT(selectSimilarFileName("noise_260219.dat", fileNames), -1);
-    ASSERT_EQ_INT(selectSimilarFileName("220512_1_Freq_A_1.allan.txt", fileNames), 6);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_1.csv", fileNames).index, 0);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_2.csv", fileNames).index, 0);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_20260703.csv", fileNames).index, 0);
+    ASSERT_EQ_INT(selectDiceSimilar("led_measur_3.csv", fileNames).index, 2);
+    ASSERT_EQ_INT(selectDiceSimilar("led_measur_2025-05-21.csv", fileNames).index, 3);
+    ASSERT_EQ_INT(selectDiceSimilar("led_measur_2025-05-21.csv", fileNames).index, 3);
+    ASSERT_EQ_INT(selectDiceSimilar("260219_laser1550.dat", fileNames).index, 4);
+    ASSERT_EQ_INT(selectDiceSimilar("260219_laser1551.dat", fileNames).index, 4);
+    ASSERT_EQ_INT(selectDiceSimilar("260219_lasernoise1551.dat", fileNames).index, -1);
+    ASSERT_EQ_INT(selectDiceSimilar("noise_260219.dat", fileNames).index, -1);
+    ASSERT_EQ_INT(selectDiceSimilar("220512_1_Freq_A_1.allan.txt", fileNames).index, 6);
 }
 
 TEST_METHOD(not_very_different_names)
@@ -133,9 +133,9 @@ TEST_METHOD(not_very_different_names)
         "led_measur_2025-04-21.csv",
     };
 
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_1.csv", fileNames), -1);
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_2.csv", fileNames), -1);
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_20260703.csv", fileNames), -1);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_1.csv", fileNames).index, -1);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_2.csv", fileNames).index, -1);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_20260703.csv", fileNames).index, -1);
 }
 
 TEST_METHOD(very_different_names)
@@ -145,11 +145,10 @@ TEST_METHOD(very_different_names)
         "220429_2_Freq_A_1.allan.txt",
     };
 
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_1.csv", fileNames), -1);
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_2.csv", fileNames), -1);
-    ASSERT_EQ_INT(selectSimilarFileName("mroi_measur_20260703.csv", fileNames), -1);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_1.csv", fileNames).index, -1);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_2.csv", fileNames).index, -1);
+    ASSERT_EQ_INT(selectDiceSimilar("mroi_measur_20260703.csv", fileNames).index, -1);
 }
-
 
 TEST_GROUP("SelectSimilarFileName",
     ADD_TEST(various_names),

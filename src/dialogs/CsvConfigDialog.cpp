@@ -3,6 +3,7 @@
 #include "CustomPrefs.h"
 #include "core/DataReaders.h"
 #include "core/DataSources.h"
+#include "core/StringUtils.h"
 #include "dialogs/OpenFileDlg.h"
 
 #include "tools/OriSettings.h"
@@ -49,6 +50,7 @@ struct CsvDlgState : RecentDirState
         root = CustomDataHelpers::loadDataSourceStates();
         file = root["file"].toObject();
         csv = root["csv"].toObject();
+        history = CustomDataHelpers::loadCustomData("csv_history");
     }
     
     QString getRecentDir() override
@@ -59,6 +61,32 @@ struct CsvDlgState : RecentDirState
     void setRecentDir(const QString &dir) override
     {
         file["dir"] = dir;
+    }
+    
+    void selectParams(const QStringList &openFilesPaths)
+    {
+        for (const QString& openFilePath : openFilesPaths)
+            openFileNames << QFileInfo(openFilePath).fileName();
+    
+        QStringList historyKeys = history.keys();
+        int historyIndex = -1;
+        float maxScore = 0;
+        
+        for (const QString& openFileName : std::as_const(openFileNames))
+        {
+            auto item = StringUtils::selectDiceSimilar(openFileName, historyKeys);
+            if (item.index >= 0 && item.score >= maxScore)
+            {
+                historyIndex = item.index;
+                maxScore = item.score;
+            }
+        }
+        
+        if (historyIndex >= 0)
+        {
+            csv = history[historyKeys.at(historyIndex)].toObject();
+            csv.remove("date");
+        }
     }
 
     void applyTo(CsvConfigDialog& dlg)
@@ -102,9 +130,21 @@ struct CsvDlgState : RecentDirState
         root["file"] = file;
         root["csv"] = csv;
         CustomDataHelpers::saveDataSourceStates(root);
+        
+        if (!openFileNames.isEmpty())
+        {
+            // TODO: clean old items, otherwise the next openings will be slower and slower
+            csv["date"] = QDateTime::currentDateTime().toString(Qt::ISODate);
+            
+            for (const QString& key : std::as_const(openFileNames))
+                history[key] = csv;
+
+            CustomDataHelpers::saveCustomData(history, "csv_history");
+        }
     }
 
-    QJsonObject root, file, csv;
+    QJsonObject root, file, csv, history;
+    QStringList openFileNames;
 };
 
 //------------------------------------------------------------------------------
@@ -122,6 +162,7 @@ CsvOpenResult CsvConfigDialog::openFile()
     csvDlg._files = fileDlg.files;
     csvDlg._dataSource = fileDlg.files.size() > 1 ? QStringLiteral("{ds}")
         : QFileInfo(fileDlg.files.first()).fileName();
+    state.selectParams(fileDlg.files);
     state.applyTo(csvDlg);
 
     if (!csvDlg.exec())
