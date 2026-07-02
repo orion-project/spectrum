@@ -4,7 +4,7 @@
 
 ### Qt
 
-[Qt for Open Source](https://www.qt.io/download-open-source) must be installed. The target Qt version for all platforms is 5.15.2 currently. For Windows select the "MSVC 2019 64-bit" flavour. QtCreator is the default IDE used for the project.
+[Qt for Open Source](https://www.qt.io/download-open-source) must be installed. The target Qt version for all platforms is 5.15.2 currently. For Windows select the "MSVC 2019 64-bit" flavour. [Qt Creator](https://github.com/qt-creator/qt-creator) is the default IDE used for the project. When Qt Online installer is not available, a pure cmake+vcpkg way is avalable, see below.
 
 ### Visual Studio
 
@@ -25,18 +25,6 @@ git clone https://github.com/microsoft/vcpkg.git
 ```
 
 Then run `bootstrap-vcpkg.sh` or `bootstrap-vcpkg.bat` depending on the platform, add the vcpkg directory to the `PATH`, and create the `VCPKG_ROOT` variable containing the installation path.
-
-Download and compile dependencies in the project directory:
-
-```bash
-vcpkg install
-```
-
-When configuring project in QtCreator, add additional option in the CMake Initial Configuration tab and reconfigure. It must pointing to the installed vcpkg toolchain file location, e.g.:
-
-```
--DCMAKE_TOOLCHAIN_FILE:FILEPATH=/home/user/vcpkg/scripts/buildsystems/vcpkg.cmake
-```
 
 ### Qt quirks
 
@@ -83,8 +71,54 @@ git submodule init
 git submodule update
 ```
 
-## Dev build
+## Build
 
-Use *Qt Creator IDE* to do dev builds. Just open project file `CMakeLists.txt` in the IDE and configure it to use the installed Qt-kit. The target Qt version for all platforms is 5.15.2 currently. Any of newer versions should also fir but probably will require code adjustments.
+### With Qt Creator
+
+Download and compile dependencies in the project directory:
+
+```bash
+vcpkg install
+```
+
+Open project file `CMakeLists.txt` in the IDE and configure it to use one of the installed Qt kits. The target Qt version for all platforms is 5.15.2 currently. Any of newer versions should also fit but probably will require code adjustments.
+
+When configuring project in QtCreator, add an additional option in the "CMake Initial Configuration" tab and reconfigure. It must pointing to the installed vcpkg toolchain file location, e.g.:
+
+```
+-DCMAKE_TOOLCHAIN_FILE:FILEPATH=/home/user/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
 
 Target file is `bin/spectrum` (Linux), `bin/spectrum.app` (MacOS), or `bin\spectrum.exe` (Windows). 
+
+### Pure cmake+vcpkg build
+
+Prepare build directory, configure the project, and build the app. The command downloads and compiles all dependecies, including Qt, locally and puts them into `build-qt6/vcpkg_installed` directiory. Be prepared, this takes a significant time and disk space.
+
+```bash
+mkdir build-qt6
+cd build-qt6
+cmake .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%/scripts/buildsystems/vcpkg.cmake -DUSE_VCPKG_QT6=ON
+
+# Build in debug mode, results will be in build-qt6/Debug
+cmake --build .
+
+# Build in release mode, results will be in build-qt6/Release
+cmake --build . --config Release
+```
+
+Qt needs to see its plugins, so make configuration files in target directories:
+
+`build-qt6/Release/qt.conf`:
+
+```ini
+[Paths]
+Plugins = ../vcpkg_installed/x64-windows/Qt6/plugins
+```
+
+`build-qt6/Debug/qt.conf`:
+
+```ini
+[Paths]
+Plugins = ../vcpkg_installed/x64-windows/debug/Qt6/plugins
+```
