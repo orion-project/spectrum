@@ -33,7 +33,9 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QToolBar>
+#ifdef USE_VCPKG_QT
 #include <QSvgGenerator>
+#endif
 
 using Ori::Gui::PopupMessage;
 
@@ -95,9 +97,11 @@ MainWindow::MainWindow(const QString &fileName, QWidget *parent)
         }
     });
 
+#ifdef USE_VCPKG_QT
     // No-op, just forces cmake to copy Qt6Svg.dll into target dir.
     // But without that DLL all SVG icons are not rendered.
     QSvgGenerator();
+#endif
 }
 
 MainWindow::~MainWindow()

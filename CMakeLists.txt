@@ -168,7 +168,10 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 if (USE_VCPKG_QT6 OR USE_VCPKG_QT5)
     # it's supposed that the target exe is in `CMAKE_CURRENT_SOURCE_DIR/build*/(Debug|Release)`
-    target_compile_definitions(${PROJECT_NAME} PRIVATE DEV_HELP_DIR="/../../help")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        DEV_HELP_DIR="/../../help"
+        USE_VCPKG_QT
+    )
 else()
     # it's supposed that the target exe is in `CMAKE_CURRENT_SOURCE_DIR/bin`
     target_compile_definitions(${PROJECT_NAME} PRIVATE DEV_HELP_DIR="/../help")

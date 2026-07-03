@@ -75,7 +75,7 @@ private:
     void initReader(CsvMultiReader& reader, QString fileName = QString());
     QString valueSeparators() const;
 
-    friend struct CsvDlgState;
+    friend struct CsvOpenParams;
 };
 
 #endif // CSV_CONFIG_DIALOG_H

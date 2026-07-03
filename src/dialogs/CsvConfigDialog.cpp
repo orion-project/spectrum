@@ -40,54 +40,12 @@
 using namespace Ori::Layouts;
 
 //------------------------------------------------------------------------------
-//                                 CsvDlgState
+//                               CsvOpenParams
 //------------------------------------------------------------------------------
 
-struct CsvDlgState : RecentDirState
+struct CsvOpenParams
 {
-    CsvDlgState()
-    {
-        root = CustomDataHelpers::loadDataSourceStates();
-        file = root["file"].toObject();
-        csv = root["csv"].toObject();
-        history = CustomDataHelpers::loadCustomData("csv_history");
-    }
-    
-    QString getRecentDir() override
-    {
-        return file["dir"].toString();
-    }
-    
-    void setRecentDir(const QString &dir) override
-    {
-        file["dir"] = dir;
-    }
-    
-    void selectParams(const QStringList &openFilesPaths)
-    {
-        for (const QString& openFilePath : openFilesPaths)
-            openFileNames << QFileInfo(openFilePath).fileName();
-    
-        QStringList historyKeys = history.keys();
-        int historyIndex = -1;
-        float maxScore = 0;
-        
-        for (const QString& openFileName : std::as_const(openFileNames))
-        {
-            auto item = StringUtils::selectDiceSimilar(openFileName, historyKeys);
-            if (item.index >= 0 && item.score >= maxScore)
-            {
-                historyIndex = item.index;
-                maxScore = item.score;
-            }
-        }
-        
-        if (historyIndex >= 0)
-        {
-            csv = history[historyKeys.at(historyIndex)].toObject();
-            csv.remove("date");
-        }
-    }
+    CsvOpenParams(QJsonObject &csv) : csv(csv) {}
 
     void applyTo(CsvConfigDialog& dlg)
     {
@@ -128,6 +86,55 @@ struct CsvDlgState : RecentDirState
         csv["preview_lines_count"] = dlg._previewLinesCount->value();
     }
 
+    QJsonObject& csv;
+};
+
+//------------------------------------------------------------------------------
+//                               CsvFileDlgState
+//------------------------------------------------------------------------------
+
+struct CsvFileDlgState : RecentDirState
+{
+    CsvFileDlgState()
+    {
+        root = CustomDataHelpers::loadDataSourceStates();
+        file = root["file"].toObject();
+        csv = root["csv"].toObject();
+        history = CustomDataHelpers::loadCustomData("csv_history");
+    }
+    
+    QString getRecentDir() override { return file["dir"].toString(); }
+    void setRecentDir(const QString &dir) override { file["dir"] = dir; }
+    
+    void selectParams(const QStringList &openFilesPaths)
+    {
+        for (const QString& openFilePath : openFilesPaths)
+            openFileNames << QFileInfo(openFilePath).fileName();
+    
+        QStringList historyKeys = history.keys();
+        int historyIndex = -1;
+        float maxScore = 0;
+        
+        for (const QString& openFileName : std::as_const(openFileNames))
+        {
+            auto item = StringUtils::selectDiceSimilar(openFileName, historyKeys);
+            if (item.index >= 0 && item.score >= maxScore)
+            {
+                historyIndex = item.index;
+                maxScore = item.score;
+            }
+        }
+        
+        if (historyIndex >= 0)
+        {
+            csv = history[historyKeys.at(historyIndex)].toObject();
+            csv.remove("date");
+        }
+    }
+
+    void applyTo(CsvConfigDialog& dlg) { CsvOpenParams(csv).applyTo(dlg); }
+    void collectFrom(CsvConfigDialog& dlg) { CsvOpenParams(csv).collectFrom(dlg);}
+
     void save()
     {
         root["file"] = file;
@@ -151,12 +158,36 @@ struct CsvDlgState : RecentDirState
 };
 
 //------------------------------------------------------------------------------
+//                               CsvClipboardDlgState
+//------------------------------------------------------------------------------
+
+struct CsvClipboardDlgState
+{
+    CsvClipboardDlgState()
+    {
+        root = CustomDataHelpers::loadDataSourceStates();
+        csv = root["csv_clipboard"].toObject();
+    }
+    
+    void applyTo(CsvConfigDialog& dlg) { CsvOpenParams(csv).applyTo(dlg); }
+    void collectFrom(CsvConfigDialog& dlg) { CsvOpenParams(csv).collectFrom(dlg);}
+
+    void save()
+    {
+        root["csv_clipboard"] = csv;
+        CustomDataHelpers::saveDataSourceStates(root);
+    }
+
+    QJsonObject root, csv;
+};
+
+//------------------------------------------------------------------------------
 //                               CsvConfigDialog
 //------------------------------------------------------------------------------
 
 CsvOpenResult CsvConfigDialog::openFile()
 {
-    CsvDlgState state;
+    CsvFileDlgState state;
 
     OpenFileDlg fileDlg;
     if (!fileDlg.open(&state)) return CsvOpenResult();
@@ -222,8 +253,7 @@ CsvOpenResult CsvConfigDialog::openClipboard()
     csvDlg._dlgTitle = tr("Paste as CSV");
     csvDlg._dataSource = "Clipboard";
 
-    CsvDlgState state;
-    state.selectParams({"Clipboard"});
+    CsvClipboardDlgState state;
     state.applyTo(csvDlg);
 
     if (!csvDlg.exec())
