@@ -33,6 +33,7 @@
 #include <QTimer>
 #include <QToolButton>
 #include <QToolBar>
+#include <QSvgGenerator>
 
 using Ori::Gui::PopupMessage;
 
@@ -93,6 +94,10 @@ MainWindow::MainWindow(const QString &fileName, QWidget *parent)
             _operations->openPrjFile(fileName);
         }
     });
+
+    // No-op, just forces cmake to copy Qt6Svg.dll into target dir.
+    // But without that DLL all SVG icons are not rendered.
+    QSvgGenerator();
 }
 
 MainWindow::~MainWindow()

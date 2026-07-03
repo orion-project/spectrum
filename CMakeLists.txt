@@ -7,6 +7,10 @@ cmake_minimum_required(VERSION 3.16)
 set(USE_VCPKG_QT6 OFF CACHE BOOL "Build with Qt6 installed via vcpkg")
 set(USE_VCPKG_QT5 OFF CACHE BOOL "Build with Qt5 installed via vcpkg")
 
+if (USE_VCPKG_QT5 AND USE_VCPKG_QT6)
+    message(FATAL_ERROR "USE_VCPKG_QT5 and USE_VCPKG_QT6 must not be ON in the same time")
+endif()
+
 if(USE_VCPKG_QT6)
     set(VCPKG_MANIFEST_DIR "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/qt6")
 endif()
@@ -62,8 +66,8 @@ if(MSVC)
     add_compile_options(/wd4043)  # Disable STL4043 warning about stdext::checked_array_iterator
 endif()  
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport Network)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport Network)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets PrintSupport Network Svg)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets PrintSupport Network Svg)
 
 set(PROJECT_SOURCES
     ${CMAKE_CURRENT_BINARY_DIR}/version.rc
@@ -136,6 +140,8 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     custom-plot-lab
     Qt::Widgets
     Qt::Network
+    Qt::Svg
+    Qt::PrintSupport
     libzip::zip
     ${LUA_LIBRARIES}
 )
@@ -160,6 +166,13 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     APP_VER_YEAR=${APP_VER_YEAR}
     QT_USE_QSTRINGBUILDER
 )
+if (USE_VCPKG_QT6 OR USE_VCPKG_QT5)
+    # it's supposed that the target exe is in `CMAKE_CURRENT_SOURCE_DIR/build*/(Debug|Release)`
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DEV_HELP_DIR="/../../help")
+else()
+    # it's supposed that the target exe is in `CMAKE_CURRENT_SOURCE_DIR/bin`
+    target_compile_definitions(${PROJECT_NAME} PRIVATE DEV_HELP_DIR="/../help")
+endif()
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(${PROJECT_NAME})

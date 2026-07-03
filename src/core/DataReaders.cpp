@@ -290,7 +290,7 @@ QString TextReader::read()
     QVector<double> onlyY;
     ValueAutoParser valueParser;
 
-    for (const QStringView& line : qAsConst(lines))
+    for (const QStringView& line : std::as_const(lines))
     {
         if (line.isEmpty()) continue;
 
@@ -302,7 +302,7 @@ QString TextReader::read()
         }
 
         gotX = gotY = false;
-        for (const QStringView& part : qAsConst(parts))
+        for (const QStringView& part : std::as_const(parts))
         {
             valueParser.parse(part);
             if (!valueParser.ok)
@@ -327,7 +327,7 @@ QString TextReader::read()
                 continue;
             }
             onlyY.push_back(x);
-            gotY = true;
+            //gotY = true;
         }
         else
         {

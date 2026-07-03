@@ -45,7 +45,10 @@ HelpSystem::HelpSystem() : QObject()
     if (AppSettings::instance().isDevMode)
     {
         Ori::HelpWindow::isDevMode = true;
-        Ori::HelpWindow::getHelpDir = []{ return QString(qApp->applicationDirPath() + "/../help"); };
+    #ifdef DEV_HELP_DIR
+        qDebug() << "Using dev help dir" << DEV_HELP_DIR;
+        Ori::HelpWindow::getHelpDir = []{ return QString(qApp->applicationDirPath() + DEV_HELP_DIR); };
+    #endif
     }
 }
 
