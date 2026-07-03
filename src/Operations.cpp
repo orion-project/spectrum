@@ -201,8 +201,8 @@ void Operations::addFromCsvFile()
     }
     if (!res.report.isEmpty())
         Ori::Dlg::warning(res.report.join("\n"));
-    // CsvConfigDialog loads all graphs in optimized way
-    // no need to load each graph separately
+    // CsvConfigDialog loads all graphs in an optimized way
+    // so there is no need to load each graph separately
     foreach (auto dataSource, res.dataSources)
         addGraph(dataSource, DoConfig(false), DoLoad(false));
 }
@@ -310,7 +310,7 @@ bool Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLo
 {
     if (doConfig.value)
     {
-        auto cr = dataSource->configure();
+        auto cr = dataSource->selectSource();
         if (!cr.ok)
         {
             if (!cr.error.isEmpty())
@@ -454,7 +454,7 @@ void Operations::graphReopen()
         return;
     }
 
-    auto cr = dataSource->configure();
+    auto cr = dataSource->selectSource();
     if (!cr.ok)
     {
         if (!cr.error.isEmpty())
@@ -469,7 +469,7 @@ void Operations::graphReopen()
 
     for (auto graph : std::as_const(graphs))
     {
-        graph->dataSource()->copyParams(dataSource);
+        graph->dataSource()->copySource(dataSource);
         res = graph->refreshData();
         if (!res.isEmpty())
         {

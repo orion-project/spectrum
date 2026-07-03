@@ -80,15 +80,14 @@ static QString reselectFile(QString oldFile)
 
 TextFileDataSource::TextFileDataSource(QString fileName): _fileName(fileName) {}
 
-// Open another (or the same, if you wish) source file
-DataSource::ConfigResult TextFileDataSource::configure()
+DataSource::BoolResult TextFileDataSource::selectSource()
 {
     QString fileName = reselectFile(_fileName);
     if (fileName.isEmpty())
-        return ConfigResult(false);
+        return BoolResult(false);
 
     _fileName = fileName;
-    return ConfigResult(true);
+    return BoolResult(true);
 }
 
 GraphResult TextFileDataSource::read()
@@ -119,7 +118,7 @@ void TextFileDataSource::load(const QJsonObject &obj)
     _fileName = obj["fileName"].toString();
 }
 
-void TextFileDataSource::copyParams(DataSource *other)
+void TextFileDataSource::copySource(DataSource *other)
 {
     CAST_OTHER_TYPE(TextFileDataSource)
     _fileName = ds->_fileName;
@@ -129,15 +128,14 @@ void TextFileDataSource::copyParams(DataSource *other)
 //                             CsvFileDataSource
 //------------------------------------------------------------------------------
 
-// Open another (or the same, if you wish) source file
-DataSource::ConfigResult CsvFileDataSource::configure()
+DataSource::BoolResult CsvFileDataSource::selectSource()
 {
     QString fileName = reselectFile(_fileName);
     if (fileName.isEmpty())
-        return ConfigResult(false);
+        return BoolResult(false);
 
     _fileName = fileName;
-    return ConfigResult(true);
+    return BoolResult(true);
 }
 
 GraphResult CsvFileDataSource::read()
@@ -191,11 +189,10 @@ void CsvFileDataSource::load(const QJsonObject &obj)
     _params.load(obj);
 }
 
-void CsvFileDataSource::copyParams(DataSource *other)
+void CsvFileDataSource::copySource(DataSource *other)
 {
     CAST_OTHER_TYPE(CsvFileDataSource)
     _fileName = ds->_fileName;
-    _params = ds->_params;
 }
 
 //------------------------------------------------------------------------------
@@ -254,13 +251,6 @@ void RandomSampleDataSource::load(const QJsonObject &obj)
 {
     _index = obj["index"].toInt();
     _params.load(obj);
-}
-
-void RandomSampleDataSource::copyParams(DataSource *other)
-{
-    CAST_OTHER_TYPE(RandomSampleDataSource)
-    // don't copy _index
-    _params = ds->_params;
 }
 
 //------------------------------------------------------------------------------
@@ -341,13 +331,6 @@ void ClipboardCsvDataSource::load(const QJsonObject &obj)
     _params.load(obj);
 }
 
-void ClipboardCsvDataSource::copyParams(DataSource *other)
-{
-    CAST_OTHER_TYPE(ClipboardCsvDataSource)
-    // don't copy _index
-    _params = ds->_params;
-}
-
 //------------------------------------------------------------------------------
 //                              FormulaDataSource
 //------------------------------------------------------------------------------
@@ -364,7 +347,7 @@ FormulaDataSource::FormulaDataSource(const QString& code) : FormulaDataSource()
     _code = code;
 }
 
-DataSource::ConfigResult FormulaDataSource::configure()
+DataSource::BoolResult FormulaDataSource::selectSource()
 {
     QSharedPointer<CodeEditor> editor(new CodeEditor);
     editor->setCode(_code);
@@ -387,9 +370,9 @@ DataSource::ConfigResult FormulaDataSource::configure()
         .exec())
     {
         _code = editor->code();
-        return ConfigResult(true);
+        return BoolResult(true);
     }
-    return ConfigResult(false);
+    return BoolResult(false);
 }
 
 GraphResult FormulaDataSource::read()
@@ -458,7 +441,7 @@ void FormulaDataSource::load(const QJsonObject &obj)
     _code = obj["code"].toString();
 }
 
-void FormulaDataSource::copyParams(DataSource *other)
+void FormulaDataSource::copySource(DataSource *other)
 {
     CAST_OTHER_TYPE(FormulaDataSource)
     // don't copy _index
