@@ -74,6 +74,7 @@ public:
     static QString _type_() { return QStringLiteral("CsvFile"); }
     void copySourceFrom(DataSource *other) override;
     bool hasSameSourceAs(DataSource *other) override;
+    static QString fileNameVar() { return QStringLiteral("FileName"); }
 private:
     QString _fileName;
     CsvGraphParams _params;

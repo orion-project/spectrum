@@ -106,7 +106,7 @@ struct CsvDlgState : RecentDirState
             int colX = graphItem["col_x"].toInt(0);
             int colY = graphItem["col_y"].toInt(0);
             if (colX >= 0 && colY > 0)
-                dlg.addGraphItem(colX, colY);
+                dlg.addGraphItem(colX, colY, graphItem["title"].toString());
         }
     }
 
@@ -114,8 +114,11 @@ struct CsvDlgState : RecentDirState
     {
         QJsonArray jsonGraphs;
         foreach (auto item, dlg._graphsItems)
-            jsonGraphs.append(QJsonObject({{"col_x", item.colX->value()},
-                                           {"col_y", item.colY->value()}}));
+            jsonGraphs.append(QJsonObject({
+                {"title", item.title->text()},
+                {"col_x", item.colX->value()},
+                {"col_y", item.colY->value()},
+            }));
         csv["graphs"] = jsonGraphs;
         csv["val_separators"] = dlg._valueSeparator->text().trimmed();
         csv["val_sep_space"] = dlg._valSepSpace->isChecked();
@@ -160,8 +163,7 @@ CsvOpenResult CsvConfigDialog::openFile()
 
     CsvConfigDialog csvDlg;
     csvDlg._files = fileDlg.files;
-    csvDlg._dataSource = fileDlg.files.size() > 1 ? QStringLiteral("{ds}")
-        : QFileInfo(fileDlg.files.first()).fileName();
+    csvDlg._dataSource = '{' + CsvFileDataSource::fileNameVar() + '}';
     state.selectParams(fileDlg.files);
     state.applyTo(csvDlg);
 
@@ -221,6 +223,7 @@ CsvOpenResult CsvConfigDialog::openClipboard()
     csvDlg._dataSource = "Clipboard";
 
     CsvDlgState state;
+    state.selectParams({"Clipboard"});
     state.applyTo(csvDlg);
 
     if (!csvDlg.exec())
@@ -537,7 +540,7 @@ void CsvConfigDialog::updatePreviewData()
     _dataTablePreview->resizeRowsToContents();
 }
 
-void CsvConfigDialog::addGraphItem(int colX, int colY)
+void CsvConfigDialog::addGraphItem(int colX, int colY, const QString &title)
 {
     int row = _graphsItems.size();
     CvsGraphItemView item;
@@ -552,9 +555,12 @@ void CsvConfigDialog::addGraphItem(int colX, int colY)
     Ori::Gui::adjustFont(item.title);
     item.colX->setValue(colX);
     item.colY->setValue(colY);
-    item.title->setText(QString("%1 [%2;%3]").arg(_dataSource).arg(colX).arg(colY));
+    if (title.isEmpty())
+        item.title->setText(QString("%1 [%2;%3]").arg(_dataSource).arg(colX).arg(colY));
+    else
+        item.title->setText(title);
 
-    auto updateGraphTitle = [item](){
+    auto insertColNumsIntoTitle = [item](){
         QString title = item.title->text();
         static QRegularExpression reXY(R"(^.*(\[\s*\d+\s*[,;]\s*\d+\s*\]).*$)");
         if (auto m = reXY.match(title); m.hasMatch())
@@ -565,8 +571,8 @@ void CsvConfigDialog::addGraphItem(int colX, int colY)
             item.title->setText(title);
         }
     };
-    connect(item.colX, QOverload<int>::of(&QSpinBox::valueChanged), updateGraphTitle);
-    connect(item.colY, QOverload<int>::of(&QSpinBox::valueChanged), updateGraphTitle);
+    connect(item.colX, QOverload<int>::of(&QSpinBox::valueChanged), insertColNumsIntoTitle);
+    connect(item.colY, QOverload<int>::of(&QSpinBox::valueChanged), insertColNumsIntoTitle);
 
     if (!_editMode)
     {

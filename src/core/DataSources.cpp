@@ -163,7 +163,7 @@ QString CsvFileDataSource::makeTitle() const
     if (!_fileName.isEmpty())
     {
         QString fileName = QFileInfo(_fileName).fileName();
-        static QRegularExpression reFilename("^.*(\\{ds\\}).*$");
+        static QRegularExpression reFilename("^.*(\\{" + fileNameVar() + "\\}).*$");
         if (auto m = reFilename.match(title); m.hasMatch())
         {
             int start = m.capturedStart(1);

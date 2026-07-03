@@ -7,6 +7,7 @@ history:
   - text: '(FIX) Random sample graphs and graphs from clipboard are not added'
   - text: '(FIX) Reopening of several CSV graphs applies the same columns to all graphs'
   - text: '(FIX) Legend is not updated when graph renamed'
+  - text: '(FIX) Graph title is not updated to new filename after reopening'
 
 - version: 7.0.7
   date: 2026-03-01

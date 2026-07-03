@@ -71,7 +71,7 @@ private:
     void updatePreviewText(QTextStream& stream);
     void updatePreviewData();
     void addNewGraph();
-    void addGraphItem(int colX, int colY);
+    void addGraphItem(int colX, int colY, const QString& title = QString());
     void initReader(CsvMultiReader& reader, QString fileName = QString());
     QString valueSeparators() const;
 
