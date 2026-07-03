@@ -24,7 +24,7 @@
 #include <QMessageBox>
 #include <QProcess>
 
-#define SELECTED_GRAPH \
+#define SELECTED_GRAPHS \
     auto graphs = getSelectedGraphs(); \
     if (graphs.isEmpty()) { \
         Ori::Gui::PopupMessage::warning(qApp->tr("Please select a graph")); \
@@ -336,7 +336,7 @@ bool Operations::addGraph(DataSource* dataSource, DoConfig doConfig, DoLoad doLo
 
 void Operations::modifyGraph(Modifier *modParams)
 {
-    SELECTED_GRAPH
+    SELECTED_GRAPHS
         
     if (!modParams->configure())
     {
@@ -376,7 +376,7 @@ void Operations::modifyGraph(Modifier *modParams)
 
 void Operations::graphRefresh()
 {
-    SELECTED_GRAPH
+    SELECTED_GRAPHS
 
     bool hasErrors = false;
     QList<QPair<QString, QString>> report;
@@ -424,7 +424,7 @@ void Operations::graphRefresh()
 
 void Operations::graphReopen()
 {
-    SELECTED_GRAPH
+    SELECTED_GRAPHS
     
     if (graphs.size() > 1)
     {
@@ -469,7 +469,7 @@ void Operations::graphReopen()
 
     for (auto graph : std::as_const(graphs))
     {
-        graph->dataSource()->copySource(dataSource);
+        graph->dataSource()->copySourceFrom(dataSource);
         res = graph->refreshData();
         if (!res.isEmpty())
         {

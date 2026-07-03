@@ -164,13 +164,14 @@ void MainWindow::createActions()
     auto actCopyFormat = A1_(tr("Copy Format"), tr("Copy diagram format"), this, IN_ACTIVE_PLOT(copyPlotFormat), ":/toolbar/copy_fmt", QKeySequence("Ctrl+Shift+C"));
     auto actPasteFormat = A1_(tr("Paste Format"), tr("Paste diagram format"), this, IN_ACTIVE_PLOT(pastePlotFormat), ":/toolbar/paste_fmt", QKeySequence("Ctrl+Shift+V"));
     auto actSelectGraphs = A1_(tr("Select Graphs..."), tr("Select graphs via dialog"), this, IN_ACTIVE_PLOT(selectGraphsDlg), ":/toolbar/graph_select", QKeySequence("Alt+S"));
+    auto actSelectGraphsWithSameSource = A1_(tr("Select Graphs With Same Source"), this, IN_ACTIVE_PLOT(selectGraphsWithSameSource), "",  QKeySequence("Shift+S"));
 
     menuBar->addMenu(Ori::Gui::menu(tr("Edit"), this, {
-        actCopy, actPaste, actPasteCsv, 0, actCopyFormat, actPasteFormat, 0, actSelectGraphs
+        actCopy, actPaste, actPasteCsv, 0, actCopyFormat, actPasteFormat, 0, actSelectGraphs, actSelectGraphsWithSameSource
     }));
 
     addToolBar(Ori::Gui::toolbar(tr("Edit"), "edit", {
-        actCopy, actPaste, actPasteCsv, 0, actSelectGraphs
+        actCopy, actPaste, actPasteCsv, 0, actSelectGraphs,
     }));
 
     //---------------------------------------------------------

@@ -94,6 +94,7 @@ public:
     void exportPlotPrj();
     void changeGraphAxes();
     void selectGraphsDlg();
+    void selectGraphsWithSameSource();
 
     Graph* selectedGraph(bool warn = true) const;
     QVector<Graph*> selectedGraphs(bool warn = true) const;

@@ -118,10 +118,16 @@ void TextFileDataSource::load(const QJsonObject &obj)
     _fileName = obj["fileName"].toString();
 }
 
-void TextFileDataSource::copySource(DataSource *other)
+void TextFileDataSource::copySourceFrom(DataSource *other)
 {
     CAST_OTHER_TYPE(TextFileDataSource)
     _fileName = ds->_fileName;
+}
+
+bool TextFileDataSource::hasSameSourceAs(DataSource *other)
+{
+    auto ds = dynamic_cast<TextFileDataSource*>(other);
+    return ds && ds->_fileName == _fileName;
 }
 
 //------------------------------------------------------------------------------
@@ -189,10 +195,16 @@ void CsvFileDataSource::load(const QJsonObject &obj)
     _params.load(obj);
 }
 
-void CsvFileDataSource::copySource(DataSource *other)
+void CsvFileDataSource::copySourceFrom(DataSource *other)
 {
     CAST_OTHER_TYPE(CsvFileDataSource)
     _fileName = ds->_fileName;
+}
+
+bool CsvFileDataSource::hasSameSourceAs(DataSource *other)
+{
+    auto ds = dynamic_cast<CsvFileDataSource*>(other);
+    return ds && ds->_fileName == _fileName;
 }
 
 //------------------------------------------------------------------------------
@@ -441,7 +453,7 @@ void FormulaDataSource::load(const QJsonObject &obj)
     _code = obj["code"].toString();
 }
 
-void FormulaDataSource::copySource(DataSource *other)
+void FormulaDataSource::copySourceFrom(DataSource *other)
 {
     CAST_OTHER_TYPE(FormulaDataSource)
     // don't copy _index

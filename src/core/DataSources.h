@@ -28,13 +28,14 @@ public:
     virtual QString displayStr() const { return QString(); }
 
     virtual QString canRefresh() const { return QString(); }
-    virtual BoolResult selectSource() { return BoolResult(false); }
+    virtual BoolResult selectSource() { return BoolResult(true); }
     
     virtual void save(QJsonObject &obj) const = 0;
     virtual void load(const QJsonObject &obj) = 0;
     
     const GraphPoints& data() { return _data; }
-    virtual void copySource(DataSource *other) {}
+    virtual void copySourceFrom(DataSource *other) {}
+    virtual bool hasSameSourceAs(DataSource *other) { return type() == other->type(); }
 protected:
     GraphPoints _data;
 };
@@ -53,7 +54,8 @@ public:
     void load(const QJsonObject &obj) override;
     QString type() const override { return _type_(); }
     static QString _type_() { return QStringLiteral("TextFile"); }
-    void copySource(DataSource *other) override;
+    void copySourceFrom(DataSource *other) override;
+    bool hasSameSourceAs(DataSource *other) override;
 private:
     QString _fileName;
 };
@@ -70,7 +72,8 @@ public:
     void load(const QJsonObject &obj) override;
     QString type() const override { return _type_(); }
     static QString _type_() { return QStringLiteral("CsvFile"); }
-    void copySource(DataSource *other) override;
+    void copySourceFrom(DataSource *other) override;
+    bool hasSameSourceAs(DataSource *other) override;
 private:
     QString _fileName;
     CsvGraphParams _params;
@@ -83,7 +86,6 @@ class RandomSampleDataSource : public DataSource
 public:
     RandomSampleDataSource();
     RandomSampleDataSource(const RandomSampleParams& params);
-    BoolResult selectSource() override { return BoolResult(true); }
     GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
@@ -145,7 +147,7 @@ public:
     void load(const QJsonObject &obj) override;
     QString type() const override { return _type_(); }
     static QString _type_() { return QStringLiteral("Formula"); }
-    void copySource(DataSource *other) override;
+    void copySourceFrom(DataSource *other) override;
     QString code() const { return _code; }
     
     static GraphResult exec(const QString &code);

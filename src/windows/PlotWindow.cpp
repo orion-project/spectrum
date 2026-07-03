@@ -1,6 +1,7 @@
 #include "PlotWindow.h"
 
 #include "Operations.h"
+#include "core/DataSources.h"
 #include "core/FileUtils.h"
 #include "core/GraphMath.h"
 #include "core/Project.h"
@@ -177,6 +178,9 @@ void PlotWindow::messageBusEvent(int event, const QMap<QString, QVariant>& param
         break;
     case BusEvent::GraphLoaded::id:
         handleGraphLoaded(params.value("id").toString(), params.value("format").toJsonObject());
+        break;
+    case BusEvent::GraphRenamed::id:
+        handleGraphRenamed(params.value("id").toString());
         break;
     case BusEvent::GraphUpdated::id:
         handleGraphUpdated(params.value("id").toString());
@@ -535,6 +539,16 @@ void PlotWindow::selectGraph(Graph* graph)
 {
     auto item = itemForGraph(graph);
     if (item) selectGraphLine(item->line);
+}
+
+template <typename TList>
+static void selectGraphLines(QCPL::Plot* plot, const TList& lines, bool replot)
+{
+    plot->deselectAll();
+    for (auto it = lines.constBegin(); it != lines.constEnd(); it++)
+        plot->selectGraph(*it);
+    plot->updateAxesInteractivity();
+    if (replot) plot->replot();
 }
 
 void PlotWindow::selectGraphLine(QCPGraph* line, bool replot)
@@ -927,4 +941,19 @@ QHash<const void*, QJsonObject> PlotWindow::getFormats() const
 void PlotWindow::selectGraphsDlg()
 {
     QCPL::selectGraphsDlg(_plot);
+}
+
+void PlotWindow::selectGraphsWithSameSource()
+{
+    QVector<Graph*> graphs = selectedGraphs(true);
+    if (graphs.isEmpty()) return;
+
+    QSet<QCPGraph*> linesToSelect;
+
+    for (Graph* graph : std::as_const(graphs))
+        for (PlotItem* item : std::as_const(_items))
+            if (graph->dataSource()->hasSameSourceAs(item->graph->dataSource()))
+                linesToSelect.insert(item->line);
+
+    selectGraphLines(_plot, linesToSelect, true);
 }
