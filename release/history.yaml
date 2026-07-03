@@ -2,7 +2,8 @@ history:
 - version: 7.0.8
   date:
   changes:
-  - text:
+  - text: '(NEW) Save history of opened CSV graphs, select parameters by similar file name from history'
+  - text: '(FIX) Random sample graphs are not added'
 
 - version: 7.0.7
   date: 2026-03-01

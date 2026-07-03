@@ -83,6 +83,7 @@ class RandomSampleDataSource : public DataSource
 public:
     RandomSampleDataSource();
     RandomSampleDataSource(const RandomSampleParams& params);
+    ConfigResult configure() override { return ConfigResult(true); }
     GraphResult read() override;
     QString makeTitle() const override;
     QString canRefresh() const override;
