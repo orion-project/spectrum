@@ -56,6 +56,7 @@ static QString reselectFile(QString oldFile)
     Q_ASSERT(!oldFile.isEmpty());
 
     QFileDialog dlg(qApp->activeWindow());
+    dlg.setDirectory(QFileInfo(oldFile).dir());
     dlg.selectFile(oldFile);
 
     if (dlg.exec() != QDialog::Accepted)
@@ -324,7 +325,7 @@ GraphResult ClipboardCsvDataSource::read()
 
 QString ClipboardCsvDataSource::canRefresh() const
 {
-    return qApp->tr("Rereading of clipboard not available");
+    return qApp->tr("Refreshing data from clipboard is not supported");
 }
 
 QString ClipboardCsvDataSource::makeTitle() const
